@@ -1,0 +1,11 @@
+# Rewrite rules
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule ^/?$ index.php [L]
+RewriteCond %{REQUEST_URI} !index.php
+RewriteCond %{REQUEST_URI} !install.php
+RewriteCond %{REQUEST_URI} !check.php
+RewriteCond %{REQUEST_URI} !upgrade.php
+RewriteRule ^ index.php [L]
+</IfModule>

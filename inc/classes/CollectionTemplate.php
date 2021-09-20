@@ -1,0 +1,22 @@
+<?php
+
+class CollectionTemplate extends Collection
+{
+    // disable parent method
+    public function addItem()
+    {
+        return false;
+    }
+
+    // disable parent method
+    public function setItems(array $items)
+    {
+        return false;
+    }
+
+    // disable parent method
+    public function import($type, $source, $options=[])
+    {
+        return false;
+    }
+}
