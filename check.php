@@ -17,7 +17,6 @@ $required_database_methods = array(
   'deleteItem',
   'addItemField',
   'deleteItemField',
-  'getFields',
   'addField',
   'deleteField',
   'install',

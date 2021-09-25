@@ -97,7 +97,7 @@ class Collection
      * @param  string $orderBy Option to order
      * @return array
      */
-    public function getItems(string $orderBy=null)
+    public function getItems($orderBy=null)
     {
         return (new Database())->getItems($this->id, $orderBy);
     }
@@ -270,21 +270,12 @@ class Collection
 
     /**
      * Dump all collections
+     * @param  int   $userID (optional)
      * @return array Array of collections
      */
-    public static function dumpAll()
+    public static function dumpAll($userID=null)
     {
-        return (new Database())->getCollections();
-    }
-
-
-    /**
-     * Dump own collections
-     * @return array Array of collections
-     */
-    public static function dumpMine()
-    {
-        return (new Database())->getMyCollections();
+        return (new Database())->getCollections($userID);
     }
 
 

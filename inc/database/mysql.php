@@ -45,6 +45,14 @@ class Database extends SqlDatabase
             if (count($params) == 0) $params[] = '';
 
             if (is_float($value))       $params[0] .= 'd';
+            elseif (is_bool($value)) {
+                $params[0] .= 'i';
+                if ($value) {
+                    $value = 1;
+                } else {
+                    $value = 0;
+                }
+            }
             elseif (is_integer($value)) $params[0] .= 'i';
             elseif (is_string($value))  $params[0] .= 's';
             else                        $params[0] .= 'b';
@@ -97,6 +105,14 @@ class Database extends SqlDatabase
         $params = [''];
         foreach ($args as &$value) {
             if (is_float($value))       $params[0] .= 'd';
+            elseif (is_bool($value)) {
+                $params[0] .= 'i';
+                if ($value) {
+                    $value = 1;
+                } else {
+                    $value = 0;
+                }
+            }
             elseif (is_integer($value)) $params[0] .= 'i';
             elseif (is_string($value))  $params[0] .= 's';
             else                        $params[0] .= 'b';

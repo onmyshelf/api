@@ -108,52 +108,45 @@ class SqlDatabase extends GlobalDatabase
 
     /**
      * Get all collections
+     * @param  int     $owner    Show only owner (optional)
      * @param  boolean $template Get templates
      * @return array             Collections data
      */
-    public function getCollections(bool $template=false)
+    public function getCollections($owner=null, $template=false)
     {
-        // get collections
-        $collections = $this->selectColumn('SELECT id FROM collection WHERE template=? AND (visibility<=? OR owner=?)',
-                                           [$template, $GLOBALS['accessRights'], $GLOBALS['currentUserID']]);
-        if ($collections === false) {
+        $query = "SELECT `id` FROM `collection` WHERE `template`=?";
+        $args = [$template];
+
+        if (!is_null($owner)) {
+            $query .= " AND `owner`=?";
+            $args[] = $owner;
+        }
+
+        $ids = $this->selectColumn($query, $args);
+        if ($ids === false) {
             return false;
         }
 
-        foreach ($collections as &$collection) {
-            $collectionId = $collection;
-            $collection = $this->getCollection($collectionId);
+        $collections = [];
+        foreach ($ids as $id) {
+            $collection = $this->getCollection($id);
+            if (!$collection) {
+                continue;
+            }
+
+            $accessRights = $GLOBALS['accessRights'];
+            if ($collection['owner'] == $GLOBALS['currentUserID']) {
+                $accessRights = 3;
+            }
+
             if (!$template) {
                 // get number of items
-                $collection['items'] = $this->countItems($collectionId);
+                $collection['items'] = $this->selectOne(
+                    "SELECT COUNT(*) FROM `item` WHERE `collection`=? AND `visibility`<=?",
+                    [$id, $accessRights]);
             }
-        }
 
-        return $collections;
-    }
-
-
-    /**
-     * Get user's collections
-     * @param  boolean $template Get templates
-     * @return array             Collections data
-     */
-    public function getMyCollections(bool $template=false)
-    {
-        // get collections
-        $collections = $this->selectColumn('SELECT id FROM collection WHERE template=? AND owner=?',
-                                           [$template, $GLOBALS['currentUserID']]);
-        if ($collections === false) {
-            return false;
-        }
-
-        foreach ($collections as &$collection) {
-            $collectionId = $collection;
-            $collection = $this->getCollection($collectionId);
-            if (!$template) {
-                // get number of items
-                $collection['items'] = $this->countItems($collectionId);
-            }
+            $collections[] = $collection;
         }
 
         return $collections;
@@ -166,20 +159,27 @@ class SqlDatabase extends GlobalDatabase
      * @param  bool   $template Get a template
      * @return array  Collection data
      */
-    public function getCollection(int $id, bool $template=false)
+    public function getCollection($id, $template=false)
     {
         // get collection
-        $collection = $this->selectFirst('SELECT id,cover,owner,visibility FROM collection WHERE id=? AND template=? AND (visibility<=? OR owner=?)',
-                                         [$id, $template, $GLOBALS['accessRights'], $GLOBALS['currentUserID']]);
+        $collection = $this->selectFirst("SELECT `id`,`cover`,`owner`,`visibility`
+                                          FROM `collection` WHERE `id`=? AND `template`=?",
+                                         [$id, $template]);
         if (!$collection) {
             return false;
         }
 
-        // get collection labels
-        $labels = $this->select('SELECT lang,name,description FROM collectionLabel WHERE collection=?', [$id]);
-        if ($labels === false) {
+        // security: filter
+        if ($collection['visibility'] > $GLOBALS['accessRights'] &&
+            $collection['owner'] != $GLOBALS['currentUserID'])
             return false;
-        }
+
+        // get collection labels
+        $labels = $this->select("SELECT `lang`,`name`,`description`
+                                 FROM `collectionLabel` WHERE `collection`=?",
+                                [$id]);
+        if ($labels === false)
+            return false;
 
         $collection['name'] = [];
         $collection['description'] = [];
@@ -192,14 +192,52 @@ class SqlDatabase extends GlobalDatabase
             }
         }
 
-        // get fields definition
-        $fields = $this->getFields($id);
-        if (!$fields) {
-            $fields = [];
+        // get collection fields
+        $accessRights = $GLOBALS['accessRights'];
+        if ($collection['owner'] == $GLOBALS['currentUserID']) {
+            $accessRights = 3;
+        }
+
+        $results = $this->select("SELECT * FROM `field` WHERE `collection`=? AND `visibility`<=?
+                                  ORDER BY `isCover` DESC,`isTitle` DESC,`isSubtitle` DESC,
+                                  `preview` DESC,`order` DESC, `name`",
+                                 [$id, $accessRights]);
+        if (!$results) {
+            $collection['fields'] = [];
+            return $collection;
+        }
+
+        // get labels
+        $fields = [];
+
+        for ($i=0; $i < count($results); $i++) {
+            $field = $results[$i];
+
+            $field['label'] = [];
+            $field['description'] = [];
+
+            $labels = $this->select('SELECT `label`,`description`,`lang` FROM `fieldLabel`
+                                     WHERE `field`=?', [$field['id']]);
+            if ($labels) {
+                foreach ($labels as $label) {
+                    $lang = $label['lang'];
+                    $field['label'][$lang] = $label['label'];
+                    $field['description'][$lang] = $label['description'];
+                }
+            }
+
+            $name = $field['name'];
+
+            // delete unecessary data
+            unset($field['id']);
+            unset($field['collection']);
+            unset($field['name']);
+
+            // map name as array key
+            $fields[$name] = $field;
         }
 
         $collection['fields'] = $fields;
-
         return $collection;
     }
 
@@ -413,14 +451,14 @@ class SqlDatabase extends GlobalDatabase
      * @param  int  $collectionId Collection ID
      * @return array|bool         Array of items IDs, FALSE if error
      */
-    public function getItems(int $collectionId, $orderBy=null, $reverseOrder=false)
+    public function getItems($collectionId, $orderBy=null, $reverseOrder=false)
     {
-        $query = 'SELECT id FROM item WHERE collection=? AND visibility<=? ORDER BY name';
+        $query = "SELECT `id` FROM `item` WHERE `collection`=? AND `visibility`<=? ORDER BY `name`";
         $args = [$collectionId, $GLOBALS['accessRights']];
 
         if (!is_null($orderBy)) {
-            $query = 'SELECT i.id FROM itemField f JOIN item i ON f.item=i.id
-                      WHERE f.collection=? AND i.visibility<=? AND f.name=? ORDER BY f.value';
+            $query = "SELECT i.id FROM `itemField` f JOIN `item` i ON f.item=i.id
+                      WHERE f.collection=? AND i.visibility<=? AND f.name=? ORDER BY f.value";
             $args[] = $orderBy;
         }
 
@@ -438,9 +476,10 @@ class SqlDatabase extends GlobalDatabase
      * @param  int  $id   Item ID
      * @return array|bool Item data, FALSE if error
      */
-    public function getItem(int $collectionId, int $id)
+    public function getItem($collectionId, $id)
     {
-        $item = $this->selectFirst('SELECT * FROM item WHERE collection=? AND id=?', [$collectionId, $id]);
+        $item = $this->selectFirst("SELECT * FROM `item` WHERE `collection`=? AND `id`=?",
+                                   [$collectionId, $id]);
         if (!$item) {
             return false;
         }
@@ -609,8 +648,8 @@ class SqlDatabase extends GlobalDatabase
             return false;
         }
 
-        // value null: do nothing
-        if (is_null($value)) {
+        // value null or empty: do nothing
+        if (is_null($value) || $value == '') {
             return true;
         }
 
@@ -638,55 +677,6 @@ class SqlDatabase extends GlobalDatabase
      */
 
     /**
-     * Get collection fields definitions
-     * @param  int    $collectionId Collection ID
-     * @return array                Array of data
-     */
-    public function getFields($collectionId)
-    {
-        $fields = $this->select('SELECT * FROM `field` WHERE `collection`=?
-                                 ORDER BY isCover DESC,isTitle DESC,isSubtitle DESC, preview DESC,`order` DESC,name',
-                                [$collectionId]);
-        if ($fields === false) {
-            return false;
-        }
-
-        $return = [];
-
-        // get labels
-        for ($i=0; $i < count($fields); $i++) {
-
-            $field = $fields[$i];
-
-            $field['label'] = [];
-            $field['description'] = [];
-
-            $labels = $this->select('SELECT `label`,`description`,`lang` FROM `fieldLabel`
-                                     WHERE `field`=?', [$field['id']]);
-            if ($labels) {
-                foreach ($labels as $label) {
-                    $lang = $label['lang'];
-                    $field['label'][$lang] = $label['label'];
-                    $field['description'][$lang] = $label['description'];
-                }
-            }
-
-            $name = $field['name'];
-
-            // delete unecessary data
-            unset($field['id']);
-            unset($field['collection']);
-            unset($field['name']);
-
-            // map name as array key
-            $return[$name] = $field;
-        }
-
-        return $return;
-    }
-
-
-    /**
      * Get collection field definition
      * @param  int    $collectionId Collection ID
      * @param  string $name         Field name
@@ -695,7 +685,7 @@ class SqlDatabase extends GlobalDatabase
     public function getField($collectionId, $name)
     {
         // get fields
-        $field = $this->selectFirst('SELECT * FROM `field` WHERE `collection`=? AND `name`=?',
+        $field = $this->selectFirst("SELECT * FROM `field` WHERE `collection`=? AND `name`=?",
                                     [$collectionId, $name]);
         if (!$field) {
             return false;
@@ -704,8 +694,8 @@ class SqlDatabase extends GlobalDatabase
         $field['label'] = [];
         $field['description'] = [];
 
-        $labels = $this->select('SELECT `label`,`description`,`lang` FROM `fieldLabel`
-                                 WHERE `field`=?', [$field['id']]);
+        $labels = $this->select("SELECT `label`,`description`,`lang` FROM `fieldLabel`
+                                 WHERE `field`=?", [$field['id']]);
         if ($labels) {
             foreach ($labels as $label) {
                 $lang = $label['lang'];
@@ -788,6 +778,16 @@ class SqlDatabase extends GlobalDatabase
             return true;
         }
 
+        // get field ID
+        // update field table
+        $fieldId = $this->selectOne("SELECT `id` FROM `field` WHERE `collection`=? AND `name`=?",
+            [$collectionId, $name]
+        );
+        if (!$fieldId) {
+            Logger::error("Failed to get field ID for collection ".$collectionId.", field: ".$name);
+            return false;
+        }
+
         foreach ($rows as &$row) {
             $row['field'] = $fieldId;
         }
@@ -868,29 +868,6 @@ class SqlDatabase extends GlobalDatabase
     public function addNotification($type, $text)
     {
         return $this->insertOne('notification', ['type' => $type, 'text' => $text]);
-    }
-
-
-    /*
-     *  Statistics
-     */
-
-    /**
-     * Count items
-     * @param  int $collectionId Collection ID, null if count all items
-     * @return int
-     */
-    public function countItems($collectionId=null)
-    {
-        $query = 'SELECT COUNT(*) FROM item WHERE visibility<=?';
-        $args = [$GLOBALS['accessRights']];
-
-        if (!is_null($collectionId)) {
-            $query .= ' AND collection=?';
-            $args[] = $collectionId;
-        }
-
-        return $this->selectOne($query, $args);
     }
 
 

@@ -130,16 +130,31 @@ class Api
 
     /**
      * Compare user ID to current user
-     * @param  int $userID
+     * @param  int  $id
+     * @return bool User IDs are identical
+     */
+    private function compareUserID($id)
+    {
+        if (!is_null($GLOBALS['currentUserID']) && $id == $GLOBALS['currentUserID']) {
+            $GLOBALS['accessRights'] = 3;
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * Require user ID
+     * @param  int $id User ID
      * @return void
      */
-    private function checkUserID($userID)
+    private function requireUserID($id)
     {
-        if (!is_integer($userID)) {
+        if (!is_integer($id)) {
             $this->error(403);
         }
 
-        if ($userID != $GLOBALS['currentUserID']) {
+        if (!$this->compareUserID($id)) {
             $this->error(403);
         }
     }
@@ -269,7 +284,7 @@ class Api
         }
 
         // check data
-        $this->checkData(['username', 'password']);
+        $this->requireData(['username', 'password']);
 
         // authentication
         $user = User::getByLogin($this->data['username'], $this->data['password']);
@@ -342,8 +357,9 @@ class Api
                 $this->requireAuthentication();
 
                 $this->post = true;
-                $this->checkData(['name']);
+                $this->requireData(['name']);
 
+                // force owner to current user
                 $this->data['owner'] = $GLOBALS['currentUserID'];
 
                 $collectionId = Collection::create($this->data);
@@ -373,7 +389,7 @@ class Api
      */
     private function collection()
     {
-        $this->checkArgs(['id']);
+        $this->requireArgs(['id']);
 
         $collection = Collection::getById($this->args['id']);
         if (!$collection) {
@@ -385,7 +401,7 @@ class Api
                 // update collection
 
                 // check ownership
-                $this->checkUserID($collection->getOwner());
+                $this->requireUserID($collection->getOwner());
                 // update collection
                 $this->response(['updated' => $collection->update($this->data)]);
                 break;
@@ -394,7 +410,7 @@ class Api
                 // delete collection
 
                 // check ownership
-                $this->checkUserID($collection->getOwner());
+                $this->requireUserID($collection->getOwner());
                 // delete collection
                 $this->response(['deleted' => $collection->delete()]);
                 break;
@@ -427,7 +443,7 @@ class Api
     private function collectionImportScan()
     {
         $this->post = true;
-        $this->checkData(['type', 'source']);
+        $this->requireData(['type', 'source']);
 
         // default options
         if (!isset($this->data['options'])) {
@@ -462,8 +478,8 @@ class Api
     private function collectionImport()
     {
         $this->post = true;
-        $this->checkArgs(['id']);
-        $this->checkData(['type', 'source']);
+        $this->requireArgs(['id']);
+        $this->requireData(['type', 'source']);
 
         // default options
         if (!isset($this->data['options'])) {
@@ -477,7 +493,7 @@ class Api
         }
 
         // check ownership
-        $this->checkUserID($collection->getOwner());
+        $this->requireUserID($collection->getOwner());
 
         try {
             $result = $collection->import($this->data['type'],
@@ -506,7 +522,7 @@ class Api
      */
     private function items()
     {
-        $this->checkArgs(['cid']);
+        $this->requireArgs(['cid']);
 
         // get collection
         $collection = Collection::getById($this->args['cid']);
@@ -514,15 +530,17 @@ class Api
             $this->error(404, 'Collection does not exists');
         }
 
+        $this->compareUserID($collection->getOwner());
+
         switch ($this->method) {
             case 'POST':
                 // create a new item
 
                 // check ownership
-                $this->checkUserID($collection->getOwner());
+                $this->requireUserID($collection->getOwner());
 
                 // check data
-                $this->checkData(['fields']);
+                $this->requireData(['fields']);
 
                 // create item object
                 $item = $collection->addItem();
@@ -564,7 +582,14 @@ class Api
      */
     private function item()
     {
-        $this->checkArgs(['cid','id']);
+        $this->requireArgs(['cid','id']);
+
+        // get collection object to check access rights
+        $collection = Collection::getById($this->args['cid']);
+        if (!$collection) {
+            $this->error(404, 'Collection does not exists');
+        }
+        $this->compareUserID($collection->getOwner());
 
         // get item object
         $item = Item::getById($this->args['id'], $this->args['cid']);
@@ -577,10 +602,10 @@ class Api
                 // update item
 
                 // check ownership
-                $this->checkUserID($item->getOwner());
+                $this->requireUserID($item->getOwner());
 
                 // required data
-                $this->checkData(['fields']);
+                $this->requireData(['fields']);
 
                 // update fields
                 foreach ($this->data['fields'] as $key => $value) {
@@ -594,7 +619,7 @@ class Api
                 // delete item
 
                 // check ownership
-                $this->checkUserID($item->getOwner());
+                $this->requireUserID($item->getOwner());
 
                 $this->response(['deleted' => $item->delete()]);
                 break;
@@ -618,7 +643,7 @@ class Api
      */
     private function field()
     {
-        $this->checkArgs(['cid','name']);
+        $this->requireArgs(['cid','name']);
 
         // get collection object
         $collection = Collection::getById($this->args['cid']);
@@ -637,7 +662,7 @@ class Api
                 // update field
 
                 // check ownership
-                $this->checkUserID($collection->getOwner());
+                $this->requireUserID($collection->getOwner());
 
                 if (!$field->update($this->data)) {
                     $this->error(500);
@@ -649,7 +674,7 @@ class Api
                 // delete field
 
                 // check ownership
-                $this->checkUserID($collection->getOwner());
+                $this->requireUserID($collection->getOwner());
 
                 if (!$field->delete()) {
                     $this->error(500);
@@ -740,13 +765,13 @@ class Api
      */
     private function userCollections()
     {
-        $this->checkArgs(['uid']);
+        $this->requireArgs(['uid']);
 
         // check user ID
-        $this->checkUserID((int)$this->args['uid']);
+        $this->requireUserID((int)$this->args['uid']);
 
         // get collections
-        $collections = Collection::dumpMine();
+        $collections = Collection::dumpAll($GLOBALS['currentUserID']);
         if ($collections === false) {
             $this->error(500);
         }
@@ -761,7 +786,7 @@ class Api
      */
     private function userPassword()
     {
-        $this->checkArgs(['uid']);
+        $this->requireArgs(['uid']);
 
         // check method
         if ($this->method != 'POST') {
@@ -769,10 +794,10 @@ class Api
         }
 
         // check data
-        $this->checkData(['password', 'newpassword']);
+        $this->requireData(['password', 'newpassword']);
 
         // check user ID
-        $this->checkUserID((int)$this->args['uid']);
+        $this->requireUserID((int)$this->args['uid']);
 
         // check old password
         $user = User::getByLogin($GLOBALS['currentUsername'], $this->data['password']);
@@ -797,7 +822,7 @@ class Api
 
         // ask for a reset token
         if (!isset($this->data['resetToken'])) {
-            $this->checkData(['username']);
+            $this->requireData(['username']);
 
             $user = User::getByName($this->data['username']);
             if (!$user) {
@@ -819,7 +844,7 @@ class Api
         }
 
         // ask for password reset
-        $this->checkData(['newpassword']);
+        $this->requireData(['newpassword']);
 
         // check reset token
         $user = User::getByResetToken($this->data['resetToken']);
@@ -984,7 +1009,7 @@ class Api
      * @param  array $args Array of keys to check
      * @return bool        Check OK
      */
-    private function checkArgs($args)
+    private function requireArgs($args)
     {
         foreach ($args as $arg) {
             // if field is missing, return error and quit
@@ -1004,7 +1029,7 @@ class Api
      * @param  array $mandatory Array of keys to check
      * @return void
      */
-    private function checkData($fields)
+    private function requireData($fields)
     {
         foreach ($fields as $field) {
             // if field is missing, return error and quit
