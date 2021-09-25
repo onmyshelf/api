@@ -120,7 +120,7 @@ class Collection
         $data['name'] = $name;
         $data['collection'] = $this->id;
 
-        if (!(new Database())->addField($name, $data)) {
+        if (!(new Database())->createField($this->id, $name, $data)) {
             return false;
         }
 

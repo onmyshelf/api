@@ -30,6 +30,7 @@ class Api
             '/collections/{id}/import/scan' => 'collectionImportScan',
             '/collections/{id}/import' => 'collectionImport',
             '/collections/{cid}/items' => 'items',
+            '/collections/{cid}/fields' => 'fields',
             '/collections/{cid}/fields/{name}' => 'field',
             '/collections/{cid}/items/{id}' => 'item',
             '/fields/types' => 'fieldTypes',
@@ -636,6 +637,41 @@ class Api
      *  Fields
      */
 
+    /**
+     * Fields handler
+     * @return void
+     */
+    private function fields()
+    {
+        $this->requireArgs(['cid']);
+
+        // get collection object
+        $collection = Collection::getById($this->args['cid']);
+        if (!$collection) {
+            $this->error(404);
+        }
+
+        switch ($this->method) {
+            case 'POST':
+                // create field
+
+                // check collection owner
+                $this->requireUserID($collection->getOwner());
+
+                $this->requireData(['name']);
+
+                if (!$collection->addField($this->data['name'], $this->data)) {
+                    $this->error(500);
+                }
+                $this->response(['updated' => true]);
+                break;
+
+            default:
+                $this->error(404);
+                break;
+        }
+    }
+
 
     /**
      * Field handler
@@ -1035,7 +1071,7 @@ class Api
             // if field is missing, return error and quit
             if (!isset($this->data[$field])) {
                 Logger::error('missing field: ' . $field);
-                $this->error(400, 'Missing fields');
+                $this->error(400, "Missing field: ".$field);
                 return false;
             }
         }

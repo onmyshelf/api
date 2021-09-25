@@ -710,32 +710,57 @@ class SqlDatabase extends GlobalDatabase
 
     /**
      * Add field
-     * @param  array $data
-     * @return bool  Inserted ID
+     * @param  int    $collectionID
+     * @param  string $name  Field name
+     * @param  array  $data
+     * @return bool   Inserted ID
      */
-    public function addField(string $name, array $data)
+    public function createField($collectionID, $name, $data)
     {
-        $data['name'] = $name;
-        $label = null;
-        $description = null;
+        // filter data keys because labels are not in the same table
+        $row = $data;
+        $row['collection'] = $collectionID;
+        $row['name'] = $name;
+        unset($row['label']);
+        unset($row['description']);
 
-        if (isset($data['label'])) {
-            $label = $data['label'];
-        }
-        if (isset($data['description'])) {
-            $description = $data['description'];
-        }
-
-        $fieldId = $this->insertOne('field', $data);
+        // create field
+        $fieldId = $this->insertOne('field', $row);
         if ($fieldId === false) {
+            Logger::debug('Failed to insert new field: '.$name);
             return false;
         }
 
-        // insert labels
-        if (!is_null($label)) {
-            foreach ($label as $l) {
-                $this->setFieldLabel($fieldId, $label);
-            }
+        // label and description
+        if (!isset($data['label'])) {
+            // avoid bug
+            $data['label'] = [];
+        }
+        if (!isset($data['description'])) {
+            // avoid bug
+            $data['description'] = [];
+        }
+
+        $rows = $this->labelToDB('label', $data['label'], $data['description']);
+        if (count($rows) == 0) {
+            return true;
+        }
+
+        foreach ($rows as &$row) {
+            $row['field'] = $fieldId;
+        }
+
+        $orUpdate = [];
+        if (count($data['label']) > 0) {
+            $orUpdate[] = 'label';
+        }
+        if (count($data['description']) > 0) {
+            $orUpdate[] = 'description';
+        }
+
+        // insert or update translations
+        if (!$this->insert('fieldLabel', $rows, $orUpdate)) {
+            Logger::var_dump($rows);
         }
 
         return true;
@@ -759,6 +784,7 @@ class SqlDatabase extends GlobalDatabase
         // update field table
         if (count($row) > 0) {
             if (!$this->update('field', $row, ['collection' => $collectionId, 'name' => $name])) {
+                Logger::debug('Failed to update field');
                 return false;
             }
         }
@@ -806,23 +832,6 @@ class SqlDatabase extends GlobalDatabase
         }
 
         return true;
-    }
-
-
-    /**
-     * Set field label
-     * @param int    $fieldId
-     * @param object $labels  Label object e.g. {'en_US': 'My label'}
-     */
-    public function setFieldLabel(int $fieldId, $labels)
-    {
-        foreach ($labels as $lang => $label) {
-            if ($this->exists('fieldLabel', ['field' => $fieldId, 'lang' => $lang])) {
-                return $this->update('fieldLabel', ['label' => $label], ['field' => $fieldId, 'lang' => $lang]);
-            } else {
-                return ($this->insertOne('fieldLabel', ['field' => $fieldId, 'lang' => $lang, 'label' => $label]));
-            }
-        }
     }
 
 
