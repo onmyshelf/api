@@ -28,13 +28,13 @@ class SqlDatabase extends GlobalDatabase
     public function createToken(string $token, string $username, $expiration=null, $ipOrigin=null)
     {
         // get user ID from username
-        $userId = $this->selectOne('SELECT id FROM user WHERE username=?', [$username]);
+        $userId = $this->selectOne("SELECT `id` FROM `user` WHERE `username`=?", [$username]);
         if (!is_integer($userId)) {
             return false;
         }
 
         return $this->insertOne('token', [
-            'token' => $token, 'user' => $userId, 'expiration' => $expiration,
+            'token' => $token, 'userId' => $userId, 'expiration' => $expiration,
             'created' => time(), 'ipIssuer' => $ipOrigin]);
     }
 
@@ -47,9 +47,9 @@ class SqlDatabase extends GlobalDatabase
     public function getUserFromToken(string $token)
     {
         return $this->selectFirst(
-            'SELECT u.id AS `id`, u.username AS `username`
-             FROM token t JOIN `user` u ON t.user=u.id
-             WHERE t.token=? AND t.expiration>?',
+            "SELECT u.id AS `id`, u.username AS `username`
+             FROM `token` t JOIN `user` u ON t.userId=u.id
+             WHERE t.token=? AND t.expiration>?",
             [$token, time()]);
     }
 
@@ -71,7 +71,7 @@ class SqlDatabase extends GlobalDatabase
      */
     public function cleanupTokens()
     {
-        return $this->write('DELETE FROM token WHERE expiration<=?', [time()]);
+        return $this->write("DELETE FROM `token` WHERE `expiration`<=?", [time()]);
     }
 
 
@@ -86,7 +86,7 @@ class SqlDatabase extends GlobalDatabase
      */
     public function getConfig(string $param)
     {
-        return $this->selectOne('SELECT `value` FROM `config` WHERE `param`=?', [$param]);
+        return $this->selectOne("SELECT `value` FROM `config` WHERE `param`=?", [$param]);
     }
 
 
@@ -142,7 +142,7 @@ class SqlDatabase extends GlobalDatabase
             if (!$template) {
                 // get number of items
                 $collection['items'] = $this->selectOne(
-                    "SELECT COUNT(*) FROM `item` WHERE `collection`=? AND `visibility`<=?",
+                    "SELECT COUNT(*) FROM `item` WHERE `collectionId`=? AND `visibility`<=?",
                     [$id, $accessRights]);
             }
 
@@ -176,7 +176,7 @@ class SqlDatabase extends GlobalDatabase
 
         // get collection labels
         $labels = $this->select("SELECT `lang`,`name`,`description`
-                                 FROM `collectionLabel` WHERE `collection`=?",
+                                 FROM `collectionLabel` WHERE `collectionId`=?",
                                 [$id]);
         if ($labels === false)
             return false;
@@ -198,7 +198,7 @@ class SqlDatabase extends GlobalDatabase
             $accessRights = 3;
         }
 
-        $results = $this->select("SELECT * FROM `field` WHERE `collection`=? AND `visibility`<=?
+        $results = $this->select("SELECT * FROM `field` WHERE `collectionId`=? AND `visibility`<=?
                                   ORDER BY `isCover` DESC,`isTitle` DESC,`isSubtitle` DESC,
                                   `preview` DESC,`order` DESC, `name`",
                                  [$id, $accessRights]);
@@ -217,7 +217,7 @@ class SqlDatabase extends GlobalDatabase
             $field['description'] = [];
 
             $labels = $this->select('SELECT `label`,`description`,`lang` FROM `fieldLabel`
-                                     WHERE `field`=?', [$field['id']]);
+                                     WHERE `fieldId`=?', [$field['id']]);
             if ($labels) {
                 foreach ($labels as $label) {
                     $lang = $label['lang'];
@@ -230,7 +230,7 @@ class SqlDatabase extends GlobalDatabase
 
             // delete unecessary data
             unset($field['id']);
-            unset($field['collection']);
+            unset($field['collectionId']);
             unset($field['name']);
 
             // map name as array key
@@ -311,7 +311,7 @@ class SqlDatabase extends GlobalDatabase
 
         $rows = $this->labelToDB('name', $data['name'], $data['description']);
         foreach ($rows as &$row) {
-            $row['collection'] = $id;
+            $row['collectionId'] = $id;
         }
 
         if (!$this->insert('collectionLabel', $rows)) {
@@ -358,7 +358,7 @@ class SqlDatabase extends GlobalDatabase
         }
 
         foreach ($rows as &$row) {
-            $row['collection'] = $id;
+            $row['collectionId'] = $id;
         }
 
         $orUpdate = [];
@@ -384,7 +384,7 @@ class SqlDatabase extends GlobalDatabase
      * @param  bool $template Is template (optionnal)
      * @return bool Success
      */
-    public function deleteCollection(int $id, bool $template=false)
+    public function deleteCollection($id, bool $template=false)
     {
         // get associated items
         $items = $this->getItems($id);
@@ -398,7 +398,7 @@ class SqlDatabase extends GlobalDatabase
         }
 
         // get associated fields
-        $fields = $this->selectColumn('SELECT `name` FROM `field` WHERE `collection`=?', [$id]);
+        $fields = $this->selectColumn("SELECT `name` FROM `field` WHERE `collectionId`=?", [$id]);
         if ($fields === false) {
             return false;
         }
@@ -409,7 +409,7 @@ class SqlDatabase extends GlobalDatabase
         }
 
         // delete collection labels
-        $this->delete('collectionLabel', ['collection' => $id]);
+        $this->delete('collectionLabel', ['collectionId' => $id]);
 
         // delete collection
         return $this->delete('collection', ['template' => $template, 'id' => $id]);
@@ -425,7 +425,7 @@ class SqlDatabase extends GlobalDatabase
      * @param  int    $id Collection template ID
      * @return array  Collection template data
      */
-    public function getCollectionTemplate(int $id)
+    public function getCollectionTemplate($id)
     {
         return $this->getCollection($id, true);
     }
@@ -436,7 +436,7 @@ class SqlDatabase extends GlobalDatabase
      * @param  int  $id Collection template ID
      * @return bool Success
      */
-    public function deleteCollectionTemplate(int $id)
+    public function deleteCollectionTemplate($id)
     {
         return $this->deleteCollection($id, true);
     }
@@ -453,12 +453,12 @@ class SqlDatabase extends GlobalDatabase
      */
     public function getItems($collectionId, $orderBy=null, $reverseOrder=false)
     {
-        $query = "SELECT `id` FROM `item` WHERE `collection`=? AND `visibility`<=? ORDER BY `name`";
+        $query = "SELECT `id` FROM `item` WHERE `collectionId`=? AND `visibility`<=? ORDER BY `name`";
         $args = [$collectionId, $GLOBALS['accessRights']];
 
         if (!is_null($orderBy)) {
-            $query = "SELECT i.id FROM `itemField` f JOIN `item` i ON f.item=i.id
-                      WHERE f.collection=? AND i.visibility<=? AND f.name=? ORDER BY f.value";
+            $query = "SELECT i.id FROM `itemField` f JOIN `item` i ON f.itemId=i.id
+                      WHERE f.collectionId=? AND i.visibility<=? AND f.name=? ORDER BY f.value";
             $args[] = $orderBy;
         }
 
@@ -478,8 +478,8 @@ class SqlDatabase extends GlobalDatabase
      */
     public function getItem($collectionId, $id)
     {
-        $item = $this->selectFirst("SELECT * FROM `item` WHERE `collection`=? AND `id`=?",
-                                   [$collectionId, $id]);
+        $item = $this->selectFirst("SELECT * FROM `item` WHERE `collectionId`=? AND `id`=? AND `visibility`<=?",
+                                   [$collectionId, $id, $GLOBALS['accessRights']]);
         if (!$item) {
             return false;
         }
@@ -501,14 +501,13 @@ class SqlDatabase extends GlobalDatabase
      * @param  int    $itemId
      * @return array  SELECT results
      */
-    public function getItemFields(int $collectionId, int $itemId)
+    public function getItemFields($collectionId, $itemId)
     {
-        $result = $this->select('SELECT i.name AS name, i.value AS value FROM itemField i
-                                 JOIN field f ON i.collection=f.collection AND i.name=f.name
-                                 WHERE i.collection=? AND i.item=? AND f.visibility<=?
-                                 ORDER BY name',
+        $result = $this->select('SELECT i.name AS `name`, i.value AS `value` FROM `itemField` i
+                                 JOIN `field` f ON i.collectionId=f.collectionId AND i.name=f.name
+                                 WHERE i.collectionId=? AND i.itemId=? AND f.visibility<=?
+                                 ORDER BY `name`',
                                 [$collectionId, $itemId, $GLOBALS['accessRights']]);
-
         if ($result === false) {
             return false;
         }
@@ -545,21 +544,18 @@ class SqlDatabase extends GlobalDatabase
      */
     public function getItemField(int $collectionId, int $itemId, string $name)
     {
-        $fields = $this->selectColumn('SELECT i.value AS value FROM itemField i
-                                       JOIN field f ON i.collection=f.collection AND i.name=f.name
-                                       WHERE i.collection=? AND i.item=? AND f.name=? AND f.visibility<=?
-                                       ORDER BY name',
+        $fields = $this->selectColumn('SELECT i.value AS `value` FROM `itemField` i
+                                       JOIN `field` f ON i.collectionId=f.collection AND i.name=f.name
+                                       WHERE i.collectionId=? AND i.itemId=? AND f.name=? AND f.visibility<=?
+                                       ORDER BY `name`',
                                       [$collectionId, $itemId, $name, $GLOBALS['accessRights']]);
-
         if (!$fields) {
             return false;
         }
 
         if (count($fields) == 0) {
             return null;
-        }
-
-        if (count($fields) == 1) {
+        } elseif (count($fields) == 1) {
             return $fields[0];
         }
 
@@ -576,7 +572,7 @@ class SqlDatabase extends GlobalDatabase
      */
     public function getItemByProperty(int $collectionId, string $name, $value)
     {
-        $itemId = $this->selectOne('SELECT item FROM itemField WHERE collection=? AND name=? AND value=?',
+        $itemId = $this->selectOne("SELECT `itemId` FROM `itemField` WHERE `collectionId`=? AND `name`=? AND `value`=?",
                                    [$collectionId, $name, $value]);
         if (!$itemId) {
             return false;
@@ -587,19 +583,20 @@ class SqlDatabase extends GlobalDatabase
 
 
     /**
-     * Add an item
+     * Creates an item
      * @param int    $collectionId
      * @param int $id  Item ID (optionnal)
      * @return bool    Success
      */
-    public function addItem(int $collectionId, $id=null)
+    public function createItem(int $collectionId, $id=null)
     {
-        $values = ['collection' => $collectionId];
+        $values = ['collectionId' => $collectionId];
 
         // item ID specified
         if (!is_null($id)) {
             // if exists, do not add it
-            $existingId = $this->selectOne('SELECT id FROM item WHERE collection=? AND id=?', [$collectionId, $id]);
+            $existingId = $this->selectOne("SELECT `id` FROM `item` WHERE `collectionId`=? AND `id`=?",
+                                           [$collectionId, $id]);
             if ($existingId) {
                 return $id;
             }
@@ -608,6 +605,38 @@ class SqlDatabase extends GlobalDatabase
         }
 
         return $this->insertOne('item', $values);
+    }
+
+
+    /**
+     * Update item
+     * @param  int     $collectionId Collection ID
+     * @param  int     $id           Item ID
+     * @param  array   $data
+     * @return boolean Success
+     */
+    public function updateItem($collectionId, $id, $data)
+    {
+        if (isset($data['fields'])) {
+            $fields = $data['fields'];
+
+            foreach ($fields as $name => $field) {
+                // update field
+                if (!$this->setItemField($collectionId, $id, $name, $field)) {
+                    Logger::warn('Failed to set item field '.$name.' for item '.$id.
+                                 ' in collection '.$collectionId);
+                }
+            }
+
+            unset($data['fields']);
+        }
+
+        if (count($data) == 0) {
+            return true;
+        }
+
+        // update item
+        return $this->update('item', $data, ['collectionId' => $collectionId, 'id' => $id]);
     }
 
 
@@ -630,7 +659,7 @@ class SqlDatabase extends GlobalDatabase
      */
     public function deleteItem(int $id)
     {
-        return $this->delete('itemField', ['item' => $id]) && $this->delete('item', ['id' => $id]);
+        return $this->delete('itemField', ['itemId' => $id]) && $this->delete('item', ['id' => $id]);
     }
 
 
@@ -641,28 +670,38 @@ class SqlDatabase extends GlobalDatabase
      * @param mixed $value Value
      * @return bool        Success
      */
-    public function setItemField(int $collectionId, int $itemId, string $name, $value)
+    public function setItemField($collectionId, $itemId, $name, $value)
     {
         // delete old entries
-        if (!$this->delete('itemField', ['collection' => $collectionId, 'item' => $itemId, 'name' => $name])) {
+        if (!$this->delete('itemField', ['collectionId' => $collectionId, 'itemId' => $itemId, 'name' => $name])) {
             return false;
         }
 
-        // value null or empty: do nothing
-        if (is_null($value) || $value == '') {
+        // always convert value to array
+        if (!is_array($value)) {
+            $value = [$value];
+        }
+
+        $values = [];
+        foreach ($value as $v) {
+            // value null or empty: do nothing
+            if (is_null($v) || $v == '') {
+                continue;
+            }
+            $values[] = $v;
+        }
+
+        // no values: do nothing
+        if (count($values) == 0) {
             return true;
         }
 
         $data = [];
         $entry = [
-            'collection' => $collectionId,
-            'item' => $itemId,
+            'collectionId' => $collectionId,
+            'itemId' => $itemId,
             'name' => $name,
         ];
-
-        if (!is_array($value)) {
-            $value = [$value];
-        }
 
         foreach ($value as $v) {
             $data[] = array_merge($entry, ['value' => $v]);
@@ -685,7 +724,7 @@ class SqlDatabase extends GlobalDatabase
     public function getField($collectionId, $name)
     {
         // get fields
-        $field = $this->selectFirst("SELECT * FROM `field` WHERE `collection`=? AND `name`=?",
+        $field = $this->selectFirst("SELECT * FROM `field` WHERE `collectionId`=? AND `name`=?",
                                     [$collectionId, $name]);
         if (!$field) {
             return false;
@@ -695,7 +734,7 @@ class SqlDatabase extends GlobalDatabase
         $field['description'] = [];
 
         $labels = $this->select("SELECT `label`,`description`,`lang` FROM `fieldLabel`
-                                 WHERE `field`=?", [$field['id']]);
+                                 WHERE `fieldId`=?", [$field['id']]);
         if ($labels) {
             foreach ($labels as $label) {
                 $lang = $label['lang'];
@@ -719,7 +758,7 @@ class SqlDatabase extends GlobalDatabase
     {
         // filter data keys because labels are not in the same table
         $row = $data;
-        $row['collection'] = $collectionID;
+        $row['collectionId'] = $collectionID;
         $row['name'] = $name;
         unset($row['label']);
         unset($row['description']);
@@ -783,7 +822,7 @@ class SqlDatabase extends GlobalDatabase
 
         // update field table
         if (count($row) > 0) {
-            if (!$this->update('field', $row, ['collection' => $collectionId, 'name' => $name])) {
+            if (!$this->update('field', $row, ['collectionId' => $collectionId, 'name' => $name])) {
                 Logger::debug('Failed to update field');
                 return false;
             }
@@ -806,7 +845,7 @@ class SqlDatabase extends GlobalDatabase
 
         // get field ID
         // update field table
-        $fieldId = $this->selectOne("SELECT `id` FROM `field` WHERE `collection`=? AND `name`=?",
+        $fieldId = $this->selectOne("SELECT `id` FROM `field` WHERE `collectionId`=? AND `name`=?",
             [$collectionId, $name]
         );
         if (!$fieldId) {
@@ -815,7 +854,7 @@ class SqlDatabase extends GlobalDatabase
         }
 
         foreach ($rows as &$row) {
-            $row['field'] = $fieldId;
+            $row['fieldId'] = $fieldId;
         }
 
         $orUpdate = [];
@@ -843,19 +882,19 @@ class SqlDatabase extends GlobalDatabase
     public function deleteField($collectionId, $name)
     {
         // delete item values of this field
-        if (!$this->delete('itemField', ['collection' => $collectionId, 'name' => $name])) {
+        if (!$this->delete('itemField', ['collectionId' => $collectionId, 'name' => $name])) {
             return false;
         }
 
         // get field ID
-        $id = $this->selectOne('SELECT `id` FROM `field` WHERE `collection`=? AND `name`=?',
+        $id = $this->selectOne('SELECT `id` FROM `field` WHERE `collectionId`=? AND `name`=?',
                                [$collectionId, $name]);
         if (!$id) {
             return false;
         }
 
-        // delete labels
-        if (!$this->delete('fieldLabel', ['field' => $id])) {
+        // delete field labels
+        if (!$this->delete('fieldLabel', ['fieldId' => $id])) {
             return false;
         }
 
@@ -921,7 +960,7 @@ class SqlDatabase extends GlobalDatabase
      */
     public function getUserByName($username)
     {
-        return $this->selectFirst('SELECT * FROM `user` WHERE `username`=?', [$username]);
+        return $this->selectFirst("SELECT * FROM `user` WHERE `username`=?", [$username]);
     }
 
 
@@ -948,7 +987,7 @@ class SqlDatabase extends GlobalDatabase
      */
     public function getUserByResetToken($token)
     {
-        return $this->selectFirst('SELECT * FROM `user` WHERE `resetToken`=?', [$token]);
+        return $this->selectFirst("SELECT * FROM `user` WHERE `resetToken`=?", [$token]);
     }
 
 
@@ -1047,7 +1086,7 @@ class SqlDatabase extends GlobalDatabase
      * @param  array  $args  Array of args
      * @return array|bool    Array of results, FALSE if error
      */
-    public function selectFirst($query, array $args=[])
+    protected function selectFirst($query, array $args=[])
     {
         // runs select method
         $result = $this->select($query, $args);
@@ -1067,7 +1106,7 @@ class SqlDatabase extends GlobalDatabase
      * @param  array  $args  Array of args
      * @return array|bool    Array of results, FALSE if error
      */
-    public function selectOne($query, array $args=[])
+    protected function selectOne($query, array $args=[])
     {
         // runs select method
         $result = $this->selectFirst($query, $args);
@@ -1082,12 +1121,38 @@ class SqlDatabase extends GlobalDatabase
 
 
     /**
+     * Runs a SELECT query and returns the results of the desired column
+     * @param  string $query SQL SELECT query
+     * @param  array  $args  Array of args
+     * @return array|bool    Array of results, FALSE if error
+     */
+    protected function selectColumn($query, array $args=[], $column=0)
+    {
+        // runs select method
+        $result = $this->select($query, $args);
+
+        // returns first column of results
+        if ($result === false) {
+            return false;
+        }
+
+        $values = [];
+
+        foreach ($result as $value) {
+            $values[] = array_values($value)[$column];
+        }
+
+        return $values;
+    }
+
+
+    /**
      * Runs SELECT COUNT query
      * @param  string $table   Table name
      * @param  array  $filters Array of filters
      * @return array|bool  Array of results, FALSE if error
      */
-    public function count($table, array $filters=[])
+    protected function count($table, array $filters=[])
     {
         $query = 'SELECT COUNT(*) FROM `'.$table.'`';
 
@@ -1113,7 +1178,7 @@ class SqlDatabase extends GlobalDatabase
      * @param  array  $filters
      * @return bool   Exists
      */
-    public function exists(string $table, array $filters=[])
+    protected function exists(string $table, array $filters=[])
     {
         $count = $this->count($table, $filters);
         if (!is_integer($count)) {
@@ -1121,32 +1186,6 @@ class SqlDatabase extends GlobalDatabase
         }
 
         return $count > 0;
-    }
-
-
-    /**
-     * Runs a SELECT query and returns the results of the desired column
-     * @param  string $query SQL SELECT query
-     * @param  array  $args  Array of args
-     * @return array|bool    Array of results, FALSE if error
-     */
-    public function selectColumn($query, array $args=[], $column=0)
-    {
-        // runs select method
-        $result = $this->select($query, $args);
-
-        // returns first column of results
-        if ($result === false) {
-            return false;
-        }
-
-        $values = [];
-
-        foreach ($result as $value) {
-            $values[] = array_values($value)[$column];
-        }
-
-        return $values;
     }
 
 

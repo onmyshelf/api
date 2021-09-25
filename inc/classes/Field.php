@@ -2,7 +2,7 @@
 
 class Field
 {
-    private $collection;
+    private $collectionId;
     private $name;
     private $label;
     private $description;
@@ -11,7 +11,7 @@ class Field
     private $default;
     private $visibility;
     private $required;
-    private $showLabel;
+    private $hideLabel;
     private $isTitle;
     private $isSubtitle;
     private $isCover;
@@ -49,7 +49,7 @@ class Field
         }
 
         // create in database
-        return (new Database)->updateField($this->collection, $this->name, $data);
+        return (new Database)->updateField($this->collectionId, $this->name, $data);
     }
 
 
@@ -59,7 +59,7 @@ class Field
      */
     public function delete()
     {
-        return (new Database)->deleteField($this->collection, $this->name);
+        return (new Database)->deleteField($this->collectionId, $this->name);
     }
 
 

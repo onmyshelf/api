@@ -82,7 +82,7 @@ class Collection
      */
     public function addItem()
     {
-        $result = (new Database())->addItem($this->id);
+        $result = (new Database())->createItem($this->id);
         if (!$result) {
             return false;
         }
@@ -116,11 +116,7 @@ class Collection
             return true;
         }
 
-        $data = $properties;
-        $data['name'] = $name;
-        $data['collection'] = $this->id;
-
-        if (!(new Database())->createField($this->id, $name, $data)) {
+        if (!(new Database())->createField($this->id, $name, $properties)) {
             return false;
         }
 
@@ -184,7 +180,15 @@ class Collection
 
                     // filter item
                     if (isset($filters[$key])) {
-                        $continue = ($value == $filters[$key]);
+                        if (is_array($value)) {
+                            if (in_array($filters[$key], $value)) {
+                                $continue = true;
+                            }
+                        } else {
+                            if ($value == $filters[$key]) {
+                                $continue = true;
+                            }
+                        }
                     }
                 }
 

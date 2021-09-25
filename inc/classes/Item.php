@@ -6,12 +6,16 @@ class Item
     protected $collectionId;
     protected $name;
     protected $fields;
+    protected $visibility;
 
-    public function __construct($collectionId, $id=null)
+    public function __construct($data=null)
     {
-        $this->id = $id;
-        $this->collectionId = $collectionId;
-        $this->fields = [];
+        // affect properties from $data
+        foreach (array_keys(get_object_vars($this)) as $p) {
+            if (isset($data[$p])) {
+                $this->$p = $data[$p];
+            }
+        }
     }
 
 
@@ -52,17 +56,6 @@ class Item
     public function setName(string $name)
     {
         return (new Database())->setItemName($this->id, $name);
-    }
-
-
-    /**
-     * Set item fields
-     * @param  array $fields Array of fields
-     * @return void
-     */
-    public function setFields(array $fields)
-    {
-        $this->fields = $fields;
     }
 
 
@@ -127,7 +120,31 @@ class Item
             'id' => $this->id,
             'collectionId' => $this->collectionId,
             'fields' => $this->fields,
+            'visibility' => $this->visibility
         ];
+    }
+
+
+    /**
+     * Update item data
+     * @param  array   $data
+     * @return boolean
+     */
+    public function update($data)
+    {
+        // remove non allowed data
+        $allowed = get_object_vars($this);
+        unset($allowed['id']);
+        unset($allowed['collectionId']);
+        unset($allowed['name']);
+        $allowed = array_keys($allowed);
+        foreach (array_keys($data) as $key) {
+            if (!in_array($key, $allowed)) {
+                unset($data[$key]);
+            }
+        }
+
+        return (new Database)->updateItem($this->collectionId, $this->id, $data);
     }
 
 
@@ -163,10 +180,7 @@ class Item
             return false;
         }
 
-        $item = new self($collectionId, $data['id']);
-        $item->setFields($data['fields']);
-
-        return $item;
+        return new self($data);
     }
 
 
@@ -189,9 +203,6 @@ class Item
             return false;
         }
 
-        $item = new self($collectionId, $data['id']);
-        $item->setFields($data['fields']);
-
-        return $item;
+        return new self($data);
     }
 }

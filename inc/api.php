@@ -603,17 +603,10 @@ class Api
                 // update item
 
                 // check ownership
-                $this->requireUserID($item->getOwner());
+                $this->requireUserID($collection->getOwner());
 
-                // required data
-                $this->requireData(['fields']);
-
-                // update fields
-                foreach ($this->data['fields'] as $key => $value) {
-                    $item->setField($key, $value);
-                }
-
-                $this->response(['updated' => true]);
+                // update item
+                $this->response(['updated' => $item->update($this->data)]);
                 break;
 
             case 'DELETE':
