@@ -540,21 +540,17 @@ class Api
                 // check ownership
                 $this->requireUserID($collection->getOwner());
 
-                // check data
-                $this->requireData(['fields']);
-
                 // create item object
-                $item = $collection->addItem();
+                $item = $collection->addItem($this->data);
                 if (!$item) {
                     $this->error(500, 'Failed to create item');
                 }
 
-                foreach ($this->data['fields'] as $key => $value) {
-                    $item->setField($key, $value);
-                }
+                $id = $item->getId();
 
-                $this->headers(["Location: ".API_URL."/collections/".$this->args['cid']."/items/".$item->getId()]);
-                $this->response(['created' => true], 201);
+                $this->headers(["Location: ".API_URL."/collections/".$this->args['cid']."/items/".$id]);
+                $this->response(['created' => true, 'id' => $id], 201);
+                break;
 
             default:
                 // get items of collection

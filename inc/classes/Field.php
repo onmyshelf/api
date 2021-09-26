@@ -13,7 +13,7 @@ class Field
     private $required;
     private $hideLabel;
     private $isTitle;
-    private $isSubtitle;
+    private $isSubTitle;
     private $isCover;
     private $preview;
     private $filterable;

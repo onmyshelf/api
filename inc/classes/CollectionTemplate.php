@@ -3,7 +3,7 @@
 class CollectionTemplate extends Collection
 {
     // disable parent method
-    public function addItem()
+    public function addItem($data=null)
     {
         return false;
     }

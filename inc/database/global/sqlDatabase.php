@@ -584,27 +584,14 @@ class SqlDatabase extends GlobalDatabase
 
     /**
      * Creates an item
-     * @param int    $collectionId
-     * @param int $id  Item ID (optionnal)
-     * @return bool    Success
+     * @param  int   $collectionId
+     * @param  array $data Item data (optionnal)
+     * @return bool Success
      */
-    public function createItem(int $collectionId, $id=null)
+    public function createItem($collectionId, array $data=[])
     {
-        $values = ['collectionId' => $collectionId];
-
-        // item ID specified
-        if (!is_null($id)) {
-            // if exists, do not add it
-            $existingId = $this->selectOne("SELECT `id` FROM `item` WHERE `collectionId`=? AND `id`=?",
-                                           [$collectionId, $id]);
-            if ($existingId) {
-                return $id;
-            }
-
-            $values['id'] = $id;
-        }
-
-        return $this->insertOne('item', $values);
+        $data['collectionId'] = $collectionId;
+        return $this->insertOne('item', $data);
     }
 
 
@@ -703,7 +690,7 @@ class SqlDatabase extends GlobalDatabase
             'name' => $name,
         ];
 
-        foreach ($value as $v) {
+        foreach ($values as $v) {
             $data[] = array_merge($entry, ['value' => $v]);
         }
 

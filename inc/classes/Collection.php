@@ -80,14 +80,32 @@ class Collection
      * Add item to collection
      * @return object Item
      */
-    public function addItem()
+    public function addItem($data=null)
     {
-        $result = (new Database())->createItem($this->id);
-        if (!$result) {
+        $fields = [];
+
+        if (isset($data['fields'])) {
+            $fields = $data['fields'];
+            unset($data['fields']);
+        }
+
+        $id = (new Database())->createItem($this->id, $data);
+        if (!$id) {
+            Logger::error("Failed to create item");
             return false;
         }
 
-        $item = new Item($this->id, $result);
+        $data['id'] = $id;
+        $data['collectionId'] = $this->id;
+        $data['fields'] = $fields;
+        $item = new Item($data);
+
+        foreach ($fields as $key => $value) {
+            if (!$item->setField($key, $value)) {
+                Logger::error("Failed to set field $key to item $id");
+            }
+        }
+
         return $item;
     }
 
