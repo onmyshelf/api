@@ -70,6 +70,17 @@ class Storage
 
 
     /**
+     * Return media path
+     * @param  string $url
+     * @return string Real path
+     */
+    public static function path($url)
+    {
+        return preg_replace('/^media:\/\//', MEDIA_DIR.'/', $url);
+    }
+
+
+    /**
      * Copy a file to media directory
      * @param  string $url URL of file
      * @return string Media URL, FALSE if error

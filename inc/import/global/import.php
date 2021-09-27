@@ -199,7 +199,7 @@ class GlobalImport
                                 break;
 
                             default:
-                                $type = null;
+                                $type = 'text';
                                 break;
                         }
 

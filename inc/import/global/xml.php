@@ -14,10 +14,10 @@ class XmlImport extends GlobalImport
      */
     public function __construct($file, $options=[])
     {
-        $file = MEDIA_DIR.'/upload/'.$file;
+        $file = Storage::path($file);
 
         if (!file_exists($file)) {
-            Logger::error("Import XML: file $file does not exists!");
+            Logger::error("Import XML: file ".$file." does not exists!");
             throw new Exception();
             return;
         }
@@ -26,7 +26,7 @@ class XmlImport extends GlobalImport
 
         // read and load XML
         if (($this->xml = simplexml_load_file($file)) === false) {
-            Logger::fatal("Error while loading XML file $file");
+            Logger::fatal("Error while loading XML file ".$file);
             throw new Exception();
             return;
         }

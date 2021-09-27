@@ -80,7 +80,7 @@ class Collection
      * Add item to collection
      * @return object Item
      */
-    public function addItem($data=null)
+    public function addItem($data=[])
     {
         $fields = [];
 

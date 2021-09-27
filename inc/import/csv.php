@@ -14,7 +14,7 @@ class Import extends GlobalImport
      */
     public function __construct($file, $options=[])
     {
-        $file = MEDIA_DIR.'/import/'.$file;
+        $file = Storage::path($file);
 
         if (!file_exists($file)) {
             Logger::error('CSV file does not exists!');
