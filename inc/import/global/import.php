@@ -19,6 +19,17 @@ class GlobalImport
         $this->importedItemsCount = 0;
     }
 
+    /**
+     * Import function, used for basic compatibility;
+     * each child class should override this
+     * @return array
+     */
+    public function import()
+    {
+        // each child class should to this
+        return false;
+    }
+
 
     /**
      * Scan fields and save them
@@ -49,7 +60,8 @@ class GlobalImport
 
 
     /**
-     * Return fields (used for basic compatibility, to override)
+     * Return fields used for basic compatibility;
+     * each child class should override this
      * @return array
      */
     public function scanFields()
@@ -229,11 +241,11 @@ class GlobalImport
     public function report($result)
     {
         return [
-            'success'  => $result,
+            'success'  => ($result ? true : false),
             'imported' => [
                 'items'  => $this->importedItemsCount,
-                'fields' => $this->importedFields,
-            ],
+                'fields' => $this->importedFields
+            ]
         ];
     }
 }

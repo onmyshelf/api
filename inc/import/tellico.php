@@ -74,5 +74,7 @@ class Import extends XmlImport
             // import item
             $this->importItem($fields, 'id');
         }
+
+        return true;
     }
 }

@@ -246,11 +246,8 @@ class Collection
         $import->setCollection($this);
         $import->setFields();
 
-        // run import
-        $result = $import->import();
-
         // return report
-        return $import->report($result);
+        return $import->report($import->import());
     }
 
 
