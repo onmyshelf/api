@@ -214,22 +214,26 @@ class GlobalImport
                     if (in_array($key, $currentProperties)) {
                         $this->importedProperties[] = $key;
                     } else {
+                        $propertyConfig = ['type' => 'text'];
+
                         // guess type of property from property name
                         switch ($key) {
-                            case 'id':
+                            case 'cover':
+                                $propertyConfig['type'] = 'image';
+                                $propertyConfig['isCover'] = true;
+                                break;
+                            case 'title':
+                                $propertyConfig['isTitle'] = true;
+                                break;
                             case 'image':
                             case 'rating':
                             case 'url':
-                                $type = $key;
-                                break;
-
-                            default:
-                                $type = 'text';
+                                $propertyConfig['type'] = $key;
                                 break;
                         }
 
                         // add new property
-                        if ($this->collection->addProperty($key, ['type' => $type])) {
+                        if ($this->collection->addProperty($key, $propertyConfig)) {
                             $this->importedProperties[] = $key;
                         }
                     }

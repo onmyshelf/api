@@ -49,7 +49,7 @@ class Property
         }
 
         // create in database
-        return (new Database)->updateField($this->collectionId, $this->name, $data);
+        return (new Database)->updateProperty($this->collectionId, $this->name, $data);
     }
 
 
@@ -59,7 +59,7 @@ class Property
      */
     public function delete()
     {
-        return (new Database)->deleteField($this->collectionId, $this->name);
+        return (new Database)->deleteProperty($this->collectionId, $this->name);
     }
 
 
@@ -80,7 +80,7 @@ class Property
             return false;
         }
 
-        $data = (new Database())->getField($collectionId, $name);
+        $data = (new Database())->getProperty($collectionId, $name);
         if (!$data) {
             return false;
         }
