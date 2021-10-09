@@ -27,6 +27,19 @@ class Database extends SqlDatabase
 
 
     /**
+     * Initialize database
+     * @return bool  Success
+     */
+    public function install()
+    {
+        $sql = file_get_contents('init/mysql.sql');
+        $this->connection->multi_query($sql);
+
+        return parent::install();
+    }
+
+
+    /**
      * Runs a SELECT query
      * @param string $query SQL query
      * @param array $args

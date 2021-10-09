@@ -56,6 +56,9 @@ define('MEDIA_URL', '/media');
  *  Advanced configuration
  */
 
+// Path of the log file
+define('LOGFILE', 'onmyshelf.log');
+
 // Set log level
 define('LOGGER_LEVEL', 'INFO');
 

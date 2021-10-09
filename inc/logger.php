@@ -4,15 +4,18 @@
  *  Debug functions  *
  *********************/
 
- // set default log level if not defined
- if (!defined('LOGGER_LEVEL'))
-     define('LOGGER_LEVEL', 'INFO');
+// set default log level if not defined
+if (!defined('LOGFILE'))
+    define('LOGFILE', 'onmyshelf.log');
+
+if (!defined('LOGGER_LEVEL'))
+    define('LOGGER_LEVEL', 'INFO');
 
 class Logger {
   private static function write($text)
   {
     try {
-      file_put_contents('onmyshelf.log', $text."\n", FILE_APPEND | LOCK_EX);
+      file_put_contents(LOGFILE, $text."\n", FILE_APPEND | LOCK_EX);
     } catch (Throwable $t) {
       error_log('[ERROR] Log file not writable!');
     }

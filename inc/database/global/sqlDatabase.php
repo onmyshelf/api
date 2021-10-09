@@ -1020,6 +1020,16 @@ class SqlDatabase extends GlobalDatabase
     }
 
 
+    /**
+     * Count number of users
+     * @return int
+     */
+    public function countUsers()
+    {
+        return $this->count('user');
+    }
+
+
     /*********************
      *  INSTALL/UPGRADE  *
      *********************/
@@ -1030,12 +1040,7 @@ class SqlDatabase extends GlobalDatabase
      */
     public function install()
     {
-        // TODO
-        $sql = 'init/'.DATABASE.'.sql';
-
-        echo "initialize database...";
-
-        $this->setConfig('version', VERSION);
+        return $this->setConfig('version', VERSION);
     }
 
 

@@ -14,12 +14,27 @@ try {
 
 // get database version
 if ($db->getConfig('version')) {
-  echo "Already installed";
-  exit();
+    echo "Already installed";
+    unlink(__FILE__);
+    exit();
 }
 
-// run install
-$db->install();
+echo "Initialize database...";
+if (!$db->install()) {
+    echo " FAILED!"
+    exit();
+}
 
 // create default user
-$db->createUser('onmyshelf', 'onmyshelf');
+if ($db->countUsers() == 0) {
+    echo "\nCreate default user..."
+    if (!$db->createUser('onmyshelf', 'onmyshelf')) {
+        echo " FAILED!"
+        exit();
+    }
+}
+
+echo "\nInstall finished.";
+
+// delete itself
+unlink(__FILE__);
