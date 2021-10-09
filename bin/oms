@@ -1,0 +1,131 @@
+<?php
+/*
+ * Command line tools for OnMyShelf
+ */
+
+class Cmd
+{
+    /**
+     * Install OnMyShelf
+     * @return void
+     */
+    public static function install()
+    {
+        // test database connection
+        try {
+            $db = new Database();
+        } catch (Throwable $t) {
+            echo "ERROR: cannot connect to database!";
+            exit(1);
+        }
+
+        if (!$db->getConfig('version')) {
+            echo "Initialize database...";
+            if (!$db->install()) {
+                echo " FAILED!\n";
+                exit(1);
+            }
+
+            // create default user
+            if ($db->countUsers() == 0) {
+                echo "\nCreate default user...";
+                if (!$db->createUser('onmyshelf', 'onmyshelf')) {
+                    echo " FAILED!\n";
+                    exit(1);
+                }
+            }
+        }
+
+        echo "\nOnMyShelf is ready\n";
+    }
+
+
+    /**
+     * Upgrade OnMyShelf
+     * @return void
+     */
+    public static function upgrade()
+    {
+        // get current version
+        $currentVersion = Config::get('version');
+
+        if (!$currentVersion) {
+            echo "ERROR: cannot get current version!";
+            exit(1);
+        }
+
+        // run upgrade
+        if (Config::compareVersions(VERSION, $currentVersion)) {
+            echo "Upgrading to ".VERSION."...";
+
+            // upgrade version (without build number)
+            (new Database())->upgrade(preg_replace('/\+.*/', '', VERSION));
+        } else {
+            echo "Already up-to-date";
+        }
+    }
+
+
+    /**
+     * Print help
+     * @return void
+     */
+    public static function help($command=null)
+    {
+        if ($command) {
+            $cmd = $command;
+        } else {
+            $cmd = 'COMMAND';
+        }
+
+        echo "Usage: php bin/oms $cmd";
+
+        if (is_null($command)) {
+            echo "\nAvailable commands:\n";
+            foreach (get_class_methods('Cmd') as $f) {
+                echo "   $f\n";
+            }
+        }
+
+        switch ($command) {
+            case 'install':
+                echo "\nInstalls OnMyShelf";
+                break;
+
+            case 'upgrade':
+                echo "\nUpgrades OnMyShelf to the last version";
+                break;
+
+            default:
+                echo "\nCommand '$command' does not exists.\n";
+                echo "Type 'oms help' to see available commands.\n";
+                break;
+        }
+    }
+}
+
+if (count($argv) < 2) {
+    Cmd::help();
+    exit(1);
+}
+
+if (!method_exists('Cmd', $argv[1])) {
+    echo "ERROR: command not found\n";
+    exit(1);
+}
+
+require_once('inc/init.php');
+
+// give admin privileges
+$GLOBALS['accessRights'] = 4;
+$GLOBALS['currentUserID'] = 1;
+
+// calls help
+if (isset($argv[2]) && $argv[2] == '--help') {
+    Cmd::help($argv[1]);
+    exit();
+}
+
+// call function
+// TODO: call with arguments
+call_user_func(['Cmd', $argv[1]]);

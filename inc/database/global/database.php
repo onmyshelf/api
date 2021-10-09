@@ -4,21 +4,21 @@ class GlobalDatabase
 {
     /**
      * Install database
-     * @return bool Install success
+     * @return bool Success
      */
     public function install()
     {
-        return true;
+        return $this->setConfig('version', VERSION);
     }
 
 
     /**
      * Upgrade database
-     * @param string $newVersion
-     * @return bool  Upgrade success
+     * @param  string Version to upgrade to
+     * @return bool   Success
      */
     public function upgrade($newVersion)
     {
-        return true;
+        return $this->setConfig('version', $newVersion);
     }
 }

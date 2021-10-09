@@ -1,9 +1,9 @@
-SET NAMES utf8;
+SET NAMES utf8mb4;
 SET time_zone = '+00:00';
 SET foreign_key_checks = 0;
 SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 
-CREATE TABLE `collection` (
+CREATE TABLE IF NOT EXISTS `collection` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `cover` varchar(255) DEFAULT NULL,
   `owner` int(11) NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE `collection` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-CREATE TABLE `collectionLabel` (
+CREATE TABLE IF NOT EXISTS `collectionLabel` (
   `collectionId` int(11) NOT NULL,
   `lang` varchar(10) NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -21,17 +21,17 @@ CREATE TABLE `collectionLabel` (
   UNIQUE KEY `collection_lang` (`collectionId`,`lang`),
   KEY `collection` (`collectionId`),
   CONSTRAINT `collectionLabel_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-CREATE TABLE `config` (
+CREATE TABLE IF NOT EXISTS `config` (
   `param` varchar(255) NOT NULL,
   `value` text DEFAULT NULL,
   PRIMARY KEY (`param`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-CREATE TABLE `field` (
+CREATE TABLE IF NOT EXISTS `field` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `collectionId` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -53,10 +53,10 @@ CREATE TABLE `field` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `collection_name` (`collectionId`,`name`),
   CONSTRAINT `field_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-CREATE TABLE `fieldLabel` (
+CREATE TABLE IF NOT EXISTS `fieldLabel` (
   `fieldId` int(11) NOT NULL,
   `lang` varchar(10) DEFAULT NULL,
   `label` varchar(255) NOT NULL,
@@ -66,10 +66,10 @@ CREATE TABLE `fieldLabel` (
   KEY `field` (`fieldId`),
   KEY `label` (`label`),
   CONSTRAINT `fieldLabel_ibfk_1` FOREIGN KEY (`fieldId`) REFERENCES `field` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-CREATE TABLE `item` (
+CREATE TABLE IF NOT EXISTS `item` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `collectionId` int(11) NOT NULL,
   `name` varchar(255) NOT NULL DEFAULT '',
@@ -77,10 +77,10 @@ CREATE TABLE `item` (
   PRIMARY KEY (`id`),
   KEY `collection` (`collectionId`),
   CONSTRAINT `item_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-CREATE TABLE `itemField` (
+CREATE TABLE IF NOT EXISTS `itemField` (
   `collectionId` int(11) NOT NULL,
   `itemId` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -89,10 +89,10 @@ CREATE TABLE `itemField` (
   KEY `collectionId` (`collectionId`),
   CONSTRAINT `itemField_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`),
   CONSTRAINT `itemField_ibfk_2` FOREIGN KEY (`itemId`) REFERENCES `item` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-CREATE TABLE `itemInstance` (
+CREATE TABLE IF NOT EXISTS `itemInstance` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `collectionId` int(11) NOT NULL,
   `itemId` int(11) NOT NULL,
@@ -105,7 +105,7 @@ CREATE TABLE `itemInstance` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-CREATE TABLE `itemInstanceField` (
+CREATE TABLE IF NOT EXISTS `itemInstanceField` (
   `itemInstanceId` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `value` longtext DEFAULT NULL,
@@ -114,7 +114,7 @@ CREATE TABLE `itemInstanceField` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-CREATE TABLE `notification` (
+CREATE TABLE IF NOT EXISTS `notification` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `userId` int(11) NOT NULL DEFAULT 1,
   `datetime` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -126,7 +126,7 @@ CREATE TABLE `notification` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-CREATE TABLE `token` (
+CREATE TABLE IF NOT EXISTS `token` (
   `token` varchar(255) NOT NULL,
   `userId` int(11) NOT NULL,
   `expiration` int(11) NOT NULL,
@@ -138,7 +138,7 @@ CREATE TABLE `token` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-CREATE TABLE `user` (
+CREATE TABLE IF NOT EXISTS `user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,

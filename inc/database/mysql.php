@@ -32,10 +32,12 @@ class Database extends SqlDatabase
      */
     public function install()
     {
-        $sql = file_get_contents('init/mysql.sql');
+        $sql = file_get_contents(__DIR__.'/init/mysql.sql');
         $this->connection->multi_query($sql);
 
-        return parent::install();
+        // WARN: we cannot do this after multi_query().
+        // Need to open a new database connection.
+        return (new Database())->setConfig('version', VERSION);
     }
 
 

@@ -98,7 +98,17 @@ class SqlDatabase extends GlobalDatabase
      */
     public function setConfig(string $param, $value)
     {
-        return $this->update('config', ['value' => $value], ['param' => $param]);
+        // insert or update value
+        if ($this->getConfig($param)) {
+            return $this->update('config',
+                ['param' => $param], ['value' => $value]
+            );
+        } else {
+            // TODO: insertOrUpdate method does not work on this case; don't know why
+            return $this->insertOne('config',
+                ['param' => $param, 'value' => $value]
+            );
+        }
     }
 
 
@@ -1030,22 +1040,8 @@ class SqlDatabase extends GlobalDatabase
     }
 
 
-    /*********************
-     *  INSTALL/UPGRADE  *
-     *********************/
-
     /**
-     * Initialize database
-     * @return bool  Success
-     */
-    public function install()
-    {
-        return $this->setConfig('version', VERSION);
-    }
-
-
-    /**
-     * Upgrade database scheme
+     * Upgrade database
      * @param  string Version to upgrade to
      * @return bool   Success
      */
@@ -1054,17 +1050,13 @@ class SqlDatabase extends GlobalDatabase
         // get current version
         $currentVersion = $this->getConfig('version');
 
-        echo "Upgrade from $currentVersion to $newVersion...<br/>";
+        /*// Example:
+        if (Config::compareVersions('1.0.1', $currentVersion)) {
+            echo "Migrate database from '$currentVersion' to '1.0.1'...";
+            // do changes in database...
+        }*/
 
-        // TODO for future releases
-        // Example:
-        if (Config::compareVersions('0.0.1-alpha.2', $currentVersion)) {
-            // do changes in database
-            echo "Migrate database from $currentVersion to 0.0.1-alpha.2...";
-        }
-
-        $this->setConfig('version', $newVersion);
-        return true;
+        return $this->setConfig('version', $newVersion);
     }
 
 
