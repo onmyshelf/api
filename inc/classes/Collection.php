@@ -8,7 +8,7 @@ class Collection
     protected $cover;
     protected $owner;
     protected $visibility;
-    protected $fields;
+    protected $properties;
 
     public function __construct($data=null)
     {
@@ -46,12 +46,12 @@ class Collection
 
 
     /**
-     * Get fields
+     * Get properties
      * @return array
      */
-    public function getFields()
+    public function getProperties()
     {
-        return $this->fields;
+        return $this->properties;
     }
 
 
@@ -62,13 +62,13 @@ class Collection
 
 
     /**
-     * Return the field that is used for main item name
-     * @return string Field name
+     * Return the property that is used for main item name
+     * @return string Property name
      */
-    public function getItemNameField()
+    public function getItemNameProperty()
     {
-        foreach ($this->fields as $name => $field) {
-            if ($field['isTitle']) {
+        foreach ($this->properties as $name => $property) {
+            if ($property['isTitle']) {
                 return $name;
             }
         }
@@ -82,11 +82,11 @@ class Collection
      */
     public function addItem($data=[])
     {
-        $fields = [];
+        $properties = [];
 
-        if (isset($data['fields'])) {
-            $fields = $data['fields'];
-            unset($data['fields']);
+        if (isset($data['properties'])) {
+            $properties = $data['properties'];
+            unset($data['properties']);
         }
 
         $id = (new Database())->createItem($this->id, $data);
@@ -97,12 +97,12 @@ class Collection
 
         $data['id'] = $id;
         $data['collectionId'] = $this->id;
-        $data['fields'] = $fields;
+        $data['properties'] = $properties;
         $item = new Item($data);
 
-        foreach ($fields as $key => $value) {
-            if (!$item->setField($key, $value)) {
-                Logger::error("Failed to set field $key to item $id");
+        foreach ($properties as $key => $value) {
+            if (!$item->setProperty($key, $value)) {
+                Logger::error("Failed to set property $key to item $id");
             }
         }
 
@@ -122,23 +122,23 @@ class Collection
 
 
     /**
-     * Add field to collection
+     * Add property to collection
      * @param  string  $name
      * @param  array   $properties
      * @return boolean Success
      */
-    public function addField(string $name, array $properties=[])
+    public function addProperty(string $name, array $properties=[])
     {
         // do nothing if already exists
-        if (isset($this->fields[$name])) {
+        if (isset($this->properties[$name])) {
             return true;
         }
 
-        if (!(new Database())->createField($this->id, $name, $properties)) {
+        if (!(new Database())->createProperty($this->id, $name, $properties)) {
             return false;
         }
 
-        $this->fields[$name] = $properties;
+        $this->properties[$name] = $properties;
         return true;
     }
 
@@ -157,7 +157,7 @@ class Collection
             'cover' => $this->cover,
             'owner' => $this->owner,
             'visibility' => $this->visibility,
-            'fields' => $this->fields
+            'properties' => $this->properties
         ];
     }
 
@@ -185,14 +185,14 @@ class Collection
 
                 $continue = count($filters) == 0;
                 $filterFound = false;
-                $itemFields = [];
+                $itemProperties = [];
 
-                // parse fields of the item
-                foreach ($dumpItem['fields'] as $key => $value) {
-                    // search in collection definition of the field
-                    if (isset($this->fields[$key])) {
-                        if ($this->fields[$key]['isCover'] || $this->fields[$key]['isTitle'] || $this->fields[$key]['preview']) {
-                            $itemFields[$key] = $value;
+                // parse properties of the item
+                foreach ($dumpItem['properties'] as $key => $value) {
+                    // search in collection definition of the property
+                    if (isset($this->properties[$key])) {
+                        if ($this->properties[$key]['isCover'] || $this->properties[$key]['isTitle'] || $this->properties[$key]['preview']) {
+                            $itemProperties[$key] = $value;
                         }
                     }
 
@@ -213,7 +213,7 @@ class Collection
                 if ($continue) {
                     $items[] = [
                         'id' => $dumpItem['id'],
-                        'fields' => $itemFields,
+                        'properties' => $itemProperties,
                     ];
                 }
             }
@@ -244,7 +244,7 @@ class Collection
         }
 
         $import->setCollection($this);
-        $import->setFields();
+        $import->setProperties();
 
         // return report
         return $import->report($import->import());
@@ -261,7 +261,7 @@ class Collection
         // remove non allowed data
         $allowed = get_object_vars($this);
         unset($allowed['id']);
-        unset($allowed['fields']);
+        unset($allowed['properties']);
         $allowed = array_keys($allowed);
         foreach (array_keys($data) as $key) {
             if (!in_array($key, $allowed)) {
@@ -394,11 +394,11 @@ class Collection
 
 
     /**
-     * Analyse fields for import
+     * Analyse properties for import
      * @param  string $type    Type of source
      * @param  string $source  Import source
      * @param  array  $options Options
-     * @return array|bool      Array of fields, false if error
+     * @return array|bool      Array of properties, false if error
      */
     public static function scanImport($type, $source, $options=[])
     {
@@ -413,7 +413,7 @@ class Collection
             return false;
         }
 
-        // get and return fields
-        return $import->scanFields();
+        // get and return properties
+        return $import->scanProperties();
     }
 }

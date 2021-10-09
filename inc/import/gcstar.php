@@ -11,7 +11,7 @@ class Import extends XmlImport
      * Scan fields of the GCstar file
      * @return array Array of fields names
      */
-    public function scanFields()
+    public function scanProperties()
     {
         $fields = [];
 

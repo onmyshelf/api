@@ -202,52 +202,52 @@ class SqlDatabase extends GlobalDatabase
             }
         }
 
-        // get collection fields
+        // get collection properties
         $accessRights = $GLOBALS['accessRights'];
         if ($collection['owner'] == $GLOBALS['currentUserID']) {
             $accessRights = 3;
         }
 
-        $results = $this->select("SELECT * FROM `field` WHERE `collectionId`=? AND `visibility`<=?
+        $results = $this->select("SELECT * FROM `property` WHERE `collectionId`=? AND `visibility`<=?
                                   ORDER BY `isCover` DESC,`isTitle` DESC,`isSubtitle` DESC,
                                   `preview` DESC,`order` DESC, `name`",
                                  [$id, $accessRights]);
         if (!$results) {
-            $collection['fields'] = [];
+            $collection['properties'] = [];
             return $collection;
         }
 
         // get labels
-        $fields = [];
+        $properties = [];
 
         for ($i=0; $i < count($results); $i++) {
-            $field = $results[$i];
+            $property = $results[$i];
 
-            $field['label'] = [];
-            $field['description'] = [];
+            $property['label'] = [];
+            $property['description'] = [];
 
-            $labels = $this->select('SELECT `label`,`description`,`lang` FROM `fieldLabel`
-                                     WHERE `fieldId`=?', [$field['id']]);
+            $labels = $this->select('SELECT `label`,`description`,`lang` FROM `propertyLabel`
+                                     WHERE `propertyId`=?', [$property['id']]);
             if ($labels) {
                 foreach ($labels as $label) {
                     $lang = $label['lang'];
-                    $field['label'][$lang] = $label['label'];
-                    $field['description'][$lang] = $label['description'];
+                    $property['label'][$lang] = $label['label'];
+                    $property['description'][$lang] = $label['description'];
                 }
             }
 
-            $name = $field['name'];
+            $name = $property['name'];
 
             // delete unecessary data
-            unset($field['id']);
-            unset($field['collectionId']);
-            unset($field['name']);
+            unset($property['id']);
+            unset($property['collectionId']);
+            unset($property['name']);
 
             // map name as array key
-            $fields[$name] = $field;
+            $properties[$name] = $property;
         }
 
-        $collection['fields'] = $fields;
+        $collection['properties'] = $properties;
         return $collection;
     }
 
@@ -407,15 +407,15 @@ class SqlDatabase extends GlobalDatabase
             $this->deleteItem($item);
         }
 
-        // get associated fields
-        $fields = $this->selectColumn("SELECT `name` FROM `field` WHERE `collectionId`=?", [$id]);
-        if ($fields === false) {
+        // get associated properties
+        $properties = $this->selectColumn("SELECT `name` FROM `property` WHERE `collectionId`=?", [$id]);
+        if ($properties === false) {
             return false;
         }
 
-        // delete fields
-        foreach ($fields as $field) {
-            $this->deleteField($id, $field);
+        // delete properties
+        foreach ($properties as $property) {
+            $this->deleteProperty($id, $property);
         }
 
         // delete collection labels
@@ -467,8 +467,8 @@ class SqlDatabase extends GlobalDatabase
         $args = [$collectionId, $GLOBALS['accessRights']];
 
         if (!is_null($orderBy)) {
-            $query = "SELECT i.id FROM `itemField` f JOIN `item` i ON f.itemId=i.id
-                      WHERE f.collectionId=? AND i.visibility<=? AND f.name=? ORDER BY f.value";
+            $query = "SELECT i.id FROM `itemProperty` p JOIN `item` i ON p.itemId=i.id
+                      WHERE p.collectionId=? AND i.visibility<=? AND p.name=? ORDER BY p.value";
             $args[] = $orderBy;
         }
 
@@ -494,11 +494,11 @@ class SqlDatabase extends GlobalDatabase
             return false;
         }
 
-        $fields = $this->getItemFields($collectionId, $id);
-        if (!$fields) {
-            $item['fields'] = [];
+        $properties = $this->getItemProperties($collectionId, $id);
+        if (!$properties) {
+            $item['properties'] = [];
         } else {
-            $item['fields'] = $fields;
+            $item['properties'] = $properties;
         }
 
         return $item;
@@ -506,70 +506,70 @@ class SqlDatabase extends GlobalDatabase
 
 
     /**
-     * Get item fields
+     * Get item properties
      * @param  int    $collectionId
      * @param  int    $itemId
      * @return array  SELECT results
      */
-    public function getItemFields($collectionId, $itemId)
+    public function getItemProperties($collectionId, $itemId)
     {
-        $result = $this->select('SELECT i.name AS `name`, i.value AS `value` FROM `itemField` i
-                                 JOIN `field` f ON i.collectionId=f.collectionId AND i.name=f.name
-                                 WHERE i.collectionId=? AND i.itemId=? AND f.visibility<=?
+        $result = $this->select('SELECT i.name AS `name`, i.value AS `value` FROM `itemProperty` i
+                                 JOIN `property` p ON i.collectionId=p.collectionId AND i.name=p.name
+                                 WHERE i.collectionId=? AND i.itemId=? AND p.visibility<=?
                                  ORDER BY `name`',
                                 [$collectionId, $itemId, $GLOBALS['accessRights']]);
         if ($result === false) {
             return false;
         }
 
-        // transform ['name' => 'fieldName', 'value' => Value] to 'fieldName' => 'Value'
-        $fields = [];
+        // transform ['name' => 'propertyName', 'value' => Value] to 'propertyName' => 'Value'
+        $properties = [];
         $name = '';
-        foreach ($result as $field) {
-            // same name than before: group field to array
-            if ($field['name'] == $name) {
-                if (is_array($fields[$name])) {
-                    $fields[$name][] = $field['value'];
+        foreach ($result as $property) {
+            // same name than before: group property to array
+            if ($property['name'] == $name) {
+                if (is_array($properties[$name])) {
+                    $properties[$name][] = $property['value'];
                 } else {
-                    $fields[$name] = [$fields[$name], $field['value']];
+                    $properties[$name] = [$properties[$name], $property['value']];
                 }
 
-                $name = $field['name'];
+                $name = $property['name'];
             } else {
-                $name = $field['name'];
-                $fields[$name] = $field['value'];
+                $name = $property['name'];
+                $properties[$name] = $property['value'];
             }
         }
 
-        return $fields;
+        return $properties;
     }
 
 
     /**
-     * Get item field
+     * Get item property
      * @param  int    $collectionId
      * @param  int    $itemId
-     * @param  string $name  Field name
+     * @param  string $name  Property name
      * @return array  SELECT results
      */
-    public function getItemField(int $collectionId, int $itemId, string $name)
+    public function getItemProperty(int $collectionId, int $itemId, string $name)
     {
-        $fields = $this->selectColumn('SELECT i.value AS `value` FROM `itemField` i
-                                       JOIN `field` f ON i.collectionId=f.collection AND i.name=f.name
-                                       WHERE i.collectionId=? AND i.itemId=? AND f.name=? AND f.visibility<=?
+        $properties = $this->selectColumn('SELECT i.value AS `value` FROM `itemProperty` i
+                                       JOIN `property` p ON i.collectionId=p.collection AND i.name=p.name
+                                       WHERE i.collectionId=? AND i.itemId=? AND p.name=? AND p.visibility<=?
                                        ORDER BY `name`',
                                       [$collectionId, $itemId, $name, $GLOBALS['accessRights']]);
-        if (!$fields) {
+        if (!$properties) {
             return false;
         }
 
-        if (count($fields) == 0) {
+        if (count($properties) == 0) {
             return null;
-        } elseif (count($fields) == 1) {
-            return $fields[0];
+        } elseif (count($properties) == 1) {
+            return $properties[0];
         }
 
-        return $fields;
+        return $properties;
     }
 
 
@@ -582,7 +582,7 @@ class SqlDatabase extends GlobalDatabase
      */
     public function getItemByProperty(int $collectionId, string $name, $value)
     {
-        $itemId = $this->selectOne("SELECT `itemId` FROM `itemField` WHERE `collectionId`=? AND `name`=? AND `value`=?",
+        $itemId = $this->selectOne("SELECT `itemId` FROM `itemProperty` WHERE `collectionId`=? AND `name`=? AND `value`=?",
                                    [$collectionId, $name, $value]);
         if (!$itemId) {
             return false;
@@ -614,18 +614,18 @@ class SqlDatabase extends GlobalDatabase
      */
     public function updateItem($collectionId, $id, $data)
     {
-        if (isset($data['fields'])) {
-            $fields = $data['fields'];
+        if (isset($data['properties'])) {
+            $properties = $data['properties'];
 
-            foreach ($fields as $name => $field) {
-                // update field
-                if (!$this->setItemField($collectionId, $id, $name, $field)) {
-                    Logger::warn('Failed to set item field '.$name.' for item '.$id.
+            foreach ($properties as $name => $property) {
+                // update property
+                if (!$this->setItemProperty($collectionId, $id, $name, $property)) {
+                    Logger::warn('Failed to set item property '.$name.' for item '.$id.
                                  ' in collection '.$collectionId);
                 }
             }
 
-            unset($data['fields']);
+            unset($data['properties']);
         }
 
         if (count($data) == 0) {
@@ -656,21 +656,21 @@ class SqlDatabase extends GlobalDatabase
      */
     public function deleteItem(int $id)
     {
-        return $this->delete('itemField', ['itemId' => $id]) && $this->delete('item', ['id' => $id]);
+        return $this->delete('itemProperty', ['itemId' => $id]) && $this->delete('item', ['id' => $id]);
     }
 
 
     /**
-     * Set item field
+     * Set item property
      * @param int $itemId  Item ID
-     * @param string $name Field name
+     * @param string $name Property name
      * @param mixed $value Value
      * @return bool        Success
      */
-    public function setItemField($collectionId, $itemId, $name, $value)
+    public function setItemProperty($collectionId, $itemId, $name, $value)
     {
         // delete old entries
-        if (!$this->delete('itemField', ['collectionId' => $collectionId, 'itemId' => $itemId, 'name' => $name])) {
+        if (!$this->delete('itemProperty', ['collectionId' => $collectionId, 'itemId' => $itemId, 'name' => $name])) {
             return false;
         }
 
@@ -704,54 +704,54 @@ class SqlDatabase extends GlobalDatabase
             $data[] = array_merge($entry, ['value' => $v]);
         }
 
-        return ($this->insert('itemField', $data));
+        return ($this->insert('itemProperty', $data));
     }
 
 
     /*
-     *  Fields
+     *  Properties
      */
 
     /**
-     * Get collection field definition
+     * Get collection property definition
      * @param  int    $collectionId Collection ID
-     * @param  string $name         Field name
+     * @param  string $name         Property name
      * @return array                Array of data
      */
-    public function getField($collectionId, $name)
+    public function getProperty($collectionId, $name)
     {
-        // get fields
-        $field = $this->selectFirst("SELECT * FROM `field` WHERE `collectionId`=? AND `name`=?",
+        // get properties
+        $property = $this->selectFirst("SELECT * FROM `property` WHERE `collectionId`=? AND `name`=?",
                                     [$collectionId, $name]);
-        if (!$field) {
+        if (!$property) {
             return false;
         }
 
-        $field['label'] = [];
-        $field['description'] = [];
+        $property['label'] = [];
+        $property['description'] = [];
 
-        $labels = $this->select("SELECT `label`,`description`,`lang` FROM `fieldLabel`
-                                 WHERE `fieldId`=?", [$field['id']]);
+        $labels = $this->select("SELECT `label`,`description`,`lang` FROM `propertyLabel`
+                                 WHERE `propertyId`=?", [$property['id']]);
         if ($labels) {
             foreach ($labels as $label) {
                 $lang = $label['lang'];
-                $field['label'][$lang] = $label['label'];
-                $field['description'][$lang] = $label['description'];
+                $property['label'][$lang] = $label['label'];
+                $property['description'][$lang] = $label['description'];
             }
         }
 
-        return $field;
+        return $property;
     }
 
 
     /**
-     * Add field
+     * Add property
      * @param  int    $collectionID
-     * @param  string $name  Field name
+     * @param  string $name  Property name
      * @param  array  $data
      * @return bool   Inserted ID
      */
-    public function createField($collectionID, $name, $data)
+    public function createProperty($collectionID, $name, $data)
     {
         // filter data keys because labels are not in the same table
         $row = $data;
@@ -760,10 +760,10 @@ class SqlDatabase extends GlobalDatabase
         unset($row['label']);
         unset($row['description']);
 
-        // create field
-        $fieldId = $this->insertOne('field', $row);
-        if ($fieldId === false) {
-            Logger::debug('Failed to insert new field: '.$name);
+        // create property
+        $propertyId = $this->insertOne('property', $row);
+        if ($propertyId === false) {
+            Logger::debug('Failed to insert new property: '.$name);
             return false;
         }
 
@@ -783,7 +783,7 @@ class SqlDatabase extends GlobalDatabase
         }
 
         foreach ($rows as &$row) {
-            $row['field'] = $fieldId;
+            $row['property'] = $propertyId;
         }
 
         $orUpdate = [];
@@ -795,7 +795,7 @@ class SqlDatabase extends GlobalDatabase
         }
 
         // insert or update translations
-        if (!$this->insert('fieldLabel', $rows, $orUpdate)) {
+        if (!$this->insert('propertyLabel', $rows, $orUpdate)) {
             Logger::var_dump($rows);
         }
 
@@ -804,23 +804,23 @@ class SqlDatabase extends GlobalDatabase
 
 
     /**
-     * Update field
+     * Update property
      * @param  int    $collectionId
      * @param  string $name
      * @param  array  $data
      * @return bool   Success
      */
-    public function updateField($collectionId, $name, $data)
+    public function updateProperty($collectionId, $name, $data)
     {
         // filter data keys because labels are not in the same table
         $row = $data;
         unset($row['label']);
         unset($row['description']);
 
-        // update field table
+        // update property table
         if (count($row) > 0) {
-            if (!$this->update('field', $row, ['collectionId' => $collectionId, 'name' => $name])) {
-                Logger::debug('Failed to update field');
+            if (!$this->update('property', $row, ['collectionId' => $collectionId, 'name' => $name])) {
+                Logger::debug('Failed to update property');
                 return false;
             }
         }
@@ -840,18 +840,18 @@ class SqlDatabase extends GlobalDatabase
             return true;
         }
 
-        // get field ID
-        // update field table
-        $fieldId = $this->selectOne("SELECT `id` FROM `field` WHERE `collectionId`=? AND `name`=?",
+        // get property ID
+        // update property table
+        $propertyId = $this->selectOne("SELECT `id` FROM `property` WHERE `collectionId`=? AND `name`=?",
             [$collectionId, $name]
         );
-        if (!$fieldId) {
-            Logger::error("Failed to get field ID for collection ".$collectionId.", field: ".$name);
+        if (!$propertyId) {
+            Logger::error("Failed to get property ID for collection ".$collectionId.", property: ".$name);
             return false;
         }
 
         foreach ($rows as &$row) {
-            $row['fieldId'] = $fieldId;
+            $row['propertyId'] = $propertyId;
         }
 
         $orUpdate = [];
@@ -863,7 +863,7 @@ class SqlDatabase extends GlobalDatabase
         }
 
         // insert or update translations
-        if (!$this->insert('fieldLabel', $rows, $orUpdate)) {
+        if (!$this->insert('propertyLabel', $rows, $orUpdate)) {
             Logger::var_dump($rows);
         }
 
@@ -872,31 +872,31 @@ class SqlDatabase extends GlobalDatabase
 
 
     /**
-     * Delete field
-     * @param  int $id Field ID
+     * Delete property
+     * @param  int $id Property ID
      * @return bool    Success
      */
-    public function deleteField($collectionId, $name)
+    public function deleteProperty($collectionId, $name)
     {
-        // delete item values of this field
-        if (!$this->delete('itemField', ['collectionId' => $collectionId, 'name' => $name])) {
+        // delete item values of this property
+        if (!$this->delete('itemProperty', ['collectionId' => $collectionId, 'name' => $name])) {
             return false;
         }
 
-        // get field ID
-        $id = $this->selectOne('SELECT `id` FROM `field` WHERE `collectionId`=? AND `name`=?',
+        // get property ID
+        $id = $this->selectOne('SELECT `id` FROM `property` WHERE `collectionId`=? AND `name`=?',
                                [$collectionId, $name]);
         if (!$id) {
             return false;
         }
 
-        // delete field labels
-        if (!$this->delete('fieldLabel', ['fieldId' => $id])) {
+        // delete property labels
+        if (!$this->delete('propertyLabel', ['propertyId' => $id])) {
             return false;
         }
 
-        // delete field
-        return $this->delete('field', ['id' => $id]);
+        // delete property
+        return $this->delete('property', ['id' => $id]);
     }
 
 
@@ -933,7 +933,7 @@ class SqlDatabase extends GlobalDatabase
         }
 
         // search in items
-        if ($this->count('itemField', ['value' => $path]) > 0) {
+        if ($this->count('itemProperty', ['value' => $path]) > 0) {
             return true;
         }
 

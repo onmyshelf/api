@@ -5,7 +5,7 @@ class Item
     protected $id;
     protected $collectionId;
     protected $name;
-    protected $fields;
+    protected $properties;
     protected $visibility;
 
     public function __construct($data=null)
@@ -34,13 +34,13 @@ class Item
 
 
     /**
-     * Get field value(s)
-     * @param  string $name Field name
+     * Get property value(s)
+     * @param  string $name Property name
      * @return mixed        Value or array of values
      */
-    public function getField($name)
+    public function getProperty($name)
     {
-        return (new Database())->getItemField($this->collectionId, $this->id, $name);
+        return (new Database())->getItemProperty($this->collectionId, $this->id, $name);
     }
 
 
@@ -60,21 +60,21 @@ class Item
 
 
     /**
-     * Set field
+     * Set property
      * @param string $name
      * @param mixed $value
      */
-    public function setField(string $name, $value=null)
+    public function setProperty(string $name, $value=null)
     {
-        if (!(new Database())->setItemField($this->collectionId, $this->id, $name, $value)) {
+        if (!(new Database())->setItemProperty($this->collectionId, $this->id, $name, $value)) {
             return false;
         }
 
         if (is_null($value)) {
-            unset($fields[$name]);
+            unset($this->properties[$name]);
         } else {
-            // save field in item object
-            $this->fields[$name] = $value;
+            // save property in item object
+            $this->properties[$name] = $value;
         }
 
         return true;
@@ -119,7 +119,7 @@ class Item
         return [
             'id' => $this->id,
             'collectionId' => $this->collectionId,
-            'fields' => $this->fields,
+            'properties' => $this->properties,
             'visibility' => $this->visibility
         ];
     }

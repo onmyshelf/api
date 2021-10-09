@@ -3,19 +3,19 @@
 class GlobalImport
 {
     protected $source;
-    protected $fields;
+    protected $properties;
     protected $options;
     protected $collection;
-    protected $itemNameField;
-    protected $importedFields;
+    protected $itemNameProperty;
+    protected $importedProperties;
     protected $importedItemsCount;
 
     public function __construct($source, $options=[]) {
         $this->source = $source;
         $this->options = $options;
 
-        $this->fields = [];
-        $this->importedFields = [];
+        $this->properties = [];
+        $this->importedProperties = [];
         $this->importedItemsCount = 0;
     }
 
@@ -32,17 +32,17 @@ class GlobalImport
 
 
     /**
-     * Scan fields and save them
+     * Scan properties and save them
      * @return bool Success
      */
-    public function setFields()
+    public function setProperties()
     {
-        $fields = $this->scanFields();
-        if ($fields === false) {
+        $properties = $this->scanProperties();
+        if ($properties === false) {
             return false;
         }
 
-        $this->fields = $fields;
+        $this->properties = $properties;
         return true;
     }
 
@@ -55,28 +55,28 @@ class GlobalImport
     public function setCollection(object $collection)
     {
         $this->collection = $collection;
-        $this->itemNameField = $collection->getItemNameField();
+        $this->itemNameProperty = $collection->getItemNameProperty();
     }
 
 
     /**
-     * Return fields used for basic compatibility;
+     * Return properties used for basic compatibility;
      * each child class should override this
      * @return array
      */
-    public function scanFields()
+    public function scanProperties()
     {
-        return $this->fields;
+        return $this->properties;
     }
 
 
     /**
-     * Transform a field
+     * Transform a property
      * @param  mixed $value      Value to transform
      * @param  string $operation Transform operation
      * @return mixed             Value transformed
      */
-    protected function transform($value, $operation = '')
+    protected function transform($value, $operation='', $options=[])
     {
         switch ($operation) {
             case 'delete':
@@ -91,11 +91,24 @@ class GlobalImport
 
                 $path = Storage::copy($url);
                 if (!$path) {
-                    Notification::notify("Failed to download url $url while import item field.", 'ERROR');
+                    Notification::notify("Failed to download url $url while import item property.", 'ERROR');
                     return null;
                 }
 
                 return $path;
+                break;
+
+            case 'replace':
+                if (isset($options['regex']) && isset($options['replace'])) {
+                    try {
+                        // return replacement
+                        return preg_replace($options['regex'], $options['replace'], $value);
+                    } catch (Throwable $t) {
+                        Logger::warning("error in import replace transform");
+                    }
+                }
+                // return with no changes
+                return $value;
                 break;
 
             case 'toString':
@@ -115,18 +128,18 @@ class GlobalImport
 
     /**
      * Import item in database
-     * @param  array  $fields
+     * @param  array  $properties
      * @return object Item object
      */
-    protected function importItem(array $fields, $fieldId=null)
+    protected function importItem(array $properties, $propertyId=null)
     {
         $item = false;
 
-        if (!is_null($fieldId)) {
-            if (isset($fields[$fieldId])) {
+        if (!is_null($propertyId)) {
+            if (isset($properties[$propertyId])) {
                 // load existing item
-                Logger::debug("Get item by property $fieldId=".$fields[$fieldId]);
-                $item = Item::getByProperty($this->collection->getId(), $fieldId, $fields[$fieldId]);
+                Logger::debug("Get item by property $propertyId=".$properties[$propertyId]);
+                $item = Item::getByProperty($this->collection->getId(), $propertyId, $properties[$propertyId]);
             }
         }
 
@@ -144,26 +157,26 @@ class GlobalImport
         // increment imported
         $this->importedItemsCount++;
 
-        // load fields mapping if exists
+        // load properties mapping if exists
         if (isset($this->options['mapping'])) {
             $mapping = $this->options['mapping'];
         } else {
             $mapping = [];
         }
 
-        // get existing fields defined in collection
-        $currentFields = array_keys($this->collection->getFields());
+        // get existing properties defined in collection
+        $currentProperties = array_keys($this->collection->getProperties());
 
-        // parse fields to insert
-        foreach ($fields as $key => $values) {
+        // parse properties to insert
+        foreach ($properties as $key => $values) {
             if (!is_array($values)) {
                 $values = [$values];
             }
 
             foreach ($values as $value) {
-                // search for field mapping
+                // search for property mapping
                 if (isset($mapping[$key])) {
-                    // field mapping transform
+                    // property mapping transform
                     if (isset($mapping[$key]['transform'])) {
                         if (!is_array($mapping[$key]['transform'])) {
                             $mapping[$key]['transform'] = [$mapping[$key]['transform']];
@@ -175,8 +188,8 @@ class GlobalImport
                         }
                     }
 
-                    if (isset($mapping[$key]['field'])) {
-                        $key = $mapping[$key]['field'];
+                    if (isset($mapping[$key]['property'])) {
+                        $key = $mapping[$key]['property'];
 
                         // empty: do not import value
                         if ($key == '') {
@@ -191,17 +204,17 @@ class GlobalImport
                 }
 
                 // if item name, set it
-                if ($key == $this->itemNameField) {
+                if ($key == $this->itemNameProperty) {
                     $item->setName($value);
                 }
 
-                // add field if not already imported
-                if (in_array($key, $this->importedFields) === false) {
-                    // check if field is already defined in collection
-                    if (in_array($key, $currentFields)) {
-                        $this->importedFields[] = $key;
+                // add property if not already imported
+                if (in_array($key, $this->importedProperties) === false) {
+                    // check if property is already defined in collection
+                    if (in_array($key, $currentProperties)) {
+                        $this->importedProperties[] = $key;
                     } else {
-                        // guess type of field from field name
+                        // guess type of property from property name
                         switch ($key) {
                             case 'id':
                             case 'image':
@@ -215,16 +228,16 @@ class GlobalImport
                                 break;
                         }
 
-                        // add new field
-                        if ($this->collection->addField($key, ['type' => $type])) {
-                            $this->importedFields[] = $key;
+                        // add new property
+                        if ($this->collection->addProperty($key, ['type' => $type])) {
+                            $this->importedProperties[] = $key;
                         }
                     }
                 }
 
-                // set item field
+                // set item property
                 if ($key != '') {
-                    $item->setField($key, $value);
+                    $item->setProperty($key, $value);
                 }
             }
         }
@@ -244,7 +257,7 @@ class GlobalImport
             'success'  => ($result ? true : false),
             'imported' => [
                 'items'  => $this->importedItemsCount,
-                'fields' => $this->importedFields
+                'properties' => $this->importedProperties
             ]
         ];
     }

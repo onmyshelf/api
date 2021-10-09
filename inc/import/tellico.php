@@ -11,7 +11,7 @@ class Import extends XmlImport
      * Scan fields of the collection
      * @return bool  Success
      */
-    public function scanFields()
+    public function scanProperties()
     {
         $fields = [];
 

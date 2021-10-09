@@ -1,6 +1,6 @@
 <?php
 
-class Field
+class Property
 {
     private $collectionId;
     private $name;
@@ -31,7 +31,7 @@ class Field
 
 
     /**
-     * Update field
+     * Update property
      * @param  array $data
      * @return bool
      */
@@ -54,7 +54,7 @@ class Field
 
 
     /**
-     * Delete field
+     * Delete property
      * @return bool
      */
     public function delete()
@@ -68,15 +68,15 @@ class Field
      */
 
     /**
-     * Get collection field by name
+     * Get property by name
      * @param  int    $collectionId
      * @param  string $name
-     * @return object Field object
+     * @return object Property object
      */
     public static function getByName($collectionId, $name)
     {
         if (is_null($collectionId)) {
-            Logger::error("Called Field::getByName(null,$name)");
+            Logger::error("Called Property::getByName(null,$name)");
             return false;
         }
 
@@ -90,7 +90,7 @@ class Field
 
 
     /**
-     * Get field types
+     * Get property types
      * @return array
      */
     public static function getTypes()

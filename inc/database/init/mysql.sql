@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `config` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-CREATE TABLE IF NOT EXISTS `field` (
+CREATE TABLE IF NOT EXISTS `property` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `collectionId` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -49,23 +49,23 @@ CREATE TABLE IF NOT EXISTS `field` (
   `preview` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Show in preview',
   `multiple` tinyint(1) NOT NULL DEFAULT 0,
   `filterable` tinyint(1) NOT NULL DEFAULT 0,
-  `order` int(11) NOT NULL DEFAULT 0 COMMENT 'Field position order',
+  `order` int(11) NOT NULL DEFAULT 0 COMMENT 'Property position order',
   PRIMARY KEY (`id`),
   UNIQUE KEY `collection_name` (`collectionId`,`name`),
-  CONSTRAINT `field_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`)
+  CONSTRAINT `property_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-CREATE TABLE IF NOT EXISTS `fieldLabel` (
-  `fieldId` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `propertyLabel` (
+  `propertyId` int(11) NOT NULL,
   `lang` varchar(10) DEFAULT NULL,
   `label` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
-  UNIQUE KEY `field_lang` (`fieldId`,`lang`),
+  UNIQUE KEY `property_lang` (`propertyId`,`lang`),
   KEY `lang` (`lang`),
-  KEY `field` (`fieldId`),
+  KEY `property` (`propertyId`),
   KEY `label` (`label`),
-  CONSTRAINT `fieldLabel_ibfk_1` FOREIGN KEY (`fieldId`) REFERENCES `field` (`id`)
+  CONSTRAINT `propertyLabel_ibfk_1` FOREIGN KEY (`propertyId`) REFERENCES `property` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
@@ -80,15 +80,15 @@ CREATE TABLE IF NOT EXISTS `item` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-CREATE TABLE IF NOT EXISTS `itemField` (
+CREATE TABLE IF NOT EXISTS `itemProperty` (
   `collectionId` int(11) NOT NULL,
   `itemId` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `value` text NOT NULL DEFAULT '',
   KEY `item` (`itemId`),
   KEY `collectionId` (`collectionId`),
-  CONSTRAINT `itemField_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`),
-  CONSTRAINT `itemField_ibfk_2` FOREIGN KEY (`itemId`) REFERENCES `item` (`id`)
+  CONSTRAINT `itemProperty_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`),
+  CONSTRAINT `itemProperty_ibfk_2` FOREIGN KEY (`itemId`) REFERENCES `item` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
@@ -105,12 +105,12 @@ CREATE TABLE IF NOT EXISTS `itemInstance` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-CREATE TABLE IF NOT EXISTS `itemInstanceField` (
+CREATE TABLE IF NOT EXISTS `itemInstanceProperty` (
   `itemInstanceId` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `value` longtext DEFAULT NULL,
   KEY `itemInstanceId` (`itemInstanceId`),
-  CONSTRAINT `itemInstanceField_ibfk_1` FOREIGN KEY (`itemInstanceId`) REFERENCES `itemInstance` (`id`)
+  CONSTRAINT `itemInstanceProperty_ibfk_1` FOREIGN KEY (`itemInstanceId`) REFERENCES `itemInstance` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 

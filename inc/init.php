@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '1.0.0-beta.1');
+define('VERSION', '1.0.0-beta.2');
 
 // load config file
 if (!file_exists("config.php")) {
@@ -48,6 +48,6 @@ require_once('inc/storage/storage.php');
 require_once('classes/Config.php');
 require_once('classes/Collection.php');
 require_once('classes/CollectionTemplate.php');
-require_once('classes/Field.php');
+require_once('classes/Property.php');
 require_once('classes/Item.php');
 require_once('classes/User.php');

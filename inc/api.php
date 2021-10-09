@@ -31,10 +31,10 @@ class Api
             '/collections/{id}/import/scan' => 'collectionImportScan',
             '/collections/{id}/import' => 'collectionImport',
             '/collections/{cid}/items' => 'items',
-            '/collections/{cid}/fields' => 'fields',
-            '/collections/{cid}/fields/{name}' => 'field',
+            '/collections/{cid}/properties' => 'properties',
+            '/collections/{cid}/properties/{name}' => 'property',
             '/collections/{cid}/items/{id}' => 'item',
-            '/fields/types' => 'fieldTypes',
+            '/properties/types' => 'propertyTypes',
             '/import/modules' => 'importModules',
             '/login' => 'userLogin',
             '/resetpassword' => 'userPasswordReset',
@@ -440,7 +440,7 @@ class Api
 
 
     /**
-     * Scan fields to import a collection
+     * Scan properties to import a collection
      * @return void
      */
     private function collectionImportScan()
@@ -454,18 +454,18 @@ class Api
         }
 
         try {
-            $fields = Collection::scanImport($this->data['type'],
+            $properties = Collection::scanImport($this->data['type'],
             $this->data['source'],
             $this->data['options']);
 
-            if ($fields === false) {
+            if ($properties === false) {
                 $this->error(400, 'Bad type');
             }
 
-            if (count($fields)) {
-                $this->response(['fields' => $fields]);
+            if (count($properties)) {
+                $this->response(['properties' => $properties]);
             } else {
-                $this->error(500, 'No fields detected');
+                $this->error(500, 'No properties detected');
             }
         } catch (Throwable $t) {
             Logger::fatal($t);
@@ -625,14 +625,14 @@ class Api
 
 
     /*
-     *  Fields
+     *  Properties
      */
 
     /**
-     * Fields handler
+     * Properties handler
      * @return void
      */
-    private function fields()
+    private function properties()
     {
         $this->requireArgs(['cid']);
 
@@ -644,14 +644,14 @@ class Api
 
         switch ($this->method) {
             case 'POST':
-                // create field
+                // create property
 
                 // check collection owner
                 $this->requireUserID($collection->getOwner());
 
                 $this->requireData(['name']);
 
-                if (!$collection->addField($this->data['name'], $this->data)) {
+                if (!$collection->addProperty($this->data['name'], $this->data)) {
                     $this->error(500);
                 }
                 $this->response(['updated' => true]);
@@ -665,10 +665,10 @@ class Api
 
 
     /**
-     * Field handler
+     * Property handler
      * @return void
      */
-    private function field()
+    private function property()
     {
         $this->requireArgs(['cid','name']);
 
@@ -678,39 +678,39 @@ class Api
             $this->error(404);
         }
 
-        // get field object
-        $field = Field::getByName($this->args['cid'], $this->args['name']);
-        if (!$field) {
+        // get property object
+        $property = Property::getByName($this->args['cid'], $this->args['name']);
+        if (!$property) {
             $this->error(404);
         }
 
         switch ($this->method) {
             case 'PATCH':
-                // update field
+                // update property
 
                 // check ownership
                 $this->requireUserID($collection->getOwner());
 
-                if (!$field->update($this->data)) {
+                if (!$property->update($this->data)) {
                     $this->error(500);
                 }
                 $this->response(['updated' => true]);
                 break;
 
             case 'DELETE':
-                // delete field
+                // delete property
 
                 // check ownership
                 $this->requireUserID($collection->getOwner());
 
-                if (!$field->delete()) {
+                if (!$property->delete()) {
                     $this->error(500);
                 }
                 $this->response(['deleted' => true]);
                 break;
 
             default:
-                // TODO: dump field (if useful)
+                // TODO: dump property (if useful)
                 $this->error(404);
                 break;
         }
@@ -718,13 +718,12 @@ class Api
 
 
     /**
-     * Field types
+     * Property types
      * @return void
      */
-    private function fieldTypes()
+    private function propertyTypes()
     {
-        require_once('classes/Field.php');
-        $this->response(Field::getTypes());
+        $this->response(Property::getTypes());
     }
 
 
