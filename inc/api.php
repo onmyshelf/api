@@ -8,6 +8,7 @@ class Api
     private $method;
     private $args;
     private $data;
+    private $route;
     private $routes;
 
     public function __construct()
@@ -212,6 +213,7 @@ class Api
         }
 
         Logger::debug("API call: $this->method $route");
+        $this->route = $route;
 
         $body = file_get_contents("php://input");
 
@@ -768,11 +770,13 @@ class Api
     private function upload()
     {
         if (!isset($_FILES['file'])) {
+            Logger::error("API call: ".$this->route." missing file");
             $this->error(400, 'Missing file');
         }
 
         $url = Storage::moveUploadedFile();
         if (!$url) {
+            Logger::error("API call: ".$this->route." error when storing file");
             $this->error(500);
         }
 
@@ -1039,7 +1043,7 @@ class Api
         foreach ($args as $arg) {
             // if field is missing, return error and quit
             if (!isset($this->args[$arg])) {
-                Logger::error('missing argument: ' . $arg);
+                Logger::error("API call: ".$this->route." missing argument: ".$arg);
                 $this->error(400, 'Missing arguments');
                 return false;
             }
@@ -1059,7 +1063,7 @@ class Api
         foreach ($fields as $field) {
             // if field is missing, return error and quit
             if (!isset($this->data[$field])) {
-                Logger::error('missing field: ' . $field);
+                Logger::error("API call: ".$this->route." missing field: ".$field);
                 $this->error(400, "Missing field: ".$field);
                 return false;
             }

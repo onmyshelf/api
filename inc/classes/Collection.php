@@ -329,8 +329,8 @@ class Collection
         // check required data
         $required = ['name'];
         foreach ($required as $key) {
-            if (!in_array($key, $data)) {
-                Logger::debug("Failed to create collection; missing: $key");
+            if (!isset($data[$key])) {
+                Logger::error("Failed to create collection; missing: $key");
                 return false;
             }
         }

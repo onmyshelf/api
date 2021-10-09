@@ -21,7 +21,8 @@ class Cmd
 
         if (!$db->getConfig('version')) {
             echo "Initialize database...";
-            if (!$db->install()) {
+            // WARN: we need to create a separate connection here
+            if (!(new Database())->install()) {
                 echo " FAILED!\n";
                 exit(1);
             }

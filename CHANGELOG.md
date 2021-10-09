@@ -1,11 +1,10 @@
 # Changelog for OnMyShelf API
 
-## 0.1.0 Alpha 2 (2021-08-11)
-- Add authentication system with Bearer tokens
-
-## 0.1.0 Alpha 1 (2021-07-31)
+## 1.0 Beta 1 (2021-09-27)
+- Create, edit & delete collections
+- Create, edit & delete fields
+- Create, edit & delete items
 - Import collections from GCstar, Tellico and CSV
-- Display collections
 
 ---------------------------------------------------------------
 
