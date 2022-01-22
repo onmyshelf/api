@@ -31,6 +31,62 @@ CREATE TABLE IF NOT EXISTS `config` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
+CREATE TABLE IF NOT EXISTS `item` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `collectionId` int(11) NOT NULL,
+  `visibility` int(10) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `collection` (`collectionId`),
+  CONSTRAINT `item_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+CREATE TABLE IF NOT EXISTS `itemInstance` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `collectionId` int(11) NOT NULL,
+  `itemId` int(11) NOT NULL,
+  `quantity` int(11) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  KEY `collectionId` (`collectionId`),
+  KEY `itemId` (`itemId`),
+  CONSTRAINT `itemInstance_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`),
+  CONSTRAINT `itemInstance_ibfk_2` FOREIGN KEY (`itemId`) REFERENCES `item` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+CREATE TABLE IF NOT EXISTS `itemInstanceField` (
+  `itemInstanceId` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `value` longtext DEFAULT NULL,
+  KEY `itemInstanceId` (`itemInstanceId`),
+  CONSTRAINT `itemInstanceField_ibfk_1` FOREIGN KEY (`itemInstanceId`) REFERENCES `itemInstance` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+CREATE TABLE IF NOT EXISTS `itemProperty` (
+  `collectionId` int(11) NOT NULL,
+  `itemId` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `value` text NOT NULL DEFAULT '',
+  KEY `item` (`itemId`),
+  KEY `collectionId` (`collectionId`),
+  CONSTRAINT `itemProperty_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`),
+  CONSTRAINT `itemProperty_ibfk_2` FOREIGN KEY (`itemId`) REFERENCES `item` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+CREATE TABLE IF NOT EXISTS `notification` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `userId` int(11) NOT NULL DEFAULT 1,
+  `datetime` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `type` varchar(255) NOT NULL,
+  `text` text NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `userId` (`userId`),
+  CONSTRAINT `notification_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
 CREATE TABLE IF NOT EXISTS `property` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `collectionId` int(11) NOT NULL,
@@ -49,7 +105,8 @@ CREATE TABLE IF NOT EXISTS `property` (
   `preview` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Show in preview',
   `multiple` tinyint(1) NOT NULL DEFAULT 0,
   `filterable` tinyint(1) NOT NULL DEFAULT 0,
-  `order` int(11) NOT NULL DEFAULT 0 COMMENT 'Property position order',
+  `sortable` tinyint(1) NOT NULL DEFAULT 0,
+  `order` int(11) NOT NULL DEFAULT 0 COMMENT 'Field position order',
   PRIMARY KEY (`id`),
   UNIQUE KEY `collection_name` (`collectionId`,`name`),
   CONSTRAINT `property_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`)
@@ -61,68 +118,11 @@ CREATE TABLE IF NOT EXISTS `propertyLabel` (
   `lang` varchar(10) DEFAULT NULL,
   `label` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
-  UNIQUE KEY `property_lang` (`propertyId`,`lang`),
+  UNIQUE KEY `field_lang` (`propertyId`,`lang`),
   KEY `lang` (`lang`),
-  KEY `property` (`propertyId`),
+  KEY `field` (`propertyId`),
   KEY `label` (`label`),
   CONSTRAINT `propertyLabel_ibfk_1` FOREIGN KEY (`propertyId`) REFERENCES `property` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-
-CREATE TABLE IF NOT EXISTS `item` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `collectionId` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL DEFAULT '',
-  `visibility` int(10) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`),
-  KEY `collection` (`collectionId`),
-  CONSTRAINT `item_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-
-CREATE TABLE IF NOT EXISTS `itemProperty` (
-  `collectionId` int(11) NOT NULL,
-  `itemId` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `value` text NOT NULL DEFAULT '',
-  KEY `item` (`itemId`),
-  KEY `collectionId` (`collectionId`),
-  CONSTRAINT `itemProperty_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`),
-  CONSTRAINT `itemProperty_ibfk_2` FOREIGN KEY (`itemId`) REFERENCES `item` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-
-CREATE TABLE IF NOT EXISTS `itemInstance` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `collectionId` int(11) NOT NULL,
-  `itemId` int(11) NOT NULL,
-  `quantity` int(11) NOT NULL DEFAULT 1,
-  PRIMARY KEY (`id`),
-  KEY `collectionId` (`collectionId`),
-  KEY `itemId` (`itemId`),
-  CONSTRAINT `itemInstance_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`),
-  CONSTRAINT `itemInstance_ibfk_2` FOREIGN KEY (`itemId`) REFERENCES `item` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-
-CREATE TABLE IF NOT EXISTS `itemInstanceProperty` (
-  `itemInstanceId` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `value` longtext DEFAULT NULL,
-  KEY `itemInstanceId` (`itemInstanceId`),
-  CONSTRAINT `itemInstanceProperty_ibfk_1` FOREIGN KEY (`itemInstanceId`) REFERENCES `itemInstance` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-
-CREATE TABLE IF NOT EXISTS `notification` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `userId` int(11) NOT NULL DEFAULT 1,
-  `datetime` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `type` varchar(255) NOT NULL,
-  `text` text NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `userId` (`userId`),
-  CONSTRAINT `notification_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 

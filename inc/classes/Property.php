@@ -17,6 +17,7 @@ class Property
     private $isCover;
     private $preview;
     private $filterable;
+    private $sortable;
     private $order;
 
     public function __construct($data=null)
