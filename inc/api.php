@@ -559,7 +559,6 @@ class Api
 
                 // filters
                 $filters = [];
-
                 // security check
                 if (isset($_GET['filterBy']) && isset($_GET['filterValue'])) {
                     if (preg_match('/^\w+$/', $_GET['filterBy'])) {
@@ -569,7 +568,22 @@ class Api
                         }
                     }
                 }
-                $this->response($collection->dumpItems($filters));
+
+                // sorting
+                $sortBy = [];
+                if (isset($_GET['sort'])) {
+                    // split fields by comma
+                    $sort = explode(',', $_GET['sort']);
+
+                    // security checking
+                    foreach ($sort as $field) {
+                      if (preg_match('/^-?\w+$/', $field)) {
+                          $sortBy[] = $field;
+                      }
+                    }
+                }
+
+                $this->response($collection->dumpItems($filters, $sortBy));
                 break;
         }
     }

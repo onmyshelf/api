@@ -112,12 +112,12 @@ class Collection
 
     /**
      * Get collection items
-     * @param  string $orderBy Option to order
+     * @param  array $sortBy  Fields to sort items
      * @return array
      */
-    public function getItems($orderBy=null)
+    public function getItems($sortBy=[])
     {
-        return (new Database())->getItems($this->id, $orderBy);
+        return (new Database())->getItems($this->id, $sortBy);
     }
 
 
@@ -164,13 +164,14 @@ class Collection
 
     /**
      * Returns collection items
-     * @param  array $filters  (optionnal)
+     * @param  array $filters (optionnal)
+     * @param  array $sortBy  (optionnal)
      * @return array Collection dumped
      */
-    public function dumpItems(array $filters=[])
+    public function dumpItems($filters=[], $sortBy=[])
     {
         // get items
-        $result = $this->getItems();
+        $result = $this->getItems($sortBy);
         if (!$result) {
             return [];
         }

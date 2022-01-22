@@ -458,22 +458,31 @@ class SqlDatabase extends GlobalDatabase
 
     /**
      * Get items of a collection
-     * @param  int  $collectionId Collection ID
+     * @param  int   $collectionId Collection ID
+     * @param  array $sortBy       (optionnal)
      * @return array|bool         Array of items IDs, FALSE if error
      */
-    public function getItems($collectionId, $orderBy=null, $reverseOrder=false)
+    public function getItems($collectionId, $sortBy=[])
     {
-        $query = "SELECT `id` FROM `item` WHERE `collectionId`=? AND `visibility`<=? ORDER BY `name`";
+        // no sorting => simple request on item table
+        $query = "SELECT `id` FROM `item` WHERE `collectionId`=? AND `visibility`<=?";
         $args = [$collectionId, $GLOBALS['accessRights']];
 
-        if (!is_null($orderBy)) {
-            $query = "SELECT i.id FROM `itemProperty` p JOIN `item` i ON p.itemId=i.id
-                      WHERE p.collectionId=? AND i.visibility<=? AND p.name=? ORDER BY p.value";
-            $args[] = $orderBy;
-        }
+        // if sorting...
+        if (count($sortBy) > 0) {
+            $query = "SELECT i.id, p.name, p.value FROM `item` i ".
+                     "LEFT JOIN `itemProperty` p ON p.itemId=i.id AND p.name=? ".
+                     "WHERE i.collectionId=? AND i.visibility<=? ".
+                     "ORDER BY p.value";
 
-        if ($reverseOrder) {
-            $query .= ' DESC';
+            // NOTE: this only works with one sorting field
+            //       must be rewritten for multiple sorting fields
+            $sort = $sortBy[0];
+            if (substr($sort,0,1) == '-') {
+                $sort = substr($sortBy[0], 1);
+                $query.= " DESC";
+            }
+            array_unshift($args, $sort);
         }
 
         return $this->selectColumn($query, $args);
