@@ -170,6 +170,14 @@ class Collection
      */
     public function dumpItems($filters=[], $sortBy=[])
     {
+        // default sorting by main name property
+        if (count($sortBy) == 0) {
+            $nameProperty = $this->getItemNameProperty();
+            if ($nameProperty) {
+                $sortBy[] = $nameProperty;
+            }
+        }
+
         // get items
         $result = $this->getItems($sortBy);
         if (!$result) {

@@ -557,29 +557,38 @@ class Api
             default:
                 // get items of collection
 
-                // filters
+                // get filters and sorting
                 $filters = [];
-                // security check
-                if (isset($_GET['filterBy']) && isset($_GET['filterValue'])) {
-                    if (preg_match('/^\w+$/', $_GET['filterBy'])) {
-                        $filter = $_GET['filterBy'];
-                        if (preg_match('/^\w+$/', $_GET['filterValue'])) {
-                            $filters[$filter] = $_GET['filterValue'];
-                        }
-                    }
-                }
-
-                // sorting
                 $sortBy = [];
-                if (isset($_GET['sort'])) {
-                    // split fields by comma
-                    $sort = explode(',', $_GET['sort']);
 
-                    // security checking
-                    foreach ($sort as $field) {
-                      if (preg_match('/^-?\w+$/', $field)) {
-                          $sortBy[] = $field;
-                      }
+                foreach ($_GET as $key => $value) {
+                    // sorting
+                    if ($key == 'sort') {
+                        // split fields by comma
+                        $sort = explode(',', $value);
+
+                        // security checking
+                        foreach ($sort as $property) {
+                            if (preg_match('/^-?\w+$/', $property)) {
+                                $sortBy[] = $property;
+                            }
+                        }
+                        continue;
+                    }
+
+                    // detect property
+                    if (substr($key, 0, 2) !== 'p_') {
+                        continue;
+                    }
+
+                    $property = substr($key, 2);
+                    if (!preg_match('/^\w+$/', $property)) {
+                        continue;
+                    }
+                    
+                    // security check
+                    if (preg_match('/^\w+$/', $value)) {
+                        $filters[$property] = $value;
                     }
                 }
 
