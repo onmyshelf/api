@@ -145,10 +145,9 @@ class Collection
 
     /**
      * Returns collection object data
-     * @param  array $filters  (optionnal)
      * @return array Collection dumped
      */
-    public function dump(array $filters=[])
+    public function dump()
     {
         return [
             'id' => $this->id,

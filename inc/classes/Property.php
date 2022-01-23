@@ -17,6 +17,7 @@ class Property
     private $isCover;
     private $preview;
     private $filterable;
+    private $searchable;
     private $sortable;
     private $order;
 

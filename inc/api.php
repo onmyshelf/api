@@ -420,20 +420,7 @@ class Api
 
             default:
                 // get collection
-
-                // filters
-                $filters = [];
-
-                // security check
-                if (isset($_GET['filterBy']) && isset($_GET['filterValue'])) {
-                    if (preg_match('/^\w+$/', $_GET['filterBy'])) {
-                        $filter = $_GET['filterBy'];
-                        if (preg_match('/^\w+$/', $_GET['filterValue'])) {
-                            $filters[$filter] = $_GET['filterValue'];
-                        }
-                    }
-                }
-                $this->response($collection->dump($filters));
+                $this->response($collection->dump());
                 break;
         }
     }
@@ -585,9 +572,9 @@ class Api
                     if (!preg_match('/^\w+$/', $property)) {
                         continue;
                     }
-                    
-                    // security check
-                    if (preg_match('/^\w+$/', $value)) {
+
+                    // security check (avoid symbols)
+                    if (preg_match('/^\P{S}+$/u', $value)) {
                         $filters[$property] = $value;
                     }
                 }

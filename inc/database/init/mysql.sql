@@ -105,6 +105,7 @@ CREATE TABLE IF NOT EXISTS `property` (
   `preview` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Show in preview',
   `multiple` tinyint(1) NOT NULL DEFAULT 0,
   `filterable` tinyint(1) NOT NULL DEFAULT 0,
+  `searchable` tinyint(1) NOT NULL DEFAULT 0,
   `sortable` tinyint(1) NOT NULL DEFAULT 0,
   `order` int(11) NOT NULL DEFAULT 0 COMMENT 'Field position order',
   PRIMARY KEY (`id`),
