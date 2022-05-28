@@ -792,7 +792,7 @@ class SqlDatabase extends GlobalDatabase
         }
 
         foreach ($rows as &$row) {
-            $row['property'] = $propertyId;
+            $row['propertyId'] = $propertyId;
         }
 
         $orUpdate = [];
