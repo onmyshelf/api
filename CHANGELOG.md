@@ -1,6 +1,6 @@
 # Changelog for OnMyShelf API
 
-## 1.0 Beta 3 (2022-0X-XX)
+## 1.0 RC 1 (2022-05-28)
 - Rename 'fields' to 'properties' for better understanding
 - Improve collection sorting and filtering
 
