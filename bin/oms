@@ -19,7 +19,15 @@ class Cmd
             exit(1);
         }
 
-        if (!$db->getConfig('version')) {
+        // get current version
+        try {
+            $version = $db->getConfig('version');
+        } catch (Throwable $t) {
+            // if failed, then probably the database is empty
+            $version = false;
+        }
+
+        if (!$version) {
             echo "Initialize database...";
             // WARN: we need to create a separate connection here
             if (!(new Database())->install()) {

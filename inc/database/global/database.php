@@ -8,7 +8,8 @@ class GlobalDatabase
      */
     public function install()
     {
-        return $this->setConfig('version', VERSION);
+        // we need to reset database connection after install
+        return (new Database())->setConfig('version', VERSION);
     }
 
 
