@@ -277,7 +277,7 @@ class Api
     private function userLogin()
     {
         // read only mode: disable authentication
-        if (READONLY) {
+        if (READ_ONLY) {
             $this->error(403);
         }
 

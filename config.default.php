@@ -64,4 +64,4 @@ define('LOGGER_LEVEL', 'INFO');
 
 // Read only mode; authentication disabled
 // Useful for demo websites
-define('READONLY', false);
+define('READ_ONLY', false);
