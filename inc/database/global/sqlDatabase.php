@@ -772,7 +772,7 @@ class SqlDatabase extends GlobalDatabase
         // create property
         $propertyId = $this->insertOne('property', $row);
         if ($propertyId === false) {
-            Logger::debug('Failed to insert new property: '.$name);
+            Logger::error('Failed to insert new property: '.$name);
             return false;
         }
 

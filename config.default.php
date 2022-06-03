@@ -56,6 +56,9 @@ define('MEDIA_URL', '/media');
  *  Advanced configuration
  */
 
+// Token retention time (in minutes)
+define('TOKEN_LIFETIME', 600);
+
 // Path of the log file
 define('LOGFILE', 'onmyshelf.log');
 

@@ -300,9 +300,9 @@ class Api
         $db = new Database();
         $db->cleanupTokens();
 
-        // create token that expires in 10 hours
+        // create token that expires in <default lifetime>
         $token = Token::generate();
-        $expiration = time()+36000;
+        $expiration = time() + TOKEN_LIFETIME * 60;
         Logger::debug("New token for user ".$this->data['username'].": $token, expires: $expiration");
 
         // TODO: check if behind reverse proxy; add trusted proxies config
