@@ -205,4 +205,33 @@ class Item
 
         return new self($data);
     }
+
+
+    /**
+     * Get data
+     * @param  string $type    Type of source
+     * @param  string $source  Import source
+     * @param  array  $options Options
+     * @return array|bool      Array of properties, false if error
+     */
+    public static function importData($type, $source, $options=[])
+    {
+        require_once('inc/classes/Module.php');
+        if (!Module::load('import', $type)) {
+            return false;
+        }
+
+        try {
+            $import = new Import($source, $options);
+        } catch (Throwable $t) {
+            Logger::fatal("error while loading import class: $type");
+            return false;
+        }
+
+        // get fields
+        $import->setFields();
+
+        // get data
+        return $import->getData();
+    }
 }

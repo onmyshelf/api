@@ -30,14 +30,14 @@ class HtmlImport extends GlobalImport
      * @param  string $selector
      * @return mixed
      */
-    public function getData($dom, $selector='innertext')
+    protected function getHtml($dom, $selector='innertext')
     {
-        $find = $this->html->find($dom);
+        $find = $this->html->find($dom, 0);
 
-        if (count($find) == 0) {
+        if (!$find) {
             return null;
         }
 
-        return $find[0]->$selector;
+        return trim($find->$selector);
     }
 }

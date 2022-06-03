@@ -247,7 +247,8 @@ class Collection
      */
     public function import($type, $source, $options=[])
     {
-        if (!self::importInit($type)) {
+        require_once('inc/classes/Module.php');
+        if (!Module::load('import', $type)) {
             return false;
         }
 
@@ -259,7 +260,7 @@ class Collection
         }
 
         $import->setCollection($this);
-        $import->setProperties();
+        $import->setFields();
 
         // return report
         return $import->report($import->import());
@@ -371,45 +372,7 @@ class Collection
      */
 
     /**
-     * Initialize import classes
-     * @param  string $type Type of import
-     * @return bool         Success
-     */
-    private static function importInit(string $type)
-    {
-        // check type (security)
-        if (!preg_match('/^[a-z-]+$/', $type)) {
-            Logger::error("bad import type: $type");
-            return false;
-        }
-
-        // load main class
-        require_once('inc/import/global/import.php');
-
-        // load module if exists
-        if (file_exists("inc/modules/import/$type/import.php")) {
-            try {
-                require_once("inc/modules/import/$type/import.php");
-                return true;
-            } catch (Throwable $t) {
-                Logger::fatal("error while loading import module: $type");
-                return false;
-            }
-        }
-
-        // load internal class if exists
-        if (file_exists("inc/import/$type.php")) {
-            require_once("inc/import/$type.php");
-            return true;
-        }
-
-        Logger::error("unknown import type: $type");
-        return false;
-    }
-
-
-    /**
-     * Analyse properties for import
+     * Analyse fields for import
      * @param  string $type    Type of source
      * @param  string $source  Import source
      * @param  array  $options Options
@@ -417,7 +380,8 @@ class Collection
      */
     public static function scanImport($type, $source, $options=[])
     {
-        if (!self::importInit($type)) {
+        require_once('inc/classes/Module.php');
+        if (!Module::load('import', $type)) {
             return false;
         }
 
@@ -428,7 +392,7 @@ class Collection
             return false;
         }
 
-        // get and return properties
-        return $import->scanProperties();
+        // get and return fields
+        return $import->scanFields();
     }
 }

@@ -38,7 +38,7 @@ class Import extends GlobalImport
      * Scan fields of the CSV
      * @return array|bool  Array of fields, FALSE if error
      */
-    public function scanProperties()
+    public function scanFields()
     {
         $fields = [];
 

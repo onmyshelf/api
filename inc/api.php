@@ -28,12 +28,13 @@ class Api
             '/' => 'welcome',
             '/collections' => 'collections',
             '/collections/{id}' => 'collection',
-            '/collections/{id}/import/scan' => 'collectionImportScan',
             '/collections/{id}/import' => 'collectionImport',
+            '/collections/{id}/import/scan' => 'collectionImportScan',
             '/collections/{cid}/items' => 'items',
             '/collections/{cid}/properties' => 'properties',
             '/collections/{cid}/properties/{name}' => 'property',
             '/collections/{cid}/items/{id}' => 'item',
+            '/collections/{cid}/items/{id}/import/data' => 'itemImportData',
             '/properties/types' => 'propertyTypes',
             '/import/modules' => 'importModules',
             '/login' => 'userLogin',
@@ -441,18 +442,18 @@ class Api
         }
 
         try {
-            $properties = Collection::scanImport($this->data['type'],
-            $this->data['source'],
-            $this->data['options']);
+            $fields = Collection::scanImport($this->data['type'],
+                                            $this->data['source'],
+                                            $this->data['options']);
 
-            if ($properties === false) {
+            if ($fields === false) {
                 $this->error(400, 'Bad type');
             }
 
-            if (count($properties)) {
-                $this->response(['properties' => $properties]);
+            if (count($fields)) {
+                $this->response(['fields' => $fields]);
             } else {
-                $this->error(500, 'No properties detected');
+                $this->error(500, 'No fields detected');
             }
         } catch (Throwable $t) {
             Logger::fatal($t);
@@ -630,6 +631,38 @@ class Api
                 // dump item
                 $this->response($item->dump());
                 break;
+        }
+    }
+
+
+    /**
+     * Scan properties to import an item
+     * @return void
+     */
+    private function itemImportData()
+    {
+        $this->post = true;
+        $this->requireData(['type', 'source']);
+
+        // default options
+        if (!isset($this->data['options'])) {
+            $this->data['options'] = [];
+        }
+
+        try {
+            $data = Item::importData($this->data['type'],
+                                     $this->data['source'],
+                                     $this->data['options']);
+
+            if ($data === false) {
+                $this->error(400, 'Bad type');
+            }
+
+            $this->response($data);
+
+        } catch (Throwable $t) {
+            Logger::fatal($t);
+            $this->error(500);
         }
     }
 

@@ -3,7 +3,7 @@
 class GlobalImport
 {
     protected $source;
-    protected $properties;
+    protected $fields;
     protected $options;
     protected $collection;
     protected $itemNameProperty;
@@ -14,7 +14,7 @@ class GlobalImport
         $this->source = $source;
         $this->options = $options;
 
-        $this->properties = [];
+        $this->fields = [];
         $this->importedProperties = [];
         $this->importedItemsCount = 0;
     }
@@ -32,17 +32,17 @@ class GlobalImport
 
 
     /**
-     * Scan properties and save them
+     * Scan fields and save them
      * @return bool Success
      */
-    public function setProperties()
+    public function setFields()
     {
-        $properties = $this->scanProperties();
-        if ($properties === false) {
+        $fields = $this->scanFields();
+        if ($fields === false) {
             return false;
         }
 
-        $this->properties = $properties;
+        $this->fields = $fields;
         return true;
     }
 
@@ -60,18 +60,18 @@ class GlobalImport
 
 
     /**
-     * Return properties used for basic compatibility;
-     * each child class should override this
+     * Return fields
+     * (used for basic compatibility; each child class should override this)
      * @return array
      */
-    public function scanProperties()
+    public function scanFields()
     {
-        return $this->properties;
+        return $this->fields;
     }
 
 
     /**
-     * Transform a property
+     * Transform a field
      * @param  mixed $value      Value to transform
      * @param  string $operation Transform operation
      * @return mixed             Value transformed
@@ -188,8 +188,8 @@ class GlobalImport
                         }
                     }
 
-                    if (isset($mapping[$key]['property'])) {
-                        $key = $mapping[$key]['property'];
+                    if (isset($mapping[$key]['field'])) {
+                        $key = $mapping[$key]['field'];
 
                         // empty: do not import value
                         if ($key == '') {

@@ -937,17 +937,26 @@ class SqlDatabase extends GlobalDatabase
     public function mediaExists($path)
     {
         // search in collection covers
-        if ($this->count('collection', ['cover' => $path]) > 0) {
+        $count = $this->count('collection', ['cover' => $path]);
+        if ($count === false || $count > 0) {
+            return true;
+        }
+
+        // search in config
+        $count = $this->count('config', ['value' => $path]);
+        if ($count === false || $count > 0) {
             return true;
         }
 
         // search in items
-        if ($this->count('itemProperty', ['value' => $path]) > 0) {
+        $count = $this->count('itemProperty', ['value' => $path]);
+        if ($count === false || $count > 0) {
             return true;
         }
 
         // search in user avatars
-        if ($this->count('user', ['avatar' => $path]) > 0) {
+        $count = $this->count('user', ['avatar' => $path]);
+        if ($count === false || $count > 0) {
             return true;
         }
 

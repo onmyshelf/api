@@ -3,7 +3,7 @@
 You can add here a custom import module.
 
 You must create your file with at least:
-- `scanProperties()`: method that detects item properties
+- `scanFields()`: method that detects fields
 - `import()`: method that does the import
 
 e.g. of file:
@@ -11,25 +11,23 @@ e.g. of file:
 <?php
 class Import extends ImportGlobal {
 
-  /**
-   * Analyse fields of the collection
-   * Fills $this->fields array
-   * @return void
-   */
-  public function scanProperties()
-  {
-    ...
-    $this->fields = [...];
-  }
+    /**
+     * Analyse fields available
+     * @return void
+     */
+    public function scanFields()
+    {
+        ...
+        return [...];
+    }
 
-  /**
-   * Analyse fields of the collection
-   * Fills $this->fields array
-   * @return int|bool  Number of items imported, FALSE if error
-   */
-  public function import($idCollection, $mapping=[])
-  {
-    ...
-  }
+    /**
+     * Import
+     * @return int|bool  Number of items imported, FALSE if error
+     */
+    public function import($idCollection, $mapping=[])
+    {
+        ...
+    }
 }
 ```
