@@ -159,7 +159,101 @@ class Storage
             return false;
         }
 
+        // create thumbnails (ignore errors)
+        self::createThumbnails($path);
+
         return 'media://'.$path;
+    }
+
+
+    /**
+     * Get thumbnails of a file
+     * @param  string $media Media path
+     * @return array  Array of thumbnails
+     */
+    public static function getThumbnails($media)
+    {
+        // check if media is correct
+        if (substr($media, 0, 8) !== 'media://') {
+            return [];
+        }
+
+        // remove media url prefix
+        $media = preg_replace('/^media:\/\//', '', $media);
+
+        // get media information
+        $pathinfo = pathinfo($media);
+
+        $thumbnails = [];
+        $sizes = [ 'small', 'normal' ];
+        foreach ($sizes as $size) {
+            $thumbnail = $pathinfo['dirname'].'/'.$pathinfo['filename'].'-'.$size.'.'.$pathinfo['extension'];
+            if (file_exists(MEDIA_DIR.'/'.$thumbnail)) {
+                $thumbnails[$size] = 'media://'.$thumbnail;
+            }
+        }
+
+        return $thumbnails;
+    }
+
+
+    /**
+     * Create thumbnails
+     * @param  string  $path  Image path
+     * @return bool    Success
+     */
+    public static function createThumbnails($media)
+    {
+        // get media information
+        $path = MEDIA_DIR.'/'.$media;
+        $pathinfo = pathinfo($path);
+
+        // get type of media
+        switch (exif_imagetype($path)) {
+            case IMAGETYPE_JPEG:
+                $format = 'jpeg';
+                break;
+
+            case IMAGETYPE_PNG:
+                $format = 'png';
+                break;
+
+            default:
+                // not an image
+                Logger::debug('No thumbnails created for media: '.$media);
+                return false;
+                break;
+        }
+
+        // import image
+        $sourceImage = call_user_func('imagecreatefrom'.$format, $path);
+        $orgWidth = imagesx($sourceImage);
+        $orgHeight = imagesy($sourceImage);
+
+        // generate thumbnails
+        $sizes = [ 'small' => 300, 'normal' => 800 ];
+        foreach ($sizes as $size => $thumbWidth) {
+            $thumbHeight = floor($orgHeight * ($thumbWidth / $orgWidth));
+
+            $thumbnail = imagecreatetruecolor($thumbWidth, $thumbHeight);
+
+            // add transparency for PNG files (avoid black backgrounds)
+            if ($format == 'png') {
+                imagealphablending($thumbnail, false);
+                imagesavealpha($thumbnail, true);
+                $transparentColor = imagecolorallocatealpha($thumbnail, 0, 0, 0, 127);
+                imagefill($thumbnail, 0, 0, $transparentColor);
+            }
+            imagecopyresampled($thumbnail, $sourceImage, 0, 0, 0, 0, $thumbWidth, $thumbHeight, $orgWidth, $orgHeight);
+
+            $thumbnailPath = $pathinfo['dirname'].'/'.$pathinfo['filename'].'-'.$size.'.'.$pathinfo['extension'];
+            call_user_func_array('image'.$format, [$thumbnail, $thumbnailPath]);
+
+            imagedestroy($thumbnail);
+        }
+
+        imagedestroy($sourceImage);
+        return true;
     }
 
 

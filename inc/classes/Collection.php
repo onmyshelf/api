@@ -154,6 +154,7 @@ class Collection
             'name' => $this->name,
             'description' => $this->description,
             'cover' => $this->cover,
+            'thumbnail' => Storage::getThumbnails($this->cover),
             'owner' => $this->owner,
             'visibility' => $this->visibility,
             'properties' => $this->properties
@@ -194,6 +195,7 @@ class Collection
                 $continue = count($filters) == 0;
                 $filterFound = false;
                 $itemProperties = [];
+                $thumbnails = [];
 
                 // parse properties of the item
                 foreach ($dumpItem['properties'] as $key => $value) {
@@ -201,6 +203,10 @@ class Collection
                     if (isset($this->properties[$key])) {
                         if ($this->properties[$key]['isCover'] || $this->properties[$key]['isTitle'] || $this->properties[$key]['preview']) {
                             $itemProperties[$key] = $value;
+                        }
+                        // add thumbnails
+                        if ($this->properties[$key]['isCover']) {
+                            $thumbnails = Storage::getThumbnails($value);
                         }
                     }
 
@@ -222,6 +228,7 @@ class Collection
                     $items[] = [
                         'id' => $dumpItem['id'],
                         'properties' => $itemProperties,
+                        'thumbnail' => $thumbnails,
                     ];
                 }
             }
@@ -371,7 +378,7 @@ class Collection
     private static function importInit(string $type)
     {
         // check type (security)
-        if (!preg_match('/^\w+$/', $type)) {
+        if (!preg_match('/^[a-z-]+$/', $type)) {
             Logger::error("bad import type: $type");
             return false;
         }

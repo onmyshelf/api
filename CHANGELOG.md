@@ -1,5 +1,8 @@
 # Changelog for OnMyShelf API
 
+# 1.0 RC 2 (2022-XX-XX)
+- Generate thumbnails when storing images
+
 # 1.0 RC 1 (2022-05-28)
 - Rename 'fields' to 'properties' for better understanding
 - Improve collection sorting and filtering
