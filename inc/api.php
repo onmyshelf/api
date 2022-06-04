@@ -261,13 +261,18 @@ class Api
      */
     private function welcome()
     {
-        $this->response([
+        $info = [
             'name' => 'OnMyShelf',
-            'version' => VERSION,
             'media' => MEDIA_URL,
-            'url' => 'https://onmyshelf.cm',
-            'email' => 'contact@onmyshelf.cm',
-        ]);
+            'readonly' => READ_ONLY,
+        ];
+
+        // more information if logged in
+        if (isset($GLOBALS['currentToken'])) {
+            $info['version'] = VERSION;
+        }
+
+        $this->response($info);
     }
 
 
@@ -277,11 +282,6 @@ class Api
      */
     private function userLogin()
     {
-        // read only mode: disable authentication
-        if (READ_ONLY) {
-            $this->error(403);
-        }
-
         // check method
         if ($this->method != 'POST') {
             $this->error(400);
@@ -317,7 +317,8 @@ class Api
         // returns token and user ID to client
         $this->response([
             'token' => $token,
-            'userid' => $user->getId()
+            'userid' => $user->getId(),
+            'readonly' => READ_ONLY,
         ]);
     }
 
@@ -358,6 +359,13 @@ class Api
         switch ($this->method) {
             case 'POST':
                 // create new collection
+
+                // forbidden in read only mode
+                if (READ_ONLY) {
+                    $this->error(403);
+                }
+
+                // forbidden if not logged in
                 $this->requireAuthentication();
 
                 $this->post = true;
@@ -404,6 +412,11 @@ class Api
             case 'PATCH':
                 // update collection
 
+                // forbidden in read only mode
+                if (READ_ONLY) {
+                    $this->error(403);
+                }
+
                 // check ownership
                 $this->requireUserID($collection->getOwner());
                 // update collection
@@ -412,6 +425,11 @@ class Api
 
             case 'DELETE':
                 // delete collection
+
+                // forbidden in read only mode
+                if (READ_ONLY) {
+                    $this->error(403);
+                }
 
                 // check ownership
                 $this->requireUserID($collection->getOwner());
@@ -433,6 +451,11 @@ class Api
      */
     private function collectionImportScan()
     {
+        // forbidden in read only mode
+        if (READ_ONLY) {
+            $this->error(403);
+        }
+
         $this->post = true;
         $this->requireData(['type', 'source']);
 
@@ -468,6 +491,11 @@ class Api
      */
     private function collectionImport()
     {
+        // forbidden in read only mode
+        if (READ_ONLY) {
+            $this->error(403);
+        }
+
         $this->post = true;
         $this->requireArgs(['id']);
         $this->requireData(['type', 'source']);
@@ -521,11 +549,17 @@ class Api
             $this->error(404, 'Collection does not exists');
         }
 
+        // forbidden if not owner
         $this->compareUserID($collection->getOwner());
 
         switch ($this->method) {
             case 'POST':
                 // create a new item
+
+                // forbidden in read only mode
+                if (READ_ONLY) {
+                    $this->error(403);
+                }
 
                 // check ownership
                 $this->requireUserID($collection->getOwner());
@@ -611,6 +645,11 @@ class Api
             case 'PATCH':
                 // update item
 
+                // forbidden in read only mode
+                if (READ_ONLY) {
+                    $this->error(403);
+                }
+
                 // check ownership
                 $this->requireUserID($collection->getOwner());
 
@@ -620,6 +659,11 @@ class Api
 
             case 'DELETE':
                 // delete item
+
+                // forbidden in read only mode
+                if (READ_ONLY) {
+                    $this->error(403);
+                }
 
                 // check ownership
                 $this->requireUserID($item->getOwner());
@@ -641,6 +685,11 @@ class Api
      */
     private function itemImportData()
     {
+        // forbidden in read only mode
+        if (READ_ONLY) {
+            $this->error(403);
+        }
+
         $this->post = true;
         $this->requireData(['type', 'source']);
 
@@ -689,6 +738,11 @@ class Api
             case 'POST':
                 // create property
 
+                // forbidden in read only mode
+                if (READ_ONLY) {
+                    $this->error(403);
+                }
+
                 // check collection owner
                 $this->requireUserID($collection->getOwner());
 
@@ -731,6 +785,11 @@ class Api
             case 'PATCH':
                 // update property
 
+                // forbidden in read only mode
+                if (READ_ONLY) {
+                    $this->error(403);
+                }
+
                 // check ownership
                 $this->requireUserID($collection->getOwner());
 
@@ -742,6 +801,11 @@ class Api
 
             case 'DELETE':
                 // delete property
+
+                // forbidden in read only mode
+                if (READ_ONLY) {
+                    $this->error(403);
+                }
 
                 // check ownership
                 $this->requireUserID($collection->getOwner());
@@ -811,6 +875,14 @@ class Api
      */
     private function upload()
     {
+        // forbidden in read only mode
+        if (READ_ONLY) {
+            $this->error(403);
+        }
+
+        // forbidden if not logged in
+        $this->requireAuthentication();
+
         if (!isset($_FILES['file'])) {
             Logger::error("API call: ".$this->route." missing file");
             $this->error(400, 'Missing file');
@@ -857,6 +929,11 @@ class Api
      */
     private function userPassword()
     {
+        // forbidden in read only mode
+        if (READ_ONLY) {
+            $this->error(403);
+        }
+
         $this->requireArgs(['uid']);
 
         // check method
@@ -886,6 +963,11 @@ class Api
      */
     private function userPasswordReset()
     {
+        // forbidden in read only mode
+        if (READ_ONLY) {
+            $this->error(403);
+        }
+
         // check method
         if ($this->method != 'POST') {
             $this->error(400);
