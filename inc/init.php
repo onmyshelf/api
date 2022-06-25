@@ -1,6 +1,5 @@
 <?php
-
-define('VERSION', '1.0.0-beta.3+2022012201');
+define('VERSION', '1.0.0-rc.2+2022062501');
 
 // load config file
 if (!file_exists("config.php")) {

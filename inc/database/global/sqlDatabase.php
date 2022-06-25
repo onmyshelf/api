@@ -111,17 +111,7 @@ class SqlDatabase extends GlobalDatabase
      */
     public function setConfig(string $param, $value)
     {
-        // insert or update value
-        if ($this->getConfig($param)) {
-            return $this->update('config',
-                ['param' => $param], ['value' => $value]
-            );
-        } else {
-            // TODO: insertOrUpdate method does not work on this case; don't know why
-            return $this->insertOne('config',
-                ['param' => $param, 'value' => $value]
-            );
-        }
+        return $this->insertOne('config', ['param' => $param, 'value' => $value], ['value']);
     }
 
 
@@ -1000,11 +990,19 @@ class SqlDatabase extends GlobalDatabase
      */
     public function getUserByLogin($username, $password)
     {
-        // TODO: change crypt method; checking only the 8 first characters
-        return $this->selectFirst(
-            "SELECT * FROM `user` WHERE `username`=? AND `password`=?",
-            [$username, crypt($password, DB_SALT)]
-        );
+        $user = $this->selectFirst("SELECT * FROM `user` WHERE `username`=?",
+                                   [$username]);
+        if (!$user) {
+            return false;
+        }
+
+        if (!password_verify($password, $user['password'])) {
+            return false;
+        }
+
+        // return user details without password
+        unset($user['password']);
+        return $user;
     }
 
 
@@ -1028,7 +1026,7 @@ class SqlDatabase extends GlobalDatabase
     public function createUser($username, $password)
     {
         return $this->insertOne('user',
-            ['username' => $username, 'password' => crypt($password, DB_SALT)]
+            ['username' => $username, 'password' => password_hash($password, PASSWORD_BCRYPT)]
         );
     }
 
@@ -1042,7 +1040,8 @@ class SqlDatabase extends GlobalDatabase
     public function setUserPassword($userID, $password)
     {
         return $this->update('user',
-            ['password' => crypt($password, DB_SALT)], ['id' => $userID]
+            ['password' => password_hash($password, PASSWORD_BCRYPT)],
+            ['id' => $userID]
         );
     }
 
@@ -1107,7 +1106,7 @@ class SqlDatabase extends GlobalDatabase
             // do changes in database...
         }*/
 
-        return $this->setConfig('version', $newVersion);
+        return parent::upgrade($newVersion);
     }
 
 

@@ -45,7 +45,7 @@ class Cmd
             }
         }
 
-        echo "\nOnMyShelf is ready\n";
+        echo "\nOnMyShelf is ready!\n";
     }
 
 
@@ -63,14 +63,21 @@ class Cmd
             exit(1);
         }
 
+        $newVersion = preg_replace('/\+.*/', '', VERSION);
+
         // run upgrade
         if (Config::compareVersions(VERSION, $currentVersion)) {
-            echo "Upgrading to ".VERSION."...";
+            echo "Upgrading from $currentVersion to $newVersion...";
 
             // upgrade version (without build number)
-            (new Database())->upgrade(preg_replace('/\+.*/', '', VERSION));
+            if ((new Database())->upgrade($newVersion)) {
+                echo "\nUpgrade finished\n";
+            } else {
+                echo " FAILED! (see log file for more details)\n";
+                exit(1);
+            }
         } else {
-            echo "Already up-to-date";
+            echo "OnMyShelf is already up-to-date\n";
         }
     }
 
