@@ -28,6 +28,47 @@ class User
 
 
     /**
+     * Get username
+     * @return string
+     */
+    public function getUsername()
+    {
+        return $this->username;
+    }
+
+
+    /**
+     * Create token
+     * @param  string $type               [description]
+     * @return [type]       [description]
+     */
+    public function createToken($type=null)
+    {
+        $token = Token::generate();
+
+        if ($type == 'resetpassword') {
+            $lifetime = 120;
+        } else {
+            $lifetime = TOKEN_LIFETIME;
+        }
+
+        $expiration = time() + $lifetime * 60;
+        Logger::debug("New token for user ".$this->username.": $token, expires: $expiration");
+
+        // TODO: check if behind reverse proxy; add trusted proxies config
+        $ipOrigin = (string)$_SERVER['REMOTE_ADDR'];
+
+        // add token in database
+        if (!(new Database())->createToken($token, $this->id, $expiration, $ipOrigin, $type)) {
+            Logger::error('Failed to create token for user '.$this->id);
+            return false;
+        }
+
+        return $token;
+    }
+
+
+    /**
      * Set password
      * @param  string  $password
      * @return boolean Success
@@ -35,16 +76,6 @@ class User
     public function setPassword(string $password)
     {
         return (new Database())->setUserPassword($this->id, $password);
-    }
-
-
-    /**
-     * Set password reset token
-     * @return boolean Success
-     */
-    public function setResetToken($token)
-    {
-        return (new Database())->setUserResetToken($this->id, $token);
     }
 
 
@@ -90,9 +121,9 @@ class User
      * @param  string $token
      * @return object User object
      */
-    public static function getByResetToken($token)
+    public static function getByToken($token, $type=null)
     {
-        $data = (new Database())->getUserByResetToken($token);
+        $data = (new Database())->getUserByToken($token, $type);
         if (!$data) {
             return false;
         }

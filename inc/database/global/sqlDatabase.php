@@ -35,35 +35,22 @@ class SqlDatabase extends GlobalDatabase
     /**
      * Create token for user
      * @param  string  $token
-     * @param  string  $username
+     * @param  integer $userId
      * @return boolean Success
      */
-    public function createToken(string $token, string $username, $expiration=null, $ipOrigin=null)
+    public function createToken($token, $userId, $expiration=null, $ipOrigin=null, $type=null)
     {
-        // get user ID from username
-        $userId = $this->selectOne("SELECT `id` FROM `user` WHERE `username`=?", [$username]);
-        if (!is_integer($userId)) {
-            return false;
+        $args = [
+            'token' => $token, 'userId' => $userId,
+            'expiration' => $expiration,
+            'created' => time(), 'ipIssuer' => $ipOrigin
+        ];
+
+        if (!is_null($type)) {
+            $args['type'] = $type;
         }
 
-        return $this->insertOne('token', [
-            'token' => $token, 'userId' => $userId, 'expiration' => $expiration,
-            'created' => time(), 'ipIssuer' => $ipOrigin]);
-    }
-
-
-    /**
-     * Check token and returns user ID
-     * @param  string  $token
-     * @return integer User ID, FALSE if not found
-     */
-    public function getUserFromToken(string $token)
-    {
-        return $this->selectFirst(
-            "SELECT u.id AS `id`, u.username AS `username`
-             FROM `token` t JOIN `user` u ON t.userId=u.id
-             WHERE t.token=? AND t.expiration>?",
-            [$token, time()]);
+        return $this->insertOne('token', $args);
     }
 
 
@@ -1007,13 +994,26 @@ class SqlDatabase extends GlobalDatabase
 
 
     /**
-     * Get user by password reset token
+     * Get user by token
      * @param  string $token
      * @return array  Result
      */
-    public function getUserByResetToken($token)
+    public function getUserByToken($token, $type=null)
     {
-        return $this->selectFirst("SELECT * FROM `user` WHERE `resetToken`=?", [$token]);
+        $query = "SELECT u.* FROM `user` u JOIN `token` t ON u.`id`=t.`userId`
+                  AND t.`token`=? AND t.`expiration`>?";
+        $args = [$token, time()];
+
+        if (is_null($type)) {
+            // search for all standard tokens
+            $query .= " AND t.`type`<>'resetpassword'";
+        } else {
+            // search for a particular token type
+            $query .= " AND t.`type`=?";
+            $args[] = $type;
+        }
+
+        return $this->selectFirst($query, $args);
     }
 
 
@@ -1042,20 +1042,6 @@ class SqlDatabase extends GlobalDatabase
         return $this->update('user',
             ['password' => password_hash($password, PASSWORD_BCRYPT)],
             ['id' => $userID]
-        );
-    }
-
-
-    /**
-     * Set user password reset token
-     * @param  int    $userID
-     * @param  string $token
-     * @return bool   Success
-     */
-    public function setUserResetToken($userID, $token)
-    {
-        return $this->update('user',
-            ['resetToken' => $token], ['id' => $userID]
         );
     }
 

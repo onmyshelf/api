@@ -104,18 +104,18 @@ class Api
         }
 
         // check if token is valid
-        $userData = (new Database())->getUserFromToken($token);
-        if (!$userData) {
+        $user = User::getByToken($token);
+        if (!$user) {
             Logger::debug("Bad token: $token");
             $this->error(401, "Invalid token");
         }
 
         $GLOBALS['accessRights'] = 1;
         $GLOBALS['currentToken'] = $token;
-        $GLOBALS['currentUserID'] = $userData['id'];
-        $GLOBALS['currentUsername'] = $userData['username'];
+        $GLOBALS['currentUserID'] = $user->getId();
+        $GLOBALS['currentUsername'] = $user->getUsername();
 
-        Logger::debug("User ".$userData['id']." connected using token: $token");
+        Logger::debug("User ".$GLOBALS['currentUserID']." connected using token: $token");
     }
 
 
@@ -296,21 +296,12 @@ class Api
             $this->error(401, 'Authentication failed');
         }
 
-        // delete expired tokens
-        // TODO: move this to another place
-        $db = new Database();
-        $db->cleanupTokens();
+        // clean expired tokens
+        (new Database())->cleanupTokens();
 
-        // create token that expires in <default lifetime>
-        $token = Token::generate();
-        $expiration = time() + TOKEN_LIFETIME * 60;
-        Logger::debug("New token for user ".$this->data['username'].": $token, expires: $expiration");
-
-        // TODO: check if behind reverse proxy; add trusted proxies config
-        $ipOrigin = (string)$_SERVER['REMOTE_ADDR'];
-
-        // add token in database
-        if (!$db->createToken($token, $this->data['username'], $expiration, $ipOrigin)) {
+        // create token for user
+        $token = $user->createToken();
+        if (!$token) {
             $this->error(500, 'Failed to create token');
         }
 
@@ -979,17 +970,23 @@ class Api
 
             $user = User::getByName($this->data['username']);
             if (!$user) {
-                $this->error(401);
+                Logger::warn('Reset password request for unknown username: '.$this->data['username']);
+
+                // we send a positive feedback to avoid guessing usernames
+                $this->response(['asked' => true]);
+                return;
             }
 
-            // generate reset token
-            $resetToken = Token::generate(20);
-            $user->setResetToken($resetToken);
+            // create reset token for user
+            $token = $user->createToken('resetpassword');
+            if (!$token) {
+                $this->error(500, 'Failed to create token');
+            }
 
-            Logger::message("*****  PASSWORD RESET ASK  *****");
-            Logger::message("* User: ".$user->getId());
-            Logger::message("* Token: $resetToken");
-            Logger::message("********************************");
+            Logger::message("*************  RESET PASSWORD REQUEST  *************");
+            Logger::message("*  UserID: ".$user->getId());
+            Logger::message("*  URL:    /resetpassword?token=$token");
+            Logger::message("****************************************************");
 
             // quit
             $this->response(['asked' => true]);
@@ -999,8 +996,11 @@ class Api
         // ask for password reset
         $this->requireData(['newpassword']);
 
+        // clean expired tokens
+        (new Database())->cleanupTokens();
+
         // check reset token
-        $user = User::getByResetToken($this->data['resetToken']);
+        $user = User::getByToken($this->data['resetToken'], 'resetpassword');
         if (!$user) {
             $this->error(401);
         }
@@ -1011,7 +1011,7 @@ class Api
         }
 
         // delete reset token
-        $user->setResetToken('');
+        Token::revoke($this->data['resetToken']);
 
         $this->response(['reset' => true]);
     }
@@ -1035,6 +1035,11 @@ class Api
             header("Access-Control-Allow-Methods: *");
             header("Access-Control-Allow-Headers: *");
             header("Content-Type: application/json; charset=UTF-8");
+
+            /****************************************/
+            //       INSECURE: for dev only!
+            header("Access-Control-Allow-Origin: *");
+            /****************************************/
 
             $this->headers = true;
         }

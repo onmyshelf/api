@@ -6,6 +6,18 @@
 class Cmd
 {
     /**
+     * Cleanup database
+     * @return void
+     */
+    public static function cleanup()
+    {
+        echo "Cleanup expired tokens...";
+        (new Database())->cleanupTokens();
+        echo "\nCleanup finished.\n";
+    }
+
+
+    /**
      * Install OnMyShelf
      * @return void
      */
@@ -94,7 +106,7 @@ class Cmd
             $cmd = 'COMMAND';
         }
 
-        echo "Usage: php bin/oms $cmd";
+        echo "Usage: php bin/oms $cmd\n";
 
         if (is_null($command)) {
             echo "\nAvailable commands:\n";
@@ -103,18 +115,27 @@ class Cmd
             }
         }
 
+        echo "\n";
+
         switch ($command) {
+            case 'cleanup':
+                echo "Cleanup database and files";
+                break;
+
             case 'install':
-                echo "\nInstalls OnMyShelf";
+                echo "Installs OnMyShelf";
                 break;
 
             case 'upgrade':
-                echo "\nUpgrades OnMyShelf to the last version";
+                echo "Upgrades OnMyShelf to the last version";
+                break;
+
+            case '':
                 break;
 
             default:
-                echo "\nCommand '$command' does not exists.\n";
-                echo "Type 'oms help' to see available commands.\n";
+                echo "Command '$command' does not exists.\n";
+                echo "Type 'oms help' to see available commands.";
                 break;
         }
     }
@@ -127,6 +148,7 @@ if (count($argv) < 2) {
 
 if (!method_exists('Cmd', $argv[1])) {
     echo "ERROR: command not found\n";
+    Cmd::help();
     exit(1);
 }
 
