@@ -31,7 +31,7 @@ class Database extends SqlDatabase
         # allow multiple queries
         $this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, 0);
 
-        if (!$this->connection->exec($sql)) {
+        if ($this->connection->exec($sql) === false) {
             Logger::fatal('Database initialization failed!');
             return false;
         }

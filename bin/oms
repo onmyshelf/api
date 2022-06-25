@@ -31,7 +31,7 @@ class Cmd
             echo "Initialize database...";
             // WARN: we need to create a separate connection here
             if (!(new Database())->install()) {
-                echo " FAILED!\n";
+                echo " FAILED! (see log file for more details)\n";
                 exit(1);
             }
 
@@ -39,7 +39,7 @@ class Cmd
             if ($db->countUsers() == 0) {
                 echo "\nCreate default user...";
                 if (!$db->createUser('onmyshelf', 'onmyshelf')) {
-                    echo " FAILED!\n";
+                    echo " FAILED! (see log file for more details)\n";
                     exit(1);
                 }
             }

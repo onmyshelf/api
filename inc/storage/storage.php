@@ -174,7 +174,7 @@ class Storage
     public static function getThumbnails($media)
     {
         // check if media is correct
-        if (substr($media, 0, 8) !== 'media://') {
+        if (substr((string)$media, 0, 8) !== 'media://') {
             return [];
         }
 
