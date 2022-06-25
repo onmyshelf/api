@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `collection` (
   `template` tinyint(4) NOT NULL DEFAULT 0,
   `visibility` int(10) NOT NULL DEFAULT 3,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE IF NOT EXISTS `collectionLabel` (
@@ -54,12 +54,13 @@ CREATE TABLE IF NOT EXISTS `itemInstance` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-CREATE TABLE IF NOT EXISTS `itemInstanceField` (
+CREATE TABLE IF NOT EXISTS `itemInstanceProperty` (
   `itemInstanceId` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `value` longtext DEFAULT NULL,
   KEY `itemInstanceId` (`itemInstanceId`),
-  CONSTRAINT `itemInstanceField_ibfk_1` FOREIGN KEY (`itemInstanceId`) REFERENCES `itemInstance` (`id`)
+  KEY `name` (`name`),
+  CONSTRAINT `itemInstanceProperty_ibfk_1` FOREIGN KEY (`itemInstanceId`) REFERENCES `itemInstance` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
@@ -70,6 +71,7 @@ CREATE TABLE IF NOT EXISTS `itemProperty` (
   `value` text NOT NULL DEFAULT '',
   KEY `item` (`itemId`),
   KEY `collectionId` (`collectionId`),
+  KEY `name` (`name`),
   CONSTRAINT `itemProperty_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`),
   CONSTRAINT `itemProperty_ibfk_2` FOREIGN KEY (`itemId`) REFERENCES `item` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -83,6 +85,8 @@ CREATE TABLE IF NOT EXISTS `notification` (
   `text` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `userId` (`userId`),
+  KEY `type` (`type`),
+  KEY `datetime` (`datetime`),
   CONSTRAINT `notification_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -110,6 +114,7 @@ CREATE TABLE IF NOT EXISTS `property` (
   `order` int(11) NOT NULL DEFAULT 0 COMMENT 'Field position order',
   PRIMARY KEY (`id`),
   UNIQUE KEY `collection_name` (`collectionId`,`name`),
+  KEY `name` (`name`),
   CONSTRAINT `property_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
