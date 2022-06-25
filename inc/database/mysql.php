@@ -3,7 +3,7 @@
 *  MySQL/MariaDB database support
 */
 
-require_once('global/sqlDatabase.php');
+require_once('sqlDatabase.php');
 
 class Database extends SqlDatabase
 {

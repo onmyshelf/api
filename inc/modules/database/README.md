@@ -1,6 +1,9 @@
 # Database modules
 
-You can add here a custom database class.
+You can add here a custom database module.
+
+# Structure
+Creates a folder here with a file named `database.php`.
 
 e.g. of file:
 ```php
@@ -9,5 +12,3 @@ class Database extends DatabaseGlobal {
   ...
 }
 ```
-
-For more information about database, see the [README file](../database/README.md)

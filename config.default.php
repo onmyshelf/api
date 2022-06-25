@@ -38,6 +38,9 @@ define('API_URL', '/api/v1');
  *  Media library
  */
 
+// Storage type
+define('STORAGE', 'local');
+
 // Directoy path of the media library
 // Default: ../../media (starts from /api/v1)
 define('MEDIA_DIR', '../../media');

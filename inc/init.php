@@ -19,29 +19,43 @@ if (!preg_match('/^\w+$/', DATABASE)) {
 }
 
 // load main database class
-require_once('inc/database/global/database.php');
+require_once('inc/database/database.php');
 
-// load internal database class if exists
-if (file_exists("inc/database/".DATABASE.".php")) {
-    require_once("inc/database/".DATABASE.".php");
-} else {
-    // load module if exists
-    if (file_exists("inc/modules/database/".DATABASE.".php")) {
-        try {
-            Logger::debug("Use database module: ".DATABASE);
-            require_once("inc/modules/database/".DATABASE.".php");
-        } catch (Throwable $t) {
-            Logger::fatal("error while loading database module: ".DATABASE);
-            exit(1);
+switch (DATABASE) {
+    case 'mysql':
+        // native database modules
+        require_once("inc/database/".DATABASE.".php");
+        break;
+
+    default:
+        if (file_exists("inc/modules/database/".DATABASE."/database.php")) {
+            try {
+                require_once("inc/modules/database/".DATABASE."/database.php");
+            } catch (Throwable $t) {
+                Logger::fatal("error while loading database module: ".DATABASE);
+                exit(1);
+            }
         }
-    } else {
-        Logger::fatal("unknown database type: ".DATABASE);
-        exit(1);
-    }
+        break;
 }
 
-// load main storage class
-require_once('inc/storage/storage.php');
+switch (STORAGE) {
+    case 'local':
+        // native storage modules
+        require_once("inc/storage/".STORAGE.".php");
+        break;
+
+    default:
+        if (file_exists("inc/modules/storage/".STORAGE."/storage.php")) {
+            try {
+                require_once("inc/modules/storage/".STORAGE."/storage.php");
+            } catch (Throwable $t) {
+                Logger::fatal("error while loading storage module: ".STORAGE);
+                exit(1);
+            }
+        }
+        break;
+}
 
 // load classes
 require_once('classes/Config.php');

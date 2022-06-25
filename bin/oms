@@ -39,7 +39,9 @@ class Cmd
             $version = false;
         }
 
-        if (!$version) {
+        if ($version) {
+            echo "\nOnMyShelf is already installed\n";
+        } else {
             echo "Initialize database...";
             // WARN: we need to create a separate connection here
             if (!(new Database())->install()) {
@@ -55,9 +57,9 @@ class Cmd
                     exit(1);
                 }
             }
-        }
 
-        echo "\nOnMyShelf is ready!\n";
+            echo "\nOnMyShelf is ready!\n";
+        }
     }
 
 

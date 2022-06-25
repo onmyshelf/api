@@ -1,2 +1,3 @@
-*.php
-!example.php
+*
+!.gitignore
+!README.md

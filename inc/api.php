@@ -837,7 +837,7 @@ class Api
     private function importModules()
     {
         $core = glob('inc/import/*.php');
-        $addons = glob('inc/modules/import/*.php');
+        $addons = glob('inc/modules/import/*/import.php');
         $modules = [];
 
         // get import modules
@@ -1038,7 +1038,7 @@ class Api
 
             /****************************************/
             //       INSECURE: for dev only!
-            header("Access-Control-Allow-Origin: *");
+            //header("Access-Control-Allow-Origin: *");
             /****************************************/
 
             $this->headers = true;
