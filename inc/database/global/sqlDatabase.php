@@ -1220,7 +1220,7 @@ class SqlDatabase extends GlobalDatabase
         $query = 'UPDATE `'.$table.'` SET ';
 
         foreach ($values as $key => $v) {
-            $query .= '`'.$key.'`=?,';
+            $query .= '`'.$key.'`=:'.$key.',';
         }
         // delete last ","
         $query = substr($query, 0, -1);
@@ -1229,7 +1229,7 @@ class SqlDatabase extends GlobalDatabase
             $query .= ' WHERE ';
 
             foreach ($filters as $key => $v) {
-                $query .= '`'.$key.'`=? AND ';
+                $query .= '`'.$key.'`=:'.$key.' AND ';
             }
 
             // delete last " AND "
@@ -1256,7 +1256,7 @@ class SqlDatabase extends GlobalDatabase
             $query .= ' WHERE ';
 
             foreach ($filters as $key => $value) {
-                $query .= '`'.$key.'`=? AND ';
+                $query .= '`'.$key.'`=:'.$key.' AND ';
             }
 
             // delete last " AND "
