@@ -61,7 +61,9 @@ class Import extends XmlImport
                         } else {
                             // convert French date to universal
                             $date = DateTime::createFromFormat('d/m/Y', (string)$value);
-                            $value = $date->format('Y-m-d');
+                            if ($date) {
+                                $value = $date->format('Y-m-d');
+                            }
                         }
                         break;
 

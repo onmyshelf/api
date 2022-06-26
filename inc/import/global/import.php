@@ -203,11 +203,6 @@ class GlobalImport
                     continue;
                 }
 
-                // if item name, set it
-                if ($key == $this->itemNameProperty) {
-                    $item->setName($value);
-                }
-
                 // add property if not already imported
                 if (in_array($key, $this->importedProperties) === false) {
                     // check if property is already defined in collection

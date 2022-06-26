@@ -637,18 +637,6 @@ class SqlDatabase extends GlobalDatabase
 
 
     /**
-     * Set Item name
-     * @param  int    $id    Item ID
-     * @param  string $name
-     * @return bool   Success
-     */
-    public function setItemName(int $id, string $name)
-    {
-        return $this->update('item', ['name' => $name], ['id' => $id]);
-    }
-
-
-    /**
      * Delete item
      * @param  int $id Item ID
      * @return bool    Success

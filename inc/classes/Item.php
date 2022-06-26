@@ -49,17 +49,6 @@ class Item
      */
 
     /**
-     * Set item name
-     * @param string $name
-     * @return bool  Success
-     */
-    public function setName(string $name)
-    {
-        return (new Database())->setItemName($this->id, $name);
-    }
-
-
-    /**
      * Set property
      * @param string $name
      * @param mixed $value

@@ -107,7 +107,8 @@ class Property
             'longtext',
             'datetime',
             'url',
-            'file'
+            'file',
+            'color',
         ];
     }
 }
