@@ -3,10 +3,20 @@
 class Config
 {
     /**
-    * Get config value
-    * @param  string $param Parameter name
-    * @return mixed         Parameter value
-    */
+     * Get config value
+     * @return array
+     */
+    public static function dump()
+    {
+        return (new Database())->dumpConfig();
+    }
+
+
+    /**
+     * Get config value
+     * @param  string $param Parameter name
+     * @return mixed         Parameter value
+     */
     public static function get(string $param)
     {
         return (new Database())->getConfig($param);

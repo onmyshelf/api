@@ -80,6 +80,24 @@ class SqlDatabase extends GlobalDatabase
      */
 
     /**
+     * Dump all config values
+     * @return array
+     */
+    public function dumpConfig()
+    {
+        $db = $this->select("SELECT * FROM `config`");
+        $config = [];
+
+        foreach ($db as $row) {
+            $param = $row['param'];
+            $config[$param] = $row['value'];
+        }
+
+        return $config;
+    }
+
+
+    /**
      * Get config parameter value
      * @param  string $param Parameter name
      * @return mixed         Parameter value

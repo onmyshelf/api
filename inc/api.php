@@ -37,6 +37,7 @@ class Api
             '/collections/{cid}/items/{id}/import/data' => 'itemImportData',
             '/properties/types' => 'propertyTypes',
             '/import/modules' => 'importModules',
+            '/config' => 'config',
             '/login' => 'userLogin',
             '/resetpassword' => 'userPasswordReset',
             '/token' => 'token',
@@ -164,6 +165,21 @@ class Api
 
 
     /**
+     * Require user name
+     * @param  string $username
+     * @return void
+     */
+    private function requireUsername($username)
+    {
+        if (!is_null($GLOBALS['currentUsername']) && $username == $GLOBALS['currentUsername']) {
+            return;
+        }
+
+        $this->error(403);
+    }
+
+
+    /**
      * Calls a route
      * @return void
      */
@@ -273,6 +289,53 @@ class Api
         }
 
         $this->response($info);
+    }
+
+
+    /**
+     * Config handler
+     * @return void
+     */
+    private function config()
+    {
+        // requires to be the administrator
+        $this->requireUsername('onmyshelf');
+
+        switch ($this->method) {
+            case 'PATCH':
+                // update config
+
+                // forbidden in read only mode
+                if (READ_ONLY) {
+                    $this->error(403);
+                }
+
+                $success = true;
+
+                foreach ($this->data as $param => $value) {
+                    // forbidden params
+                    switch ($param) {
+                      case 'version':
+                        // do nothing
+                        break;
+
+                      default:
+                        if (!Config::set($param, $value)) {
+                            $success = false;
+                        }
+                        break;
+                    }
+                }
+
+                // update item
+                $this->response(['updated' => $success]);
+                break;
+
+            default:
+                // print all config
+                $this->response(Config::dump());
+                break;
+        }
     }
 
 
