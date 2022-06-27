@@ -1,9 +1,5 @@
 <?php
-/*
- *  Import Tellico XML
- */
-
-require_once('global/xml.php');
+require_once('inc/import/global/xml.php');
 
 class Import extends XmlImport
 {

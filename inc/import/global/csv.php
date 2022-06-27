@@ -1,9 +1,5 @@
 <?php
-/*
- * CSV file import
- */
-
-class Import extends GlobalImport
+class CsvImport extends GlobalImport
 {
     private $separator;
 

@@ -1,0 +1,7 @@
+{
+  "name": "GCstar file",
+  "description": "Import from GCstar collection file (.gcs)",
+  "categories": [
+    "all"
+  ]
+}

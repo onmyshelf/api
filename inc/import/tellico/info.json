@@ -1,0 +1,7 @@
+{
+  "name": "Tellico file",
+  "description": "Import from Tellico collection file (.xml)",
+  "categories": [
+    "all"
+  ]
+}
