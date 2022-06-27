@@ -18,9 +18,25 @@ class HtmlImport extends GlobalImport
     public function __construct($url, $options=[])
     {
         $this->url = $url;
-        $this->html = file_get_html($url);
 
         parent::__construct($url, $options);
+    }
+
+
+    /**
+     * Load HTML from URL
+     * @param  string $url
+     * @return boolean Success
+     */
+    public function loadHtml($url=null)
+    {
+        if ($url) {
+            $this->url = $url;
+        }
+        
+        $this->html = file_get_html($this->url);
+
+        return (!is_null($this->html));
     }
 
 
@@ -39,5 +55,47 @@ class HtmlImport extends GlobalImport
         }
 
         return trim($find->$selector);
+    }
+
+
+    /**
+     * Get data from the HTML DOM
+     * @param  object $dom      DOM object
+     * @param  string $search
+     * @param  string $selector
+     * @return mixed
+     */
+    protected function getDom($dom, $search, $selector='innertext')
+    {
+        $find = $dom->find($search, 0);
+
+        if (!$find) {
+            return null;
+        }
+
+        if (is_null($selector)) {
+            return $find;
+        }
+
+        return $find->$selector;
+    }
+
+
+    /**
+     * Get data from the HTML DOM
+     * @param  object $dom      DOM object
+     * @param  string $search
+     * @param  string $selector
+     * @return mixed
+     */
+    protected function getText($dom, $search)
+    {
+        $find = $dom->find($search, 0);
+
+        if (!$find) {
+            return null;
+        }
+
+        return trim(strip_tags($find->innertext));
     }
 }

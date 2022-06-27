@@ -37,6 +37,7 @@ class Api
             '/collections/{cid}/items/{id}/import/data' => 'itemImportData',
             '/properties/types' => 'propertyTypes',
             '/import/modules' => 'importModules',
+            '/import/search' => 'importSearch',
             '/config' => 'config',
             '/login' => 'userLogin',
             '/resetpassword' => 'userPasswordReset',
@@ -899,27 +900,36 @@ class Api
      */
     private function importModules()
     {
-        $core = glob('inc/import/*.php');
-        $addons = glob('inc/modules/import/*/import.php');
-        $modules = [];
+        require_once('inc/classes/Module.php');
+        $this->response(Module::list('import'));
+    }
 
-        // get import modules
-        foreach (array_merge($core, $addons) as $path) {
-            $module = basename($path, '.php');
 
-            switch ($module) {
-                case 'example':
-                case 'import':
-                    // ignore
-                    break;
+    /**
+     * Search items from import module
+     * @return void
+     */
+    private function importSearch()
+    {
+        $this->requireData(['module', 'source', 'search']);
 
-                default:
-                    $modules[] = $module;
-                    break;
-            }
+        // default options
+        if (!isset($this->data['options'])) {
+            $this->data['options'] = [];
         }
 
-        $this->response($modules);
+        // load module
+        require_once('inc/classes/Module.php');
+        if (!Module::load('import', $this->data['module'])) {
+            $this->error();
+        }
+
+        $import = new Import($this->data['source']);
+        if (!$import) {
+            $this->error();
+        }
+
+        $this->response($import->search($this->data['search']));
     }
 
 

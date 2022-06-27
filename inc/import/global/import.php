@@ -26,7 +26,6 @@ class GlobalImport
      */
     public function import()
     {
-        // each child class should to this
         return false;
     }
 

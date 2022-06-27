@@ -19,7 +19,7 @@ if (!preg_match('/^\w+$/', DATABASE)) {
 }
 
 // load main database class
-require_once('inc/database/database.php');
+require_once('inc/database/global/database.php');
 
 switch (DATABASE) {
     case 'mysql':

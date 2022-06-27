@@ -27,13 +27,22 @@ class Import extends ImportGlobal {
     }
 
     /**
+     * Search for items in source
+     * @param  mixed $search
+     * @return array
+     */
+    public function search($search)
+    {
+        return [];
+    }
+
+    /**
      * Return item data
      * @return array
      */
-    public function getData()
+    public function getData($filter=null)
     {
-        ...
-        return [...];
+        return [];
     }
 
     /**

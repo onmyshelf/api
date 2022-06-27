@@ -3,6 +3,38 @@
 class Module
 {
     /**
+     * Returns available modules
+     * @param string $type  Type of module
+     * @return void
+     */
+    public static function list(string $type)
+    {
+        // check type (security)
+        switch ($type) {
+            case 'import':
+                break;
+
+            default:
+                Logger::error("Bad module type: $type");
+                return [];
+        }
+
+        $modules = [];
+
+        // get import core modules
+        foreach (glob("inc/$type/*.php") as $path) {
+            $modules[] = basename($path, '.php');
+        }
+        // get import custom modules
+        foreach (glob("inc/modules/$type/*/$type.php") as $path) {
+            $modules[] = basename(dirname($path));
+        }
+
+        return $modules;
+    }
+
+
+    /**
      * Load a module
      * @param  string $type
      * @param  string $name
@@ -12,18 +44,17 @@ class Module
     {
         // check type (security)
         switch ($type) {
-          case 'import':
-            // ok
-            break;
+            case 'import':
+                break;
 
-          default:
-            Logger::error("Bad module type: $type");
-            return false;
-            break;
+            default:
+                Logger::error("Bad module type: $type");
+                return false;
+                break;
         }
 
         // check name (security)
-        if (!preg_match('/^[a-z-]+$/', $name)) {
+        if (!preg_match('/^[a-zA-Z-]+$/', $name)) {
             Logger::error("Bad $type module name: $name");
             return false;
         }
