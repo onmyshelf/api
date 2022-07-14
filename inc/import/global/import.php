@@ -1,6 +1,6 @@
 <?php
 
-class GlobalImport
+abstract class GlobalImport
 {
     protected $source;
     protected $fields;

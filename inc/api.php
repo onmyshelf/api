@@ -94,7 +94,7 @@ class Api
 
 
     /**
-     * Check token
+     * Check if token is set and save current user information
      * @return void
      */
     private function checkToken()

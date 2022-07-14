@@ -21,14 +21,34 @@ class Module
 
         $modules = [];
 
-        // get import core modules
-        foreach (glob("inc/$type/*.php") as $path) {
-            $modules[] = basename($path, '.php');
+        // list all modules
+        $moduleFiles = array_merge(
+            glob("inc/$type/*/$type.php"),
+            glob("inc/modules/$type/*/$type.php")
+        );
+
+        foreach ($moduleFiles as $path) {
+            $module = basename(dirname($path));
+
+            // ignore global
+            if ($module == 'global') {
+                continue;
+            }
+
+            $infofile = dirname($path)."/info.json";
+            $info = [];
+            // get module information from info.json
+            if (file_exists($infofile)) {
+                $file = file_get_contents($infofile);
+                if ($file) {
+                    $info = json_decode($file);
+                }
+            }
+            $modules[$module] = $info;
         }
-        // get import custom modules
-        foreach (glob("inc/modules/$type/*/$type.php") as $path) {
-            $modules[] = basename(dirname($path));
-        }
+
+        // sort modules by name
+        ksort($modules);
 
         return $modules;
     }
@@ -74,8 +94,8 @@ class Module
         }
 
         // load internal class if exists
-        if (file_exists("inc/$type/$name.php")) {
-            require_once("inc/$type/$name.php");
+        if (file_exists("inc/$type/$name/import.php")) {
+            require_once("inc/$type/$name/import.php");
             return true;
         }
 

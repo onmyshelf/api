@@ -3,7 +3,7 @@
  * XML file import
  */
 
-class XmlImport extends GlobalImport
+abstract class XmlImport extends GlobalImport
 {
     protected $xml;
 

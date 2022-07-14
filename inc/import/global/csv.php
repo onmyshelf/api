@@ -1,5 +1,6 @@
 <?php
-class CsvImport extends GlobalImport
+
+abstract class CsvImport extends GlobalImport
 {
     private $separator;
 

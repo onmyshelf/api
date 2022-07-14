@@ -1,6 +1,6 @@
 <?php
 
-class GlobalDatabase
+abstract class GlobalDatabase
 {
     /**
      * Install database

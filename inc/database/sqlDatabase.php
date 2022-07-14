@@ -9,7 +9,7 @@
  *  Please help me to make OnMyShelf better!
  */
 
-class SqlDatabase extends GlobalDatabase
+abstract class SqlDatabase extends GlobalDatabase
 {
     protected $connection;
 

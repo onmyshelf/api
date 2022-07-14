@@ -1,11 +1,8 @@
 <?php
-/*
- * XML file import
- */
 
 require_once('simplehtmldom/simple_html_dom.php');
 
-class HtmlImport extends GlobalImport
+abstract class HtmlImport extends GlobalImport
 {
     protected $html;
     protected $url;
