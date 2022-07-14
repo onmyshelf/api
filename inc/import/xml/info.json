@@ -1,7 +1,5 @@
 {
   "name": "XML file",
   "description": "Import from XML file",
-  "categories": [
-    "all"
-  ]
+  "importCollection": true
 }

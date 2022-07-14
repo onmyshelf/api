@@ -1,7 +1,5 @@
 {
   "name": "JSON file",
   "description": "Import from JSON file",
-  "categories": [
-    "all"
-  ]
+  "importCollection": true
 }

@@ -911,7 +911,7 @@ class Api
      */
     private function importSearch()
     {
-        $this->requireData(['module', 'source', 'search']);
+        $this->requireParams(['module', 'source', 'search']);
 
         // default options
         if (!isset($this->data['options'])) {
@@ -920,16 +920,16 @@ class Api
 
         // load module
         require_once('inc/classes/Module.php');
-        if (!Module::load('import', $this->data['module'])) {
+        if (!Module::load('import', $_GET['module'])) {
             $this->error();
         }
 
-        $import = new Import($this->data['source']);
+        $import = new Import($_GET['source']);
         if (!$import) {
             $this->error();
         }
 
-        $this->response($import->search($this->data['search']));
+        $this->response($import->search($_GET['search']));
     }
 
 
@@ -1247,6 +1247,26 @@ class Api
             if (!isset($this->args[$arg])) {
                 Logger::error("API call: ".$this->route." missing argument: ".$arg);
                 $this->error(400, 'Missing arguments');
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Check if mandatory GET parameters are provided and quit if not
+     * @param  array $params Array of parameters names to check
+     * @return void
+     */
+    private function requireParams($params)
+    {
+        foreach ($params as $param) {
+            // if param is missing, return error and quit
+            if (!isset($_GET[$param])) {
+                Logger::error("API call: ".$this->route." missing param: ".$param);
+                $this->error(400, "Missing param: ".$param);
                 return false;
             }
         }

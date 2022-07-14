@@ -1,7 +1,5 @@
 {
   "name": "CSV file",
   "description": "Import from CSV file",
-  "categories": [
-    "all"
-  ]
+  "importCollection": true
 }

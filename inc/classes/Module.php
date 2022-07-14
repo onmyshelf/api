@@ -35,9 +35,11 @@ class Module
                 continue;
             }
 
-            $infofile = dirname($path)."/info.json";
-            $info = [];
+            // default name
+            $info = ['name' => ucfirst($module) ];
+            
             // get module information from info.json
+            $infofile = dirname($path)."/info.json";
             if (file_exists($infofile)) {
                 $file = file_get_contents($infofile);
                 if ($file) {
