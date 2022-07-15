@@ -105,6 +105,9 @@ abstract class CsvImport extends GlobalImport
         // close file
         fclose($handle);
 
+        // delete CSV
+        $this->cleanup();
+
         return true;
     }
 }

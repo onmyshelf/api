@@ -240,8 +240,7 @@ class Api
             $this->data = json_decode($body, true);
 
             if (is_null($this->data)) {
-                Logger::fatal('API cannot decode JSON:');
-                Logger::var_dump($body);
+                Logger::fatal('API cannot decode JSON');
                 $this->error(400);
             }
         }
@@ -1247,7 +1246,6 @@ class Api
             if (!isset($this->args[$arg])) {
                 Logger::error("API call: ".$this->route." missing argument: ".$arg);
                 $this->error(400, 'Missing arguments');
-                return false;
             }
         }
 
@@ -1267,7 +1265,6 @@ class Api
             if (!isset($_GET[$param])) {
                 Logger::error("API call: ".$this->route." missing param: ".$param);
                 $this->error(400, "Missing param: ".$param);
-                return false;
             }
         }
 
@@ -1285,9 +1282,8 @@ class Api
         foreach ($fields as $field) {
             // if field is missing, return error and quit
             if (!isset($this->data[$field])) {
-                Logger::error("API call: ".$this->route." missing field: ".$field);
-                $this->error(400, "Missing field: ".$field);
-                return false;
+                Logger::error("API call: ".$this->route." missing data field: ".$field);
+                $this->error(400, "Missing data field: ".$field);
             }
         }
 

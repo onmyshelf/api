@@ -134,18 +134,13 @@ class Storage
             return false;
         }
 
-        // check file size '5MB'
-        if ($_FILES[$field]['size'] > 5000000) {
-            Logger::error("Storage: file too big: ".$filename);
-            return false;
-        }
-
         // move file from system temporary path to our upload folder path
         try {
             set_error_handler(function($errno, $errstr) {
                 Logger::error("Storage: Failed to move uploaded file: ".$errstr);
             });
 
+            Logger::debug("Storage: moving temp file: ".$_FILES[$field]['tmp_name']);
             move_uploaded_file($_FILES[$field]['tmp_name'], MEDIA_DIR.'/'.$path);
 
             restore_error_handler();
@@ -257,6 +252,61 @@ class Storage
     }
 
 
+    public static function unzip($path, $deleteArchive = false)
+    {
+        if (!$path || strlen($path) == 0) {
+            return false;
+        }
+
+        // convert URL to path if needed
+        $path = self::path($path);
+        $pathinfo = pathinfo($path);
+
+        $destination = $pathinfo['dirname'].'/'.$pathinfo['filename'].'/';
+
+        $zip = new ZipArchive;
+        if ($zip->open($path) !== true) {
+            Logger::error("Cannot extract ZIP file: $path");
+            return false;
+        }
+        
+        $zip->extractTo($destination);
+        $zip->close();
+
+        if ($deleteArchive) {
+            self::delete($path);
+        }
+
+        return $destination;
+    }
+
+
+    /**
+     * Move file
+     * @param  string $src  Source path
+     * @param  string $dest Destination path
+     * @return boolean      Success
+     */
+    public static function move($src, $dest = '')
+    {
+        if ($dest == '') {
+            $dest = self::prepare($src);
+            if (!$dest) {
+                return false;
+            }
+        }
+        
+        if (!rename($src, $dest)) {
+            return false;
+        }
+
+        // create thumbnails (ignore errors)
+        self::createThumbnails($dest);
+
+        return $dest;
+    }
+
+
     /**
      * Delete media file
      * @param  string $path Path of the file, relative to media directory
@@ -274,7 +324,8 @@ class Storage
                 Logger::error("Storage: Failed to delete path: ".$errstr);
             });
 
-            unlink(MEDIA_DIR.'/'.$path);
+            Logger::debug("Storage: delete $path");
+            unlink($path);
 
             restore_error_handler();
         } catch (Throwable $t) {

@@ -19,6 +19,7 @@ abstract class GlobalImport
         $this->importedItemsCount = 0;
     }
 
+
     /**
      * Import function, used for basic compatibility;
      * each child class should override this
@@ -258,5 +259,12 @@ abstract class GlobalImport
                 'properties' => $this->importedProperties
             ]
         ];
+    }
+
+
+    public function cleanup()
+    {
+        // if source is a file, delete it
+        Storage::delete($this->source);
     }
 }
