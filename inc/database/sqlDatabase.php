@@ -59,7 +59,7 @@ abstract class SqlDatabase extends GlobalDatabase
      * @param  string  $token
      * @return boolean Success
      */
-    public function deleteToken(string $token)
+    public function deleteToken($token)
     {
         return $this->delete('token', ['token' => $token]);
     }
@@ -102,7 +102,7 @@ abstract class SqlDatabase extends GlobalDatabase
      * @param  string $param Parameter name
      * @return mixed         Parameter value
      */
-    public function getConfig(string $param)
+    public function getConfig($param)
     {
         return $this->selectOne("SELECT `value` FROM `config` WHERE `param`=?", [$param]);
     }
@@ -114,7 +114,7 @@ abstract class SqlDatabase extends GlobalDatabase
      * @param mixed $value  Value
      * @return bool         Success
      */
-    public function setConfig(string $param, $value)
+    public function setConfig($param, $value)
     {
         return $this->insertOne('config', ['param' => $param, 'value' => $value], ['value']);
     }
@@ -402,7 +402,7 @@ abstract class SqlDatabase extends GlobalDatabase
      * @param  bool $template Is template (optionnal)
      * @return bool Success
      */
-    public function deleteCollection($id, bool $template=false)
+    public function deleteCollection($id, $template=false)
     {
         // get associated items
         $items = $this->getItems($id);
@@ -569,7 +569,7 @@ abstract class SqlDatabase extends GlobalDatabase
      * @param  string $name  Property name
      * @return array  SELECT results
      */
-    public function getItemProperty(int $collectionId, int $itemId, string $name)
+    public function getItemProperty($collectionId, $itemId, $name)
     {
         $properties = $this->selectColumn('SELECT i.value AS `value` FROM `itemProperty` i
                                        JOIN `property` p ON i.collectionId=p.collection AND i.name=p.name
@@ -597,7 +597,7 @@ abstract class SqlDatabase extends GlobalDatabase
      * @param  mixed  $value        Property value
      * @return array|bool Item data, FALSE if error
      */
-    public function getItemByProperty(int $collectionId, string $name, $value)
+    public function getItemByProperty($collectionId, $name, $value)
     {
         $itemId = $this->selectOne("SELECT `itemId` FROM `itemProperty` WHERE `collectionId`=? AND `name`=? AND `value`=?",
                                    [$collectionId, $name, $value]);
@@ -615,7 +615,7 @@ abstract class SqlDatabase extends GlobalDatabase
      * @param  array $data Item data (optionnal)
      * @return bool Success
      */
-    public function createItem($collectionId, array $data=[])
+    public function createItem($collectionId, $data=[])
     {
         $data['collectionId'] = $collectionId;
         return $this->insertOne('item', $data);
@@ -659,7 +659,7 @@ abstract class SqlDatabase extends GlobalDatabase
      * @param  int $id Item ID
      * @return bool    Success
      */
-    public function deleteItem(int $id)
+    public function deleteItem($id)
     {
         return $this->delete('itemProperty', ['itemId' => $id]) && $this->delete('item', ['id' => $id]);
     }
@@ -1039,15 +1039,15 @@ abstract class SqlDatabase extends GlobalDatabase
 
     /**
      * Set user password
-     * @param  int    $userID
+     * @param  int    $userId
      * @param  string $password
      * @return bool   Success
      */
-    public function setUserPassword($userID, $password)
+    public function setUserPassword($userId, $password)
     {
         return $this->update('user',
             ['password' => password_hash($password, PASSWORD_BCRYPT)],
-            ['id' => $userID]
+            ['id' => $userId]
         );
     }
 

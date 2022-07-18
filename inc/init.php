@@ -39,6 +39,9 @@ switch (DATABASE) {
         break;
 }
 
+// load main storage class
+require_once('inc/storage/global/storage.php');
+
 switch (STORAGE) {
     case 'local':
         // native storage modules

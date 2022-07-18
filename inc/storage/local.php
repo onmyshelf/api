@@ -1,6 +1,6 @@
 <?php
 
-class Storage
+class Storage extends GlobalStorage
 {
     /**
      * Check if path exists in media
