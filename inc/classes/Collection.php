@@ -229,6 +229,7 @@ class Collection
                         'id' => $dumpItem['id'],
                         'properties' => $itemProperties,
                         'thumbnail' => $thumbnails,
+                        'visibility' => $dumpItem['visibility'],
                     ];
                 }
             }
