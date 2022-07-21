@@ -12,25 +12,23 @@ abstract class XmlImport extends GlobalImport
      * @param string $file    The path to the XML file to import
      * @param array  $options Import options
      */
-    public function __construct($file, $options=[])
+    public function load()
     {
-        $file = Storage::path($file);
+        $file = Storage::path($this->source);
 
         if (!file_exists($file)) {
             Logger::error("Import XML: file ".$file." does not exists!");
-            throw new Exception();
-            return;
+            return false;
         }
 
         libxml_use_internal_errors(true);
 
         // read and load XML
         if (($this->xml = simplexml_load_file($file)) === false) {
-            Logger::fatal("Error while loading XML file ".$file);
-            throw new Exception();
-            return;
+            Logger::error("Error while loading XML file ".$file);
+            return false;
         }
 
-        parent::__construct($file, $options);
+        return true;
     }
 }

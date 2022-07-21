@@ -1,5 +1,6 @@
 {
   "name": "CSV file",
   "description": "Import from CSV file",
-  "importCollection": true
+  "importCollection": true,
+  "requiredSource": true
 }

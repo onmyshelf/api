@@ -8,29 +8,29 @@ abstract class GCstarImport extends XmlImport
      * Scan fields of the GCstar file
      * @return array Array of fields names
      */
-    public function scanFields()
+    public function getProperties()
     {
-        $fields = [];
+        $this->properties = [];
 
         // scan first item to get fields
 
         // get attributes
         foreach ($this->xml->item[0]->attributes() as $key => $value) {
             // avoid duplicates
-            if (!in_array($key, $fields)) {
-                $fields[] = $key;
+            if (!in_array($key, $this->properties)) {
+                $this->properties[] = $key;
             }
         }
 
         // get other fields
         foreach ($this->xml->item[0] as $key => $value) {
             // avoid duplicates
-            if (! in_array($key, $fields)) {
-                $fields[] = $key;
+            if (! in_array($key, $this->properties)) {
+                $this->properties[] = $key;
             }
         }
 
-        return $fields;
+        return $this->properties;
     }
 
 
@@ -38,7 +38,7 @@ abstract class GCstarImport extends XmlImport
      * Import data into collection
      * @return bool Import success
      */
-    public function import()
+    public function import($collection)
     {
         // parse items
         foreach ($this->xml->item as $item) {
@@ -126,7 +126,7 @@ abstract class GCstarImport extends XmlImport
             }
 
             // import item
-            $this->importItem($fields, 'id');
+            $this->importItem($collection, $fields, 'id');
         }
 
         $this->cleanup();

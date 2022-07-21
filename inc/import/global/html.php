@@ -5,53 +5,17 @@ require_once('simplehtmldom/simple_html_dom.php');
 abstract class HtmlImport extends GlobalImport
 {
     protected $html;
-    protected $url;
-
-    /**
-     * Class constructor
-     * @param string $url     The URL to scan
-     * @param array  $options Import options
-     */
-    public function __construct($url, $options=[])
-    {
-        $this->url = $url;
-
-        parent::__construct($url, $options);
-    }
-
 
     /**
      * Load HTML from URL
      * @param  string $url
      * @return boolean Success
      */
-    public function loadHtml($url=null)
+    public function loadHtml()
     {
-        if ($url) {
-            $this->url = $url;
-        }
-        
-        $this->html = file_get_html($this->url);
+        $this->html = file_get_html($this->source);
 
-        return (!is_null($this->html));
-    }
-
-
-    /**
-     * Get data from the HTML DOM
-     * @param  object $dom      DOM object
-     * @param  string $selector
-     * @return mixed
-     */
-    protected function getHtml($dom, $selector='innertext')
-    {
-        $find = $this->html->find($dom, 0);
-
-        if (!$find) {
-            return null;
-        }
-
-        return trim($find->$selector);
+        return !is_null($this->html);
     }
 
 
@@ -62,8 +26,12 @@ abstract class HtmlImport extends GlobalImport
      * @param  string $selector
      * @return mixed
      */
-    protected function getDom($dom, $search, $selector='innertext')
+    protected function getHtml($search, $dom = null, $selector = null)
     {
+        if (is_null($dom)) {
+            $dom = $this->html;
+        }
+
         $find = $dom->find($search, 0);
 
         if (!$find) {
@@ -85,14 +53,12 @@ abstract class HtmlImport extends GlobalImport
      * @param  string $selector
      * @return mixed
      */
-    protected function getText($dom, $search)
+    protected function getText($dom, $selector = 'innertext')
     {
-        $find = $dom->find($search, 0);
-
-        if (!$find) {
+        if (!$dom) {
             return null;
         }
 
-        return trim(strip_tags($find->innertext));
+        return trim(strip_tags($dom->innertext));
     }
 }

@@ -30,14 +30,14 @@ class Api
             '/collections/{id}' => 'collection',
             '/collections/{id}/import' => 'collectionImport',
             '/collections/{id}/import/scan' => 'collectionImportScan',
+            '/collections/{id}/import/search' => 'collectionImportSearch',
+            '/collections/{id}/import/data' => 'collectionImportData',
             '/collections/{cid}/items' => 'items',
             '/collections/{cid}/properties' => 'properties',
             '/collections/{cid}/properties/{name}' => 'property',
             '/collections/{cid}/items/{id}' => 'item',
-            '/collections/{cid}/items/{id}/import/data' => 'itemImportData',
             '/properties/types' => 'propertyTypes',
             '/import/modules' => 'importModules',
-            '/import/search' => 'importSearch',
             '/config' => 'config',
             '/login' => 'userLogin',
             '/resetpassword' => 'userPasswordReset',
@@ -500,6 +500,52 @@ class Api
 
 
     /**
+     * Import collection
+     * @return void
+     */
+    private function collectionImport()
+    {
+        // forbidden in read only mode
+        if (READ_ONLY) {
+            $this->error(403);
+        }
+
+        $this->post = true;
+        $this->requireArgs(['id']);
+        $this->requireData(['module', 'source']);
+
+        // default options
+        if (!isset($this->data['options'])) {
+            $this->data['options'] = [];
+        }
+
+        $collection = Collection::getById($this->args['id']);
+        if ($collection === false) {
+            Logger::error("collection not found: ".$this->args['id']);
+            $this->error(404, 'Collection not found');
+        }
+
+        // check ownership
+        $this->requireUserID($collection->getOwner());
+
+        try {
+            $result = $collection->import($this->data['module'],
+                                          $this->data['source'],
+                                          $this->data['options']);
+        } catch (Throwable $t) {
+            Logger::fatal($t);
+            $this->error(500);
+        }
+
+        if ($result === false) {
+            $this->error(500);
+        }
+
+        $this->response($result);
+    }
+
+
+    /**
      * Scan properties to import a collection
      * @return void
      */
@@ -540,48 +586,68 @@ class Api
 
 
     /**
-     * Import collection
+     * Search items from import module
      * @return void
      */
-    private function collectionImport()
+    private function collectionImportSearch()
     {
-        // forbidden in read only mode
-        if (READ_ONLY) {
-            $this->error(403);
-        }
-
-        $this->post = true;
-        $this->requireArgs(['id']);
-        $this->requireData(['type', 'source']);
+        $this->requireParams(['module', 'source', 'search']);
 
         // default options
         if (!isset($this->data['options'])) {
             $this->data['options'] = [];
         }
 
-        $collection = Collection::getById($this->args['id']);
-        if ($collection === false) {
-            Logger::error("collection not found: ".$this->args['id']);
-            $this->error(404, 'Collection not found');
+        // load module
+        require_once('inc/classes/Module.php');
+        if (!Module::load('import', $_GET['module'])) {
+            $this->error(500, "Error while loading import module");
         }
 
-        // check ownership
-        $this->requireUserID($collection->getOwner());
-
-        try {
-            $result = $collection->import($this->data['type'],
-            $this->data['source'],
-            $this->data['options']);
-        } catch (Throwable $t) {
-            Logger::fatal($t);
-            $this->error(500);
+        $import = new Import($_GET['source'], $this->data['options']);
+        if (!$import) {
+            $this->error(500, "Error while loading import module");
         }
 
-        if ($result === false) {
-            $this->error(500);
+        // load source to import
+        if (!$import->load()) {
+            $this->error(500, "Error while opening import source");
         }
 
-        $this->response($result);
+        $this->response($import->search($_GET['search']));
+    }
+
+
+    /**
+     * Import item data
+     * @return void
+     */
+    private function collectionImportData()
+    {
+        $this->requireData(['module', 'source']);
+
+        // default options
+        if (!isset($this->data['options'])) {
+            $this->data['options'] = [];
+        }
+
+        // load module
+        require_once('inc/classes/Module.php');
+        if (!Module::load('import', $this->data['module'])) {
+            $this->error(500, "Error while loading import module");
+        }
+
+        $import = new Import($this->data['source'], $this->data['options']);
+        if (!$import) {
+            $this->error(500, "Error while loading import module");
+        }
+
+        // load source to import
+        if (!$import->load()) {
+            $this->error(500, "Error while opening import source");
+        }
+
+        $this->response($import->getData());
     }
 
 
@@ -733,43 +799,6 @@ class Api
     }
 
 
-    /**
-     * Scan properties to import an item
-     * @return void
-     */
-    private function itemImportData()
-    {
-        // forbidden in read only mode
-        if (READ_ONLY) {
-            $this->error(403);
-        }
-
-        $this->post = true;
-        $this->requireData(['type', 'source']);
-
-        // default options
-        if (!isset($this->data['options'])) {
-            $this->data['options'] = [];
-        }
-
-        try {
-            $data = Item::importData($this->data['type'],
-                                     $this->data['source'],
-                                     $this->data['options']);
-
-            if ($data === false) {
-                $this->error(400, 'Bad type');
-            }
-
-            $this->response($data);
-
-        } catch (Throwable $t) {
-            Logger::fatal($t);
-            $this->error(500);
-        }
-    }
-
-
     /*
      *  Properties
      */
@@ -901,34 +930,6 @@ class Api
     {
         require_once('inc/classes/Module.php');
         $this->response(Module::list('import'));
-    }
-
-
-    /**
-     * Search items from import module
-     * @return void
-     */
-    private function importSearch()
-    {
-        $this->requireParams(['module', 'source', 'search']);
-
-        // default options
-        if (!isset($this->data['options'])) {
-            $this->data['options'] = [];
-        }
-
-        // load module
-        require_once('inc/classes/Module.php');
-        if (!Module::load('import', $_GET['module'])) {
-            $this->error();
-        }
-
-        $import = new Import($_GET['source']);
-        if (!$import) {
-            $this->error();
-        }
-
-        $this->response($import->search($_GET['search']));
     }
 
 

@@ -11,42 +11,45 @@ abstract class TellicoImport extends XmlImport
      * @param string $file    The path to the Tellico file to import
      * @param array  $options Import options
      */
-    public function __construct($file, $options=[])
+    public function load()
     {
         // extract tc file
-        $folder = Storage::unzip($file, true);
+        $this->folder = Storage::unzip($this->source, true);
 
-        if (!$folder) {
+        if (!$this->folder) {
             Logger::error("Failed to unzip Tellico file.");
             return false;
         }
 
-        parent::__construct($folder.'/tellico.xml', $options);
+        $this->source = $this->folder.'/tellico.xml';
+
+        return parent::load();
     }
 
-    
+
     /**
      * Scan fields of the collection
      * @return bool  Success
      */
-    public function scanFields()
+    public function getProperties()
     {
+        $this->properties = [];
+
         if (!property_exists($this->xml, 'collection') || !isset($this->xml->collection)) {
             Logger::warn("No fields found in Tellico XML!");
             return [];
         }
 
         // get attributes
-        $fields = [];
         foreach ($this->xml->collection->fields->field as $field) {
             $name = (string) $field->attributes()['name'];
             // avoid duplicates
-            if (!in_array($name, $fields)) {
-                $fields[] = $name;
+            if (!in_array($name, $this->properties)) {
+                $this->properties[] = $name;
             }
         }
 
-        return $fields;
+        return $this->properties;
     }
 
 
@@ -54,51 +57,77 @@ abstract class TellicoImport extends XmlImport
      * Import data into collection
      * @return bool Import success
      */
-    public function import()
+    public function import($collection)
     {
         // parse items
         foreach ($this->xml->collection->entry as $item) {
             $fields = [];
 
             // get id attribute
-            $fields['id'] = $this->xml->collection->entry->attributes()['id'];
+            $fields['id'] = $this->xml->collection->entry->attributes()['id'][0];
 
             // get fields
             foreach ($item as $key => $values) {
-                $transform = 'toString';
-
                 // array of values
                 if ($values->children()->count()) {
-                    // custom fields
-                    switch ($key) {
-                        case 'cdate':
-                        case 'mdate':
-                            // convert dates
-                            $value = $values->year.'-'.$values->month.'-'.$values->day;
-                            break;
-
-                        default:
-                            // parse subvalues
-                            foreach ($values as $v) {
-                                // store field
-                                $value = $this->transform($v, $transform);
-                            }
-                            break;
+                    $value = [];
+                    foreach ($values as $v) {
+                        $value[] = $this->importValue($key, $v);
                     }
                 } else {
                     // single field
-                    $value = $this->transform($values, $transform);
+                    $value = $this->importValue($key, $values);
                 }
 
                 $fields[$key] = $value;
             }
 
             // import item
-            $this->importItem($fields, 'id');
+            $this->importItem($collection, $fields, 'id');
         }
 
-        $this->cleanup();
+        //$this->cleanup();
 
         return true;
+    }
+
+
+    protected function importValue($key, $value, $transform = 'toString')
+    {
+        switch ($key) {
+            case 'cdate':
+            case 'mdate':
+                // convert dates
+                $value = $value->year.'-'.$value->month.'-'.$value->day;
+                break;
+
+            case 'cover':
+                $value = $this->importImage((string) $value);
+                break;
+
+            default:
+                $value = $this->transform($value, $transform);
+                break;
+        }
+
+        return $value;
+    }
+
+    
+    protected function importImage($id)
+    {
+        // parse images
+        foreach ($this->xml->collection->images->image as $image) {
+            // check id attribute
+            if ($image->attributes()['id'] == $id) {
+                // move image to media library
+                $path = Storage::move($this->folder.'/images/'.$id);
+                if ($path) {
+                    return 'media://'.$path;
+                } else {
+                    return false;
+                }
+            }
+        }
     }
 }

@@ -3,20 +3,37 @@
 abstract class GlobalImport
 {
     protected $source;
-    protected $fields;
     protected $options;
-    protected $collection;
-    protected $itemNameProperty;
+    protected $properties;
     protected $importedProperties;
     protected $importedItemsCount;
 
-    public function __construct($source, $options=[]) {
+    public function __construct($source, $options = []) {
         $this->source = $source;
         $this->options = $options;
 
-        $this->fields = [];
+        $this->properties = [];
         $this->importedProperties = [];
         $this->importedItemsCount = 0;
+    }
+
+
+    // load source (e.g. open file)
+    abstract public function load();
+
+    // search
+    public function search($search) {
+        return false;
+    }
+
+
+    /**
+     * Return properties
+     * @return array
+     */
+    public function getProperties()
+    {
+        return $this->properties;
     }
 
 
@@ -25,48 +42,9 @@ abstract class GlobalImport
      * each child class should override this
      * @return array
      */
-    public function import()
+    public function import($collection)
     {
-        return false;
-    }
-
-
-    /**
-     * Scan fields and save them
-     * @return bool Success
-     */
-    public function setFields()
-    {
-        $fields = $this->scanFields();
-        if ($fields === false) {
-            return false;
-        }
-
-        $this->fields = $fields;
-        return true;
-    }
-
-
-    /**
-     * Save collection object to use it in import
-     * @param  object $collection Collection object
-     * @return void
-     */
-    public function setCollection(object $collection)
-    {
-        $this->collection = $collection;
-        $this->itemNameProperty = $collection->getItemNameProperty();
-    }
-
-
-    /**
-     * Return fields
-     * (used for basic compatibility; each child class should override this)
-     * @return array
-     */
-    public function scanFields()
-    {
-        return $this->fields;
+        return $this->importItem($collection, $this->getData());
     }
 
 
@@ -131,7 +109,7 @@ abstract class GlobalImport
      * @param  array  $properties
      * @return object Item object
      */
-    protected function importItem(array $properties, $propertyId=null)
+    protected function importItem($collection, $properties, $propertyId=null)
     {
         $item = false;
 
@@ -139,15 +117,15 @@ abstract class GlobalImport
             if (isset($properties[$propertyId])) {
                 // load existing item
                 Logger::debug("Get item by property $propertyId=".$properties[$propertyId]);
-                $item = Item::getByProperty($this->collection->getId(), $propertyId, $properties[$propertyId]);
+                $item = Item::getByProperty($collection->getId(), $propertyId, $properties[$propertyId]);
             }
         }
 
         // create new item if not exists
         if (!$item) {
-            $item = $this->collection->addItem();
+            $item = $collection->addItem();
             if (!$item) {
-                Logger::error("failed to add item to collection ".$this->collection->getId());
+                Logger::error("failed to add item to collection ".$collection->getId());
                 return false;
             }
         } else {
@@ -165,7 +143,7 @@ abstract class GlobalImport
         }
 
         // get existing properties defined in collection
-        $currentProperties = array_keys($this->collection->getProperties());
+        $currentProperties = array_keys($collection->getProperties());
 
         // parse properties to insert
         foreach ($properties as $key => $values) {
@@ -214,8 +192,12 @@ abstract class GlobalImport
                         // guess type of property from property name
                         switch ($key) {
                             case 'cover':
+                            case 'poster':
                                 $propertyConfig['type'] = 'image';
                                 $propertyConfig['isCover'] = true;
+                                break;
+                            case 'source':
+                                $propertyConfig['type'] = 'url';
                                 break;
                             case 'title':
                                 $propertyConfig['isTitle'] = true;
@@ -228,7 +210,7 @@ abstract class GlobalImport
                         }
 
                         // add new property
-                        if ($this->collection->addProperty($key, $propertyConfig)) {
+                        if ($collection->addProperty($key, $propertyConfig)) {
                             $this->importedProperties[] = $key;
                         }
                     }
@@ -250,14 +232,13 @@ abstract class GlobalImport
      * @param  bool $result Success
      * @return array        Report
      */
-    public function report($result)
+    public function report()
     {
         return [
-            'success'  => ($result ? true : false),
             'imported' => [
                 'items'  => $this->importedItemsCount,
-                'properties' => $this->importedProperties
-            ]
+                'properties' => $this->importedProperties,
+            ],
         ];
     }
 

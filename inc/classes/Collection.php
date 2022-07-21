@@ -245,25 +245,28 @@ class Collection
      * @param  array  $options Options
      * @return array           Import report
      */
-    public function import($type, $source, $options=[])
+    public function import($module, $source, $options=[])
     {
         require_once('inc/classes/Module.php');
-        if (!Module::load('import', $type)) {
+        if (!Module::load('import', $module)) {
             return false;
         }
 
         try {
             $import = new Import($source, $options);
         } catch (Throwable $t) {
-            Logger::fatal("error while loading import class: $type");
+            Logger::fatal("error while loading import class: $module");
             return false;
         }
 
-        $import->setCollection($this);
-        $import->setFields();
+        if (!$import->load()) {
+            return false;
+        }
+        if (!$import->import($this)) {
+            return false;
+        }
 
-        // return report
-        return $import->report($import->import());
+        return $import->report();
     }
 
 
@@ -378,21 +381,21 @@ class Collection
      * @param  array  $options Options
      * @return array|bool      Array of properties, false if error
      */
-    public static function scanImport($type, $source, $options=[])
+    public static function scanImport($module, $source, $options=[])
     {
         require_once('inc/classes/Module.php');
-        if (!Module::load('import', $type)) {
+        if (!Module::load('import', $module)) {
             return false;
         }
 
         try {
             $import = new Import($source, $options);
         } catch (Throwable $t) {
-            Logger::fatal("error while loading import class: $type");
+            Logger::fatal("error while loading import class: $module");
             return false;
         }
 
-        // get and return fields
-        return $import->scanFields();
+        // get and return properties
+        return $import->getProperties();
     }
 }

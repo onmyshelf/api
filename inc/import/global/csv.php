@@ -2,16 +2,13 @@
 
 abstract class CsvImport extends GlobalImport
 {
-    private $separator;
+    protected $separator;
+    protected $handle;
 
-    /**
-     * Class constructor
-     * @param string $file    The path to the CSV file
-     * @param array  $options Import options
-     */
-    public function __construct($file, $options=[])
+
+    public function load()
     {
-        $file = Storage::path($file);
+        $file = Storage::path($this->source);
 
         if (!file_exists($file)) {
             Logger::error('CSV file does not exists!');
@@ -26,41 +23,36 @@ abstract class CsvImport extends GlobalImport
             $this->separator = (string) $options['separator'];
         }
 
-        // call parent constructor
-        parent::__construct($file, $options);
+        return true;
     }
 
 
     /**
-     * Scan fields of the CSV
-     * @return array|bool  Array of fields, FALSE if error
+     * Scan properties of the CSV
+     * @return array|bool  Array of properties, FALSE if error
      */
-    public function scanFields()
+    public function getProperties()
     {
-        $fields = [];
+        // if already defined
+        if (count($this->properties) > 0) {
+            return $this->properties;
+        }
 
         // open CSV file
-        try {
-            if (($handle = fopen($this->source, 'r')) === false) {
-                Logger::error("failed to load CSV: $this->source");
-                return false;
-            }
-        } catch (Throwable $t) {
-            Logger::error("failed to load CSV: $this->source");
+        if (($csv = $this->openCSV()) === false) {
             return false;
         }
 
-        // read first row to get fields
-        if (($data = fgetcsv($handle, 1000, $this->separator)) !== false) {
+        // read first row to get properties
+        if (($data = fgetcsv($csv, 0, $this->separator)) !== false) {
             foreach ($data as $key) {
-                $fields[] = $key;
+                $this->properties[] = $key;
             }
         }
 
-        // close file
-        fclose($handle);
+        fclose($csv);
 
-        return $fields;
+        return $this->properties;
     }
 
 
@@ -68,11 +60,58 @@ abstract class CsvImport extends GlobalImport
      * Import data into collection
      * @return bool Import success
      */
-    public function import()
+    public function import($collection)
+    {
+        // open CSV file
+        if (($csv = $this->openCSV()) === false) {
+            return false;
+        }
+
+        // read CSV line by line
+        $row = 0;
+        while (($data = fgetcsv($csv, 0, $this->separator)) !== false) {
+            $row++;
+
+            // first line:
+            if ($row == 1) {
+                // reset properties
+                $this->properties = [];
+                // get them
+                foreach ($data as $key) {
+                    $this->properties[] = $key;
+                }
+                // jump to 2nd line
+                continue;
+            }
+
+            // import properties
+            $properties = [];
+            for ($i=0; $i < count($data); $i++) {
+                $key = $this->properties[$i];
+                $properties[$key] = $data[$i];
+            }
+
+            // import item
+            $this->importItem($collection, $properties);
+        }
+
+        fclose($csv);
+
+        return true;
+    }
+
+
+    public function search($search)
+    {
+        return false;
+    }
+
+
+    protected function openCSV()
     {
         // open CSV file
         try {
-            if (($handle = fopen($this->source, 'r')) === false) {
+            if (($handle = fopen(Storage::path($this->source), 'r')) === false) {
                 Logger::error("failed to load CSV: $this->source");
                 return false;
             }
@@ -81,33 +120,6 @@ abstract class CsvImport extends GlobalImport
             return false;
         }
 
-        // read CSV line by line
-        $row = 0;
-        while (($data = fgetcsv($handle, 0, $this->separator)) !== false) {
-            $row++;
-
-            // ignore first line (headers)
-            if ($row == 1) {
-                continue;
-            }
-
-            // import fields
-            $fields = [];
-            for ($i=0; $i < count($data); $i++) {
-                $key = $this->fields[$i];
-                $fields[$key] = $data[$i];
-            }
-
-            // import item
-            $this->importItem($fields);
-        }
-
-        // close file
-        fclose($handle);
-
-        // delete CSV
-        $this->cleanup();
-
-        return true;
+        return $handle;
     }
 }

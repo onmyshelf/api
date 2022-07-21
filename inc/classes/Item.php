@@ -217,8 +217,9 @@ class Item
             return false;
         }
 
-        // get fields
-        $import->setFields();
+        if (!$import->load()) {
+            return false;
+        }
 
         // get data
         return $import->getData();

@@ -296,7 +296,8 @@ class Storage extends GlobalStorage
             }
         }
         
-        if (!rename($src, $dest)) {
+        if (!rename($src, MEDIA_DIR.'/'.$dest)) {
+            Logger::error("Cannot rename $src to $dest");
             return false;
         }
 
