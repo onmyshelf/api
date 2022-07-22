@@ -1,11 +1,14 @@
 # Changelog for OnMyShelf API
 
-# 1.0 RC 2 (2022-XX-XX)
+# 1.0 RC 2 (2022-07-22)
 - Generate thumbnails when storing images
 - Major security improvements in passwords and tokens
 - New `/config` route to print and edit config (only superadmin)
+- New import search route to import items from external sources
+- New demo mode
 - Migration to PHP PDO for database connector
-- Complete new "read only" mode, useful for demo websites
+- Improve collection import from Tellico files
+- Various code improvements
 
 # 1.0 RC 1 (2022-05-28)
 - Renamed 'fields' to 'properties' for better understanding

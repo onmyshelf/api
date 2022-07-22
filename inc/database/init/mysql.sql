@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS `itemProperty` (
   `collectionId` int(11) NOT NULL,
   `itemId` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
-  `value` text NOT NULL DEFAULT '',
+  `value` text DEFAULT NULL,
   KEY `item` (`itemId`),
   KEY `collectionId` (`collectionId`),
   KEY `name` (`name`),
@@ -121,8 +121,8 @@ CREATE TABLE IF NOT EXISTS `property` (
 
 CREATE TABLE IF NOT EXISTS `propertyLabel` (
   `propertyId` int(11) NOT NULL,
-  `lang` varchar(10) DEFAULT NULL,
-  `label` varchar(255) NOT NULL,
+  `lang` varchar(10) NOT NULL,
+  `label` varchar(255) DEFAULT NULL,
   `description` text DEFAULT NULL,
   UNIQUE KEY `field_lang` (`propertyId`,`lang`),
   KEY `lang` (`lang`),
@@ -135,11 +135,13 @@ CREATE TABLE IF NOT EXISTS `propertyLabel` (
 CREATE TABLE IF NOT EXISTS `token` (
   `token` varchar(255) NOT NULL,
   `userId` int(11) NOT NULL,
+  `type` varchar(255) NOT NULL DEFAULT 'session',
   `expiration` int(11) NOT NULL,
   `created` int(11) NOT NULL,
   `ipIssuer` varchar(255) NOT NULL,
   PRIMARY KEY (`token`),
   KEY `user` (`userId`),
+  KEY `type` (`type`),
   CONSTRAINT `token_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
