@@ -246,6 +246,12 @@ abstract class SqlDatabase extends GlobalDatabase
 
             $name = $property['name'];
 
+            // get available values
+            if ($property['filterable']) {
+                $property['values'] = $this->selectColumn('SELECT `value` FROM `itemProperty` WHERE `collectionId`=? AND `name`=?
+                                               GROUP BY `value` ORDER BY `value`', [$id, $name]);
+            }
+
             // delete unecessary data
             unset($property['id']);
             unset($property['collectionId']);
