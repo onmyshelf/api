@@ -7,9 +7,7 @@ abstract class TellicoImport extends XmlImport
     protected $folder;
 
     /**
-     * Class constructor
-     * @param string $file    The path to the Tellico file to import
-     * @param array  $options Import options
+     * Load tellico file
      */
     public function load()
     {
@@ -28,8 +26,8 @@ abstract class TellicoImport extends XmlImport
 
 
     /**
-     * Scan fields of the collection
-     * @return bool  Success
+     * Get collection properties of Tellico file
+     * @return array Properties
      */
     public function getProperties()
     {

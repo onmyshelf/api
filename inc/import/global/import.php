@@ -192,6 +192,7 @@ abstract class GlobalImport
                         // guess type of property from property name
                         switch ($key) {
                             case 'cover':
+                            case 'image':
                             case 'poster':
                                 $propertyConfig['type'] = 'image';
                                 $propertyConfig['isCover'] = true;
@@ -202,7 +203,6 @@ abstract class GlobalImport
                             case 'title':
                                 $propertyConfig['isTitle'] = true;
                                 break;
-                            case 'image':
                             case 'rating':
                             case 'url':
                                 $propertyConfig['type'] = $key;

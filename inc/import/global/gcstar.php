@@ -5,6 +5,32 @@ require_once('xml.php');
 abstract class GCstarImport extends XmlImport
 {
     /**
+     * Open GCstar zipped file
+     */
+    public function load()
+    {
+        // extract zip file
+        $this->folder = Storage::unzip($this->source, true);
+
+        if (!$this->folder) {
+            Logger::error("Failed to unzip GCstar archive.");
+            return false;
+        }
+
+        // search gcs file
+        $gcs = glob($this->folder.'/*.gcs');
+        if (!$gcs) {
+            Logger::error("Failed to find GCstar gcs file.");
+            return false;
+        }
+        
+        $this->source = $gcs[0];
+
+        return parent::load();
+    }
+
+
+    /**
      * Scan fields of the GCstar file
      * @return array Array of fields names
      */
@@ -94,6 +120,17 @@ abstract class GCstarImport extends XmlImport
 
                 $value = $this->transform($value, $transform);
 
+                // if image is defined,
+                if (preg_match('/_pictures\//', $value)) {
+                    $image = $this->folder.'/'.$value;
+                    // if file exists, import it
+                    if (file_exists($image)) {
+                        $value = $this->importImage($image);
+                    } else {
+                        Logger::warn("GCstar import: failed to import image $image");
+                    }
+                }
+
                 // add field if not empty
                 if (strlen($value)) {
                     $fields[$key] = $value;
@@ -132,5 +169,23 @@ abstract class GCstarImport extends XmlImport
         $this->cleanup();
 
         return true;
+    }
+
+
+    /**
+     * Move image into media library
+     *
+     * @param string $path
+     * @return string Media path
+     */
+    protected function importImage($path)
+    {
+        // move image to media library
+        $path = Storage::move($path);
+        if ($path) {
+            return 'media://'.$path;
+        } else {
+            return false;
+        }
     }
 }
