@@ -227,8 +227,15 @@ class Storage extends GlobalStorage
 
         // generate thumbnails
         $sizes = [ 'small' => 300, 'normal' => 800 ];
-        foreach ($sizes as $size => $thumbWidth) {
-            $thumbHeight = floor($orgHeight * ($thumbWidth / $orgWidth));
+        foreach ($sizes as $size => $thumbHeight) {
+            // if thumbnail is bigger than original image, keep the original size
+            if ($thumbHeight > $orgHeight) {
+                $thumbWidth = $orgWidth;
+                $thumbHeight = $orgHeight;
+            } else {
+                // calculates thumbnail width
+                $thumbWidth = floor($orgWidth * ($thumbHeight / $orgHeight));
+            }
 
             $thumbnail = imagecreatetruecolor($thumbWidth, $thumbHeight);
 
