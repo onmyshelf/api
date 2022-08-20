@@ -1133,7 +1133,13 @@ abstract class SqlDatabase extends GlobalDatabase
             return false;
         }
 
-        return $stmt->fetchAll();
+        $results = [];
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $results[] = $row;
+        }
+
+        return $results;
     }
 
 
