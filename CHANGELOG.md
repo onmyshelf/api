@@ -1,5 +1,12 @@
 # Changelog for OnMyShelf API
 
+# 1.0 RC 3 (2022-08-22)
+- Import GCstar collections now downloads pictures into media library
+- Default token lifetime is now set to 1 month
+- `GET collection/{id}` route returns available values for each filterable property
+- Improved database performance
+- Minor fixes
+
 # 1.0 RC 2 (2022-07-22)
 - Generate thumbnails when storing images
 - Major security improvements in passwords and tokens

@@ -16,14 +16,6 @@ define('DB_PASSWORD', 'onmyshelf');
 
 
 /*
- *  Localization
- */
-
-// default language
-define('DEFAULT_LANG', 'en_US');
-
-
-/*
  *  API access
  */
 
