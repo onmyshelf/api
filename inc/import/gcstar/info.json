@@ -1,5 +1,5 @@
 {
-  "name": "GCstar file",
-  "description": "Import from GCstar collection file (.gcs)",
+  "name": "GCstar collection",
+  "description": "Import from GCstar collection file (.gcs inside a zip file)",
   "importCollection": true
 }

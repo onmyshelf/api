@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `collection` (
 CREATE TABLE IF NOT EXISTS `collectionLabel` (
   `collectionId` int(11) NOT NULL,
   `lang` varchar(10) NOT NULL,
-  `name` varchar(255) NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
   `description` text DEFAULT NULL,
   UNIQUE KEY `collection_lang` (`collectionId`,`lang`),
   KEY `collection` (`collectionId`),

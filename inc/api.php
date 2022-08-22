@@ -44,7 +44,7 @@ class Api
             '/token' => 'token',
             '/upload' => 'upload',
             '/users/{uid}/collections' => 'userCollections',
-            '/users/{uid}/password' => 'userPassword'
+            '/users/{uid}/password' => 'userPassword',
         ];
     }
 

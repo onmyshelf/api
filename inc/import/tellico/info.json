@@ -1,5 +1,5 @@
 {
-  "name": "Tellico file",
-  "description": "Import from Tellico collection file (.xml)",
+  "name": "Tellico collection",
+  "description": "Import from Tellico collection file (.tc)",
   "importCollection": true
 }
