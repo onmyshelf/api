@@ -59,7 +59,7 @@ class User
         $ipOrigin = (string)$_SERVER['REMOTE_ADDR'];
 
         // add token in database
-        if (!(new Database())->createToken($token, $this->id, $expiration, $ipOrigin, $type)) {
+        if (!(new Database)->createToken($token, $this->id, $expiration, $ipOrigin, $type)) {
             Logger::error('Failed to create token for user '.$this->id);
             return false;
         }
@@ -75,7 +75,7 @@ class User
      */
     public function setPassword(string $password)
     {
-        return (new Database())->setUserPassword($this->id, $password);
+        return (new Database)->setUserPassword($this->id, $password);
     }
 
 
@@ -90,7 +90,7 @@ class User
      */
     public static function getByName($username)
     {
-        $data = (new Database())->getUserByName($username);
+        $data = (new Database)->getUserByName($username);
         if (!$data) {
             return false;
         }
@@ -107,7 +107,7 @@ class User
      */
     public static function getByLogin($username, $password)
     {
-        $data = (new Database())->getUserByLogin($username, $password);
+        $data = (new Database)->getUserByLogin($username, $password);
         if (!$data) {
             return false;
         }
@@ -123,7 +123,7 @@ class User
      */
     public static function getByToken($token, $type=null)
     {
-        $data = (new Database())->getUserByToken($token, $type);
+        $data = (new Database)->getUserByToken($token, $type);
         if (!$data) {
             return false;
         }

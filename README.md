@@ -33,5 +33,3 @@ This project is licensed under the MIT License. See [LICENSE.md](LICENSE.md) for
 Website: https://onmyshelf.cm
 
 Source code: https://github.com/onmyshelf/api
-
-Author: Jean Prunneaux https://jean.prunneaux.com

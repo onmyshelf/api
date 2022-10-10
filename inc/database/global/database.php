@@ -66,7 +66,7 @@ abstract class GlobalDatabase
     public function install()
     {
         // we need to reset database connection after install
-        return (new Database())->setConfig('version', VERSION);
+        return (new Database)->setConfig('version', VERSION);
     }
 
 

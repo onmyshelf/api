@@ -40,7 +40,7 @@ class Item
      */
     public function getProperty($name)
     {
-        return (new Database())->getItemProperty($this->collectionId, $this->id, $name);
+        return (new Database)->getItemProperty($this->collectionId, $this->id, $name);
     }
 
 
@@ -55,7 +55,7 @@ class Item
      */
     public function setProperty(string $name, $value=null)
     {
-        if (!(new Database())->setItemProperty($this->collectionId, $this->id, $name, $value)) {
+        if (!(new Database)->setItemProperty($this->collectionId, $this->id, $name, $value)) {
             return false;
         }
 
@@ -156,7 +156,7 @@ class Item
      */
     public function delete()
     {
-        return (new Database())->deleteItem($this->id);
+        return (new Database)->deleteItem($this->id);
     }
 
 
@@ -177,7 +177,7 @@ class Item
             return false;
         }
 
-        $data = (new Database())->getItem($collectionId, $id);
+        $data = (new Database)->getItem($collectionId, $id);
         if (!$data) {
             return false;
         }
@@ -200,7 +200,7 @@ class Item
             return false;
         }
 
-        $data = (new Database())->getItemByProperty($collectionId, $name, $value);
+        $data = (new Database)->getItemByProperty($collectionId, $name, $value);
         if (!$data) {
             return false;
         }

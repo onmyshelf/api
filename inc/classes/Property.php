@@ -82,7 +82,7 @@ class Property
             return false;
         }
 
-        $data = (new Database())->getProperty($collectionId, $name);
+        $data = (new Database)->getProperty($collectionId, $name);
         if (!$data) {
             return false;
         }

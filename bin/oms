@@ -12,7 +12,7 @@ class Cmd
     public static function cleanup()
     {
         echo "Cleanup expired tokens...";
-        (new Database())->cleanupTokens();
+        (new Database)->cleanupTokens();
         echo "\nCleanup finished.\n";
     }
 
@@ -44,7 +44,7 @@ class Cmd
         } else {
             echo "Initialize database...";
             // WARN: we need to create a separate connection here
-            if (!(new Database())->install()) {
+            if (!(new Database)->install()) {
                 echo " FAILED! (see log file for more details)\n";
                 exit(1);
             }
@@ -84,7 +84,7 @@ class Cmd
             echo "Upgrading from $currentVersion to $newVersion...";
 
             // upgrade version (without build number)
-            if ((new Database())->upgrade($newVersion)) {
+            if ((new Database)->upgrade($newVersion)) {
                 echo "\nUpgrade finished\n";
             } else {
                 echo " FAILED! (see log file for more details)\n";

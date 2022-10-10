@@ -89,7 +89,7 @@ class Collection
             unset($data['properties']);
         }
 
-        $id = (new Database())->createItem($this->id, $data);
+        $id = (new Database)->createItem($this->id, $data);
         if (!$id) {
             Logger::error("Failed to create item");
             return false;
@@ -117,7 +117,7 @@ class Collection
      */
     public function getItems($sortBy=[])
     {
-        return (new Database())->getItems($this->id, $sortBy);
+        return (new Database)->getItems($this->id, $sortBy);
     }
 
 
@@ -134,7 +134,7 @@ class Collection
             return true;
         }
 
-        if (!(new Database())->createProperty($this->id, $name, $properties)) {
+        if (!(new Database)->createProperty($this->id, $name, $properties)) {
             return false;
         }
 
@@ -300,7 +300,7 @@ class Collection
      */
     public function delete()
     {
-        return (new Database())->deleteCollection($this->id);
+        return (new Database)->deleteCollection($this->id);
     }
 
 
@@ -315,7 +315,7 @@ class Collection
      */
     public static function dumpAll($userID=null)
     {
-        return (new Database())->getCollections($userID);
+        return (new Database)->getCollections($userID);
     }
 
 
@@ -331,7 +331,7 @@ class Collection
             return false;
         }
 
-        $data = (new Database())->getCollection($id);
+        $data = (new Database)->getCollection($id);
         if (!$data) {
             return false;
         }

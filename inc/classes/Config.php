@@ -8,7 +8,7 @@ class Config
      */
     public static function dump()
     {
-        return (new Database())->dumpConfig();
+        return (new Database)->dumpConfig();
     }
 
 
@@ -19,7 +19,7 @@ class Config
      */
     public static function get(string $param)
     {
-        return (new Database())->getConfig($param);
+        return (new Database)->getConfig($param);
     }
 
 
@@ -31,7 +31,7 @@ class Config
      */
     public static function set(string $param, $value)
     {
-        return (new Database())->setConfig($param, $value);
+        return (new Database)->setConfig($param, $value);
     }
 
 

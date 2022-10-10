@@ -24,6 +24,6 @@ class Token
      */
     public static function revoke($token)
     {
-        return (new Database())->deleteToken($token);
+        return (new Database)->deleteToken($token);
     }
 }
