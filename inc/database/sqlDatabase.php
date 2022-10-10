@@ -720,6 +720,79 @@ abstract class SqlDatabase extends GlobalDatabase
 
 
     /*
+     *  Loans
+     */
+
+
+    /**
+     * Get item loans
+     *
+     * @param int $itemId
+     * @return void
+     */
+    public function getItemLoans($itemId)
+    {
+        return $this->select("SELECT * FROM `loan` WHERE `itemId`=? ORDER BY `lent` DESC", [$itemId]);
+    }
+
+
+    /**
+     * Get loan by ID
+     * @param  int  $id   Loan ID
+     * @return array|bool Item data, FALSE if error
+     */
+    public function getLoan($id)
+    {
+        return $this->selectFirst("SELECT * FROM `loan` WHERE `id`=?", [$id]);
+    }
+
+
+    public function isItemLent($itemId)
+    {
+        return $this->selectOne("SELECT COUNT(*) FROM `loan` WHERE `itemId`=? AND `state`='lent'", [$itemId]);
+    }
+
+
+    /**
+     * Creates loan
+     * @param  int   $itemId
+     * @param  array $data Item data (optionnal)
+     * @return bool Success
+     */
+    public function createLoan($data)
+    {
+        return $this->insertOne('loan', $data);
+    }
+
+
+    /**
+     * Update loan
+     * @param  int     $id
+     * @param  array   $data
+     * @return boolean Success
+     */
+    public function updateLoan($id, $data)
+    {
+        if (count($data) == 0) {
+            return true;
+        }
+
+        return $this->update('loan', $data, ['id' => $id]);
+    }
+
+
+    /**
+     * Deletes a loan
+     * @param  int   $id
+     * @return bool Success
+     */
+    public function deleteLoan($id)
+    {
+        return $this->delete('loan', ['id' => $id]);
+    }
+
+
+    /*
      *  Properties
      */
 

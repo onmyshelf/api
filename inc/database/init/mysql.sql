@@ -1,7 +1,9 @@
-SET NAMES utf8mb4;
+SET NAMES utf8;
 SET time_zone = '+00:00';
 SET foreign_key_checks = 0;
 SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
+
+SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `collection` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -41,29 +43,6 @@ CREATE TABLE IF NOT EXISTS `item` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-CREATE TABLE IF NOT EXISTS `itemInstance` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `collectionId` int(11) NOT NULL,
-  `itemId` int(11) NOT NULL,
-  `quantity` int(11) NOT NULL DEFAULT 1,
-  PRIMARY KEY (`id`),
-  KEY `collectionId` (`collectionId`),
-  KEY `itemId` (`itemId`),
-  CONSTRAINT `itemInstance_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`),
-  CONSTRAINT `itemInstance_ibfk_2` FOREIGN KEY (`itemId`) REFERENCES `item` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-
-CREATE TABLE IF NOT EXISTS `itemInstanceProperty` (
-  `itemInstanceId` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `value` longtext DEFAULT NULL,
-  KEY `itemInstanceId` (`itemInstanceId`),
-  KEY `name` (`name`),
-  CONSTRAINT `itemInstanceProperty_ibfk_1` FOREIGN KEY (`itemInstanceId`) REFERENCES `itemInstance` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-
 CREATE TABLE IF NOT EXISTS `itemProperty` (
   `collectionId` int(11) NOT NULL,
   `itemId` int(11) NOT NULL,
@@ -74,6 +53,21 @@ CREATE TABLE IF NOT EXISTS `itemProperty` (
   KEY `name` (`name`),
   CONSTRAINT `itemProperty_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`),
   CONSTRAINT `itemProperty_ibfk_2` FOREIGN KEY (`itemId`) REFERENCES `item` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+CREATE TABLE IF NOT EXISTS `loan` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `itemId` int(11) NOT NULL,
+  `state` varchar(255) NOT NULL,
+  `lent` int(11) DEFAULT NULL,
+  `returned` int(11) DEFAULT NULL,
+  `borrower` varchar(255) NOT NULL,
+  `notes` text DEFAULT NULL,
+  `date` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `itemId` (`itemId`),
+  CONSTRAINT `loan_ibfk_1` FOREIGN KEY (`itemId`) REFERENCES `item` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 

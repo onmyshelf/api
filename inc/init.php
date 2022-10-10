@@ -66,4 +66,5 @@ require_once('classes/Collection.php');
 require_once('classes/CollectionTemplate.php');
 require_once('classes/Property.php');
 require_once('classes/Item.php');
+require_once('classes/Loan.php');
 require_once('classes/User.php');

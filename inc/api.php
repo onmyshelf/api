@@ -36,6 +36,8 @@ class Api
             '/collections/{cid}/properties' => 'properties',
             '/collections/{cid}/properties/{name}' => 'property',
             '/collections/{cid}/items/{id}' => 'item',
+            '/collections/{cid}/items/{id}/loans' => 'loans',
+            '/collections/{cid}/items/{iid}/loans/{id}' => 'loan',
             '/properties/types' => 'propertyTypes',
             '/import/modules' => 'importModules',
             '/config' => 'config',
@@ -794,6 +796,107 @@ class Api
             default:
                 // dump item
                 $this->response($item->dump());
+                break;
+        }
+    }
+
+
+    /*
+     *  Loans
+     */
+
+
+    /**
+     * Loans handler
+     * @return void
+     */
+    private function loans()
+    {
+        $this->requireArgs(['cid','id']);
+
+        // get collection object to check access rights
+        $collection = Collection::getById($this->args['cid']);
+        if (!$collection) {
+            $this->error(404, 'Collection does not exists');
+        }
+
+        // only collection owner can continue
+        $this->requireUserID($collection->getOwner());
+
+        // get item object
+        $item = Item::getById($this->args['id'], $this->args['cid']);
+        if (!$item) {
+            $this->error(404);
+        }
+
+        switch ($this->method) {
+            case 'POST':
+                // forbidden in read only mode
+                if (READ_ONLY) {
+                    $this->error(403);
+                }
+
+                $this->response(['created' => Loan::create($item->getId(), $this->data)]);
+                break;
+
+            default:
+                $this->response($item->getLoans());
+                break;
+        }
+    }
+
+
+    /**
+     * Loan handler
+     * @return void
+     */
+    private function loan()
+    {
+        $this->requireArgs(['cid', 'iid', 'id']);
+
+        // get collection object to check access rights
+        $collection = Collection::getById($this->args['cid']);
+        if (!$collection) {
+            $this->error(404, 'Collection does not exists');
+        }
+
+        // only collection owner can continue
+        $this->requireUserID($collection->getOwner());
+
+        // get item object
+        $item = Item::getById($this->args['iid'], $this->args['cid']);
+        if (!$item) {
+            $this->error(404);
+        }
+
+        // get loan object
+        $loan = Loan::getById($this->args['id']);
+        if (!$loan) {
+            $this->error(404);
+        }
+
+        switch ($this->method) {
+            case 'PATCH':
+                // forbidden in read only mode
+                if (READ_ONLY) {
+                    $this->error(403);
+                }
+
+                $this->response(['updated' => $loan->update($this->data)]);
+                break;
+
+            case 'DELETE':
+                // forbidden in read only mode
+                if (READ_ONLY) {
+                    $this->error(403);
+                }
+
+                $this->response(['deleted' => $loan->delete()]);
+                break;
+
+            default:
+                // return loan details
+                $this->response($loan->dump());
                 break;
         }
     }

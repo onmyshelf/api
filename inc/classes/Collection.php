@@ -230,6 +230,7 @@ class Collection
                         'properties' => $itemProperties,
                         'thumbnail' => $thumbnails,
                         'visibility' => $dumpItem['visibility'],
+                        'lent' => $item->isLent(),
                     ];
                 }
             }

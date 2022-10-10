@@ -99,6 +99,18 @@ class Item
     }
 
 
+    public function getLoans()
+    {
+        return (new Database)->getItemLoans($this->id);
+    }
+
+
+    public function isLent()
+    {
+        return ((new Database)->isItemLent($this->id) > 0);
+    }
+
+
     /**
      * Dump item
      * @return array Item dumped
@@ -109,7 +121,8 @@ class Item
             'id' => $this->id,
             'collectionId' => $this->collectionId,
             'properties' => $this->properties,
-            'visibility' => $this->visibility
+            'visibility' => $this->visibility,
+            'lent' => $this->isLent(),
         ];
     }
 
