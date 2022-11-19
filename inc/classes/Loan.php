@@ -80,7 +80,7 @@ class Loan
     public static function getById($id)
     {
         if (is_null($id)) {
-            Logger::error("Called Item::getById(null)");
+            Logger::error("Called Loan::getById(null)");
             return false;
         }
 

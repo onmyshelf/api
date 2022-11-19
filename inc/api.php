@@ -25,28 +25,28 @@ class Api
 
         // routes definition (see methods below)
         $this->routes = [
-            '/' => 'welcome',
-            '/collections' => 'collections',
-            '/collections/{id}' => 'collection',
-            '/collections/{id}/import' => 'collectionImport',
-            '/collections/{id}/import/scan' => 'collectionImportScan',
-            '/collections/{id}/import/search' => 'collectionImportSearch',
-            '/collections/{id}/import/data' => 'collectionImportData',
-            '/collections/{cid}/items' => 'items',
-            '/collections/{cid}/properties' => 'properties',
-            '/collections/{cid}/properties/{name}' => 'property',
-            '/collections/{cid}/items/{id}' => 'item',
-            '/collections/{cid}/items/{id}/loans' => 'loans',
-            '/collections/{cid}/items/{iid}/loans/{id}' => 'loan',
-            '/properties/types' => 'propertyTypes',
-            '/import/modules' => 'importModules',
-            '/config' => 'config',
-            '/login' => 'userLogin',
-            '/resetpassword' => 'userPasswordReset',
-            '/token' => 'token',
-            '/upload' => 'upload',
-            '/users/{uid}/collections' => 'userCollections',
-            '/users/{uid}/password' => 'userPassword',
+            '/' => 'Home',
+            '/collections' => 'Collections',
+            '/collections/{id}' => 'CollectionsId',
+            '/collections/{id}/import' => 'CollectionsIdImport',
+            '/collections/{id}/import/scan' => 'CollectionsIdImportScan',
+            '/collections/{id}/import/search' => 'CollectionsIdImportSearch',
+            '/collections/{id}/import/data' => 'CollectionsIdImportData',
+            '/collections/{cid}/items' => 'CollectionsIdItems',
+            '/collections/{cid}/properties' => 'CollectionsIdProperties',
+            '/collections/{cid}/properties/{name}' => 'CollectionsIdPropertiesName',
+            '/collections/{cid}/items/{id}' => 'CollectionsIdItemId',
+            '/collections/{cid}/items/{id}/loans' => 'CollectionsIdItemsIdLoans',
+            '/collections/{cid}/items/{iid}/loans/{id}' => 'CollectionsIdItemsIdLoan',
+            '/properties/types' => 'PropertiesTypes',
+            '/import/modules' => 'ImportModules',
+            '/config' => 'Config',
+            '/login' => 'Login',
+            '/resetpassword' => 'Resetpassword',
+            '/token' => 'Token',
+            '/upload' => 'Upload',
+            '/users/{uid}/collections' => 'UsersIdCollections',
+            '/users/{uid}/password' => 'UsersIdPassword',
         ];
     }
 
@@ -204,7 +204,7 @@ class Api
             // compare routes
             $regex = '/^'.preg_replace($patterns, $replaces, $r).'\/?$/';
             if (preg_match($regex, $route)) {
-                $function = $this->routes[$r];
+                $function = 'route'.$this->routes[$r];
                 break;
             }
         }
@@ -269,15 +269,11 @@ class Api
     }
 
 
-    /*****************
-     *  API METHODS  *
-     *****************/
+    /************************
+     *  API ROUTE HANDLERS  *
+     ************************/
 
-    /**
-     * Welcome message to the main URL
-     * @return void
-     */
-    private function welcome()
+    private function routeHome()
     {
         $info = [
             'name' => 'OnMyShelf',
@@ -294,11 +290,7 @@ class Api
     }
 
 
-    /**
-     * Config handler
-     * @return void
-     */
-    private function config()
+    private function routeConfig()
     {
         // requires to be the administrator
         $this->requireUsername('onmyshelf');
@@ -341,11 +333,7 @@ class Api
     }
 
 
-    /**
-     * Login user
-     * @return void
-     */
-    private function userLogin()
+    private function routeLogin()
     {
         // check method
         if ($this->method != 'POST') {
@@ -379,11 +367,7 @@ class Api
     }
 
 
-    /**
-     * Token
-     * @return void
-     */
-    private function token()
+    private function routeToken()
     {
         // check method
         if ($this->method != 'DELETE') {
@@ -402,15 +386,7 @@ class Api
     }
 
 
-    /*
-     *  Collections
-     */
-
-    /**
-     * Get collections
-     * @return void
-     */
-    private function collections()
+    private function routeCollections()
     {
         switch ($this->method) {
             case 'POST':
@@ -451,11 +427,7 @@ class Api
     }
 
 
-    /**
-     * Collection handler
-     * @return void
-     */
-    private function collection()
+    private function routeCollectionsId()
     {
         $this->requireArgs(['id']);
 
@@ -501,11 +473,7 @@ class Api
     }
 
 
-    /**
-     * Import collection
-     * @return void
-     */
-    private function collectionImport()
+    private function routeCollectionsIdImport()
     {
         // forbidden in read only mode
         if (READ_ONLY) {
@@ -547,11 +515,7 @@ class Api
     }
 
 
-    /**
-     * Scan properties to import a collection
-     * @return void
-     */
-    private function collectionImportScan()
+    private function routesCollectionsIdImportScan()
     {
         // forbidden in read only mode
         if (READ_ONLY) {
@@ -587,11 +551,7 @@ class Api
     }
 
 
-    /**
-     * Search items from import module
-     * @return void
-     */
-    private function collectionImportSearch()
+    private function routeCollectionsIdImportSearch()
     {
         $this->requireParams(['module', 'source', 'search']);
 
@@ -620,11 +580,7 @@ class Api
     }
 
 
-    /**
-     * Import item data
-     * @return void
-     */
-    private function collectionImportData()
+    private function routeCollectionsIdImportData()
     {
         $this->requireData(['module', 'source']);
 
@@ -653,15 +609,7 @@ class Api
     }
 
 
-    /*
-     *  Items
-     */
-
-    /**
-     * Create item
-     * @return void
-     */
-    private function items()
+    private function routeCollectionsIdItems()
     {
         $this->requireArgs(['cid']);
 
@@ -742,11 +690,7 @@ class Api
     }
 
 
-    /**
-     * Item handler
-     * @return void
-     */
-    private function item()
+    private function routeCollectionsIdItemsId()
     {
         $this->requireArgs(['cid','id']);
 
@@ -801,16 +745,7 @@ class Api
     }
 
 
-    /*
-     *  Loans
-     */
-
-
-    /**
-     * Loans handler
-     * @return void
-     */
-    private function loans()
+    private function routeCollectionsIdItemsIdLoans()
     {
         $this->requireArgs(['cid','id']);
 
@@ -846,11 +781,7 @@ class Api
     }
 
 
-    /**
-     * Loan handler
-     * @return void
-     */
-    private function loan()
+    private function routeCollectionsIdItemsIdLoansId()
     {
         $this->requireArgs(['cid', 'iid', 'id']);
 
@@ -902,15 +833,7 @@ class Api
     }
 
 
-    /*
-     *  Properties
-     */
-
-    /**
-     * Properties handler
-     * @return void
-     */
-    private function properties()
+    private function routeCollectionsIdProperties()
     {
         $this->requireArgs(['cid']);
 
@@ -947,11 +870,7 @@ class Api
     }
 
 
-    /**
-     * Property handler
-     * @return void
-     */
-    private function property()
+    private function routeCollectionsIdPropertiesId()
     {
         $this->requireArgs(['cid','name']);
 
@@ -1010,37 +929,20 @@ class Api
     }
 
 
-    /**
-     * Property types
-     * @return void
-     */
-    private function propertyTypes()
+    private function routePropertiesTypes()
     {
         $this->response(Property::getTypes());
     }
 
 
-    /*
-     *  Import
-     */
-
-
-    /**
-     * Returns available import modules
-     * @return void
-     */
-    private function importModules()
+    private function routeImportModules()
     {
         require_once('inc/classes/Module.php');
         $this->response(Module::list('import'));
     }
 
 
-    /**
-     * Upload a file
-     * @return void
-     */
-    private function upload()
+    private function routeUpload()
     {
         // forbidden in read only mode
         if (READ_ONLY) {
@@ -1065,15 +967,7 @@ class Api
     }
 
 
-    /*
-     *  User
-     */
-
-    /**
-     * Get user's collections
-     * @return void
-     */
-    private function userCollections()
+    private function routeUsersIdCollections()
     {
         $this->requireArgs(['uid']);
 
@@ -1090,11 +984,7 @@ class Api
     }
 
 
-    /**
-     * Change user password
-     * @return void
-     */
-    private function userPassword()
+    private function routeUsersIdPassword()
     {
         // forbidden in read only mode
         if (READ_ONLY) {
@@ -1124,11 +1014,7 @@ class Api
     }
 
 
-    /**
-     * Reset user password
-     * @return void
-     */
-    private function userPasswordReset()
+    private function routeResetpassword()
     {
         // forbidden in read only mode
         if (READ_ONLY) {
