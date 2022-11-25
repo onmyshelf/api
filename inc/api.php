@@ -35,7 +35,7 @@ class Api
             '/collections/{cid}/items' => 'CollectionsIdItems',
             '/collections/{cid}/properties' => 'CollectionsIdProperties',
             '/collections/{cid}/properties/{name}' => 'CollectionsIdPropertiesName',
-            '/collections/{cid}/items/{id}' => 'CollectionsIdItemId',
+            '/collections/{cid}/items/{id}' => 'CollectionsIdItemsId',
             '/collections/{cid}/items/{id}/loans' => 'CollectionsIdItemsIdLoans',
             '/collections/{cid}/items/{iid}/loans/{id}' => 'CollectionsIdItemsIdLoan',
             '/properties/types' => 'PropertiesTypes',
