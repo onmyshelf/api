@@ -13,7 +13,12 @@ abstract class HtmlImport extends GlobalImport
      */
     public function loadHtml()
     {
-        $this->html = file_get_html($this->source);
+        // Note: We use curl (not file_get_html) with user agent defined to cover every cases.
+        // e.g. Amazon module needs this to read properly a product page.
+        $content = shell_exec("curl --compressed -H \"User-Agent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36'\" \"".$this->source.'"');
+        
+        // load page in a simplehtmldom object
+        $this->html = str_get_html($content);
 
         return !is_null($this->html);
     }
@@ -59,6 +64,6 @@ abstract class HtmlImport extends GlobalImport
             return null;
         }
 
-        return trim(strip_tags($dom->innertext));
+        return html_entity_decode(trim(strip_tags($dom->innertext)));
     }
 }

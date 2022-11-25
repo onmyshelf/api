@@ -52,6 +52,30 @@ class Api
 
 
     /**
+     * Get a header of the current request
+     *
+     * @param string $name
+     * @return void
+     */
+    private function getRequestHeaders($name)
+    {
+        $headers = null;
+
+        if (function_exists('apache_request_headers')) {
+            $requestHeaders = apache_request_headers();
+            // Server-side fix for bug in old Android versions (a nice side-effect of this fix means we don't care about capitalization for Authorization)
+            $requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
+
+            if (isset($requestHeaders[$name])) {
+                $headers = trim($requestHeaders[$name]);
+            }
+        }
+
+        return $headers;
+    }
+
+
+    /**
      * Get Authorization header
      * Source: https://gist.github.com/wildiney/b0be69ff9960642b4f7d3ec2ff3ffb0b
      * @return string
@@ -64,14 +88,8 @@ class Api
         }
         else if (isset($_SERVER['HTTP_AUTHORIZATION'])) { //Nginx or fast CGI
             $headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
-        } elseif (function_exists('apache_request_headers')) {
-            $requestHeaders = apache_request_headers();
-            // Server-side fix for bug in old Android versions (a nice side-effect of this fix means we don't care about capitalization for Authorization)
-            $requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
-
-            if (isset($requestHeaders['Authorization'])) {
-                $headers = trim($requestHeaders['Authorization']);
-            }
+        } else {
+            $headers = $this->getRequestHeaders('Authorization');
         }
         return $headers;
     }
@@ -92,6 +110,23 @@ class Api
             }
         }
         return false;
+    }
+
+
+    /**
+     * Get Bearer Token from headers
+     * Source: https://gist.github.com/wildiney/b0be69ff9960642b4f7d3ec2ff3ffb0b
+     * @return string Token, FALSE if not defined
+     */
+    private function getClientLanguage()
+    {
+        $lang = $this->getRequestHeaders('Content-Language');
+        if (!$lang) {
+            $lang = 'en_US';
+        }
+
+        $GLOBALS['currentLanguage'] = $lang;
+        return true;
     }
 
 
@@ -248,6 +283,7 @@ class Api
         }
 
         $this->checkToken();
+        $this->getClientLanguage();
 
         // call method with args
         try {

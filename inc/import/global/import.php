@@ -21,6 +21,7 @@ abstract class GlobalImport
     // load source (e.g. open file)
     abstract public function load();
 
+
     // search
     public function search($search) {
         return false;

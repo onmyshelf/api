@@ -2,6 +2,7 @@
 
 # 1.0.0 (2022-1X-XX)
 - Add loans support
+- Minor code improvements
 
 # 1.0 RC 3 (2022-08-22)
 - Import GCstar collections now downloads pictures into media library
