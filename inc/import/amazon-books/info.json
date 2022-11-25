@@ -1,0 +1,8 @@
+{
+  "name": "Amazon Books",
+  "description": "Amazon.com e-commerce platform; books category",
+  "search": true,
+  "tags": [
+    "books"
+  ]
+}

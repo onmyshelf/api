@@ -1,7 +1,9 @@
 # Changelog for OnMyShelf API
 
 # 1.0.0 (2022-1X-XX)
-- Add loans support
+- New loans support
+- New Amazon Books import module
+- Improved HTML import class
 - Minor code improvements
 
 # 1.0 RC 3 (2022-08-22)
