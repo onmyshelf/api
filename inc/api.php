@@ -37,7 +37,7 @@ class Api
             '/collections/{cid}/properties/{name}' => 'CollectionsIdPropertiesName',
             '/collections/{cid}/items/{id}' => 'CollectionsIdItemsId',
             '/collections/{cid}/items/{id}/loans' => 'CollectionsIdItemsIdLoans',
-            '/collections/{cid}/items/{iid}/loans/{id}' => 'CollectionsIdItemsIdLoan',
+            '/collections/{cid}/items/{iid}/loans/{id}' => 'CollectionsIdItemsIdLoansId',
             '/properties/types' => 'PropertiesTypes',
             '/import/modules' => 'ImportModules',
             '/config' => 'Config',
@@ -589,6 +589,11 @@ class Api
 
     private function routeCollectionsIdImportSearch()
     {
+        // forbidden in read only mode
+        if (READ_ONLY) {
+            $this->error(403);
+        }
+
         $this->requireParams(['module', 'source', 'search']);
 
         // default options
@@ -906,7 +911,7 @@ class Api
     }
 
 
-    private function routeCollectionsIdPropertiesId()
+    private function routeCollectionsIdPropertiesName()
     {
         $this->requireArgs(['cid','name']);
 
