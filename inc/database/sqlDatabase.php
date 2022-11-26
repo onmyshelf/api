@@ -1171,11 +1171,17 @@ abstract class SqlDatabase extends GlobalDatabase
         // get current version
         $currentVersion = $this->getConfig('version');
 
-        /*// Example:
-        if (Config::compareVersions('1.0.1', $currentVersion)) {
-            echo "Migrate database from '$currentVersion' to '1.0.1'...";
-            // do changes in database...
-        }*/
+        $changes = [
+            "1.0.0-rc.4" => "install", // just create missing tables
+        ];
+
+        // migrate versions step-by-step
+        foreach ($changes as $version => $function) {
+            if (Config::compareVersions($version, $currentVersion)) {
+                echo "Migrate database from '$currentVersion' to '$version'...\n";
+                $this->$function();
+            }
+        }
 
         return parent::upgrade($newVersion);
     }

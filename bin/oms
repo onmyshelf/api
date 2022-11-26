@@ -81,7 +81,7 @@ class Cmd
 
         // run upgrade
         if (Config::compareVersions(VERSION, $currentVersion)) {
-            echo "Upgrading from $currentVersion to $newVersion...";
+            echo "Upgrading from $currentVersion to $newVersion...\n";
 
             // upgrade version (without build number)
             if ((new Database)->upgrade($newVersion)) {
