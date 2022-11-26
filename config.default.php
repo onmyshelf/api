@@ -56,6 +56,9 @@ define('LOGFILE', 'onmyshelf.log');
 // Set log level
 define('LOGGER_LEVEL', 'INFO');
 
-// Read only mode; authentication disabled
-// Useful for demo websites
+// Dev mode: enable cross-origin requests
+define('DEV_MODE', false);
+
+// Read only mode: disable every API write calls
+// Used for demo instances
 define('READ_ONLY', false);

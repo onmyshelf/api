@@ -1139,10 +1139,10 @@ class Api
             header("Access-Control-Allow-Headers: *");
             header("Content-Type: application/json; charset=UTF-8");
 
-            /****************************************/
-            //       INSECURE: for dev only!
-            //header("Access-Control-Allow-Origin: *");
-            /****************************************/
+            // cross-origin requests: not recommended in production!
+            if (DEV_MODE) {
+                header("Access-Control-Allow-Origin: *");
+            }
 
             $this->headers = true;
         }
