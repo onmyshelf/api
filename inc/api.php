@@ -380,7 +380,7 @@ class Api
         $this->requireData(['username', 'password']);
 
         // authentication
-        $user = User::getByLogin($this->data['username'], $this->data['password']);
+        $user = User::getByLogin($this->data['username'], base64_decode($this->data['password']));
         if (!$user) {
             $this->error(401, 'Authentication failed');
         }
@@ -1046,12 +1046,13 @@ class Api
         $this->requireUserID((int)$this->args['uid']);
 
         // check old password
-        $user = User::getByLogin($GLOBALS['currentUsername'], $this->data['password']);
+        $user = User::getByLogin($GLOBALS['currentUsername'], base64_decode($this->data['password']));
         if (!$user) {
             $this->error(401, 'Bad password');
         }
 
-        $this->response(['changed' => $user->setPassword($this->data['newpassword'])]);
+        // change password and return result
+        $this->response(['changed' => $user->setPassword(base64_decode($this->data['newpassword']))]);
     }
 
 
@@ -1109,7 +1110,7 @@ class Api
         }
 
         // reset password
-        if (!$user->setPassword($this->data['newpassword'])) {
+        if (!$user->setPassword(base64_decode($this->data['newpassword']))) {
             $this->error(500, "Unexpected error");
         }
 
