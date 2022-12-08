@@ -132,13 +132,16 @@ abstract class SqlDatabase extends GlobalDatabase
      */
     public function getCollections($owner=null, $template=false)
     {
-        $query = "SELECT `id` FROM `collection` WHERE `template`=?";
+        $query = "SELECT c.`id` FROM `collection` c JOIN `collectionLabel` l ON l.`collectionId`=c.`id`
+                  WHERE c.`template`=?";
         $args = [$template];
 
         if (!is_null($owner)) {
-            $query .= " AND `owner`=?";
+            $query .= " AND c.`owner`=?";
             $args[] = $owner;
         }
+
+        $query .= " GROUP BY `id` ORDER BY `name`";
 
         $ids = $this->selectColumn($query, $args);
         if ($ids === false) {
@@ -749,7 +752,8 @@ abstract class SqlDatabase extends GlobalDatabase
 
     public function isItemLent($itemId)
     {
-        return $this->selectOne("SELECT COUNT(*) FROM `loan` WHERE `itemId`=? AND `state`='lent'", [$itemId]);
+        return $this->selectOne("SELECT COUNT(*) FROM `loan` WHERE `itemId`=? AND `state`='lent'
+                                 AND `lent` <= ?", [$itemId, time()]);
     }
 
 

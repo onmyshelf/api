@@ -44,6 +44,14 @@ abstract class GlobalDatabase
     abstract public function updateProperty($collectionId, $name, $data);
     abstract public function deleteProperty($collectionId, $name);
 
+    // loans
+    abstract public function getItemLoans($itemId);
+    abstract public function getLoan($id);
+    abstract public function isItemLent($itemId);
+    abstract public function createLoan($data);
+    abstract public function updateLoan($id, $data);
+    abstract public function deleteLoan($id);
+
     // notifications
     abstract public function addNotification($type, $text);
 
