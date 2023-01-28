@@ -7,6 +7,7 @@ abstract class JsonImport extends GlobalImport
 {
     protected $json;
 
+
     public function load()
     {
         $file = Storage::path($this->source);

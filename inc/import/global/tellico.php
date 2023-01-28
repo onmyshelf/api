@@ -6,6 +6,7 @@ abstract class TellicoImport extends XmlImport
 {
     protected $folder;
 
+
     /**
      * Load tellico file
      */
@@ -68,9 +69,20 @@ abstract class TellicoImport extends XmlImport
             foreach ($item as $key => $values) {
                 // array of values
                 if ($values->children()->count()) {
-                    $value = [];
-                    foreach ($values as $v) {
-                        $value[] = $this->importValue($key, $v);
+
+                    // special case of cdate and mdate that are an array of: year, month, day
+                    switch ($key) {
+                        case 'cdate':
+                        case 'mdate':
+                            // convert dates
+                            $value = $values->year.'-'.$values->month.'-'.$values->day;
+                            break;
+                        default:
+                            $value = [];
+                            foreach ($values as $v) {
+                                $value[] = $this->importValue($key, $v);
+                            }
+                            break;
                     }
                 } else {
                     // single field
@@ -93,12 +105,6 @@ abstract class TellicoImport extends XmlImport
     protected function importValue($key, $value, $transform = 'toString')
     {
         switch ($key) {
-            case 'cdate':
-            case 'mdate':
-                // convert dates
-                $value = $value->year.'-'.$value->month.'-'.$value->day;
-                break;
-
             case 'cover':
                 $value = $this->importImage((string) $value);
                 break;

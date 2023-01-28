@@ -6,6 +6,7 @@ abstract class HtmlImport extends GlobalImport
 {
     protected $html;
 
+
     /**
      * Load HTML from URL
      * @param  string $url

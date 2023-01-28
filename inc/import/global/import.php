@@ -8,6 +8,7 @@ abstract class GlobalImport
     protected $importedProperties;
     protected $importedItemsCount;
 
+
     public function __construct($source, $options = []) {
         $this->source = $source;
         $this->options = $options;

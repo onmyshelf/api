@@ -4,6 +4,9 @@ require_once('xml.php');
 
 abstract class GCstarImport extends XmlImport
 {
+    protected $folder;
+
+
     /**
      * Open GCstar zipped file
      */

@@ -7,6 +7,7 @@ abstract class XmlImport extends GlobalImport
 {
     protected $xml;
 
+
     /**
      * Class constructor
      * @param string $file    The path to the XML file to import
