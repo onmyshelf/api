@@ -38,13 +38,14 @@ class Api
             '/collections/{cid}/items/{id}' => 'CollectionsIdItemsId',
             '/collections/{cid}/items/{id}/loans' => 'CollectionsIdItemsIdLoans',
             '/collections/{cid}/items/{iid}/loans/{id}' => 'CollectionsIdItemsIdLoansId',
-            '/properties/types' => 'PropertiesTypes',
-            '/import/modules' => 'ImportModules',
             '/config' => 'Config',
+            '/media/download' => 'MediaDownload',
+            '/media/upload' => 'MediaUpload',
+            '/import/modules' => 'ImportModules',
             '/login' => 'Login',
+            '/properties/types' => 'PropertiesTypes',
             '/resetpassword' => 'Resetpassword',
             '/token' => 'Token',
-            '/upload' => 'Upload',
             '/users/{uid}/collections' => 'UsersIdCollections',
             '/users/{uid}/password' => 'UsersIdPassword',
         ];
@@ -983,7 +984,30 @@ class Api
     }
 
 
-    private function routeUpload()
+    private function routeMediaDownload()
+    {
+        // forbidden in read only mode
+        if (READ_ONLY) {
+            $this->error(403);
+        }
+
+        // forbidden if not logged in
+        $this->requireAuthentication();
+
+        // quit if missing URL
+        $this->requireData(['url']);
+
+        $url = Storage::download($this->data['url']);
+        if (!$url) {
+            Logger::error("API call: ".$this->route." error when downloading file");
+            $this->error(500);
+        }
+
+        $this->response(['url' => $url]);
+    }
+
+
+    private function routeMediaUpload()
     {
         // forbidden in read only mode
         if (READ_ONLY) {
