@@ -152,7 +152,8 @@ abstract class GlobalImport
                 $values = [$values];
             }
 
-            foreach ($values as $value) {
+            $value = [];
+            foreach ($values as $v) {
                 // search for property mapping
                 if (isset($mapping[$key])) {
                     // property mapping transform
@@ -163,7 +164,7 @@ abstract class GlobalImport
 
                         // do transformation(s)
                         foreach ($mapping[$key]['transform'] as $operation => $options) {
-                            $value = $this->transform($value, $operation, $options);
+                            $v = $this->transform($v, $operation, $options);
                         }
                     }
 
@@ -178,11 +179,11 @@ abstract class GlobalImport
                 }
 
                 // if value is null, ignore it
-                if (is_null($value)) {
+                if (is_null($v)) {
                     continue;
                 }
 
-                // add property if not already imported
+                // create property if not already imported
                 if (in_array($key, $this->importedProperties) === false) {
                     // check if property is already defined in collection
                     if (in_array($key, $currentProperties)) {
@@ -217,11 +218,14 @@ abstract class GlobalImport
                     }
                 }
 
-                // set item property
+                // add property value
                 if ($key != '') {
-                    $item->setProperty($key, $value);
+                    $value[] = $v;
                 }
             }
+
+            // set property
+            $item->setProperty($key, $value);
         }
 
         return $item;

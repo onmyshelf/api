@@ -3,6 +3,7 @@
 # 1.0.0 (202X-XX-XX)
 - Collections are sorted by name
 - Add download function in `Import` and `Storage` class to store a file into media library
+- Fixed missing values when importing properties with multiple values
 
 # 1.0.0 RC 4 (2022-11-26)
 - New loans support
