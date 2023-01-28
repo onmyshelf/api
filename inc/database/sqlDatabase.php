@@ -670,7 +670,18 @@ abstract class SqlDatabase extends GlobalDatabase
      */
     public function deleteItem($id)
     {
-        return $this->delete('itemProperty', ['itemId' => $id]) && $this->delete('item', ['id' => $id]);
+        // delete item loans
+        if (!$this->delete('loan', ['itemId' => $id])) {
+            return false;
+        }
+        
+        // delete item properties
+        if (!$this->delete('itemProperty', ['itemId' => $id])) {
+            return false;
+        }
+
+        // delete item
+        return $this->delete('item', ['id' => $id]);
     }
 
 
