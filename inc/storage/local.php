@@ -26,6 +26,11 @@ class Storage extends GlobalStorage
 
         // get file extension
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
+
+        // security: remove extensions with a "?"
+        // sometimes, files from the web are like ....jpg?v=123456
+        $extension = preg_replace('/\?.*/', '', $extension);
+
         // security: trunk too long extensions
         if (strlen($extension) > 12) {
             $extension = substr($extension, 0, 12);
@@ -113,6 +118,22 @@ class Storage extends GlobalStorage
         }
 
         return 'media://'.$path;
+    }
+
+
+    /**
+     * Download a file to media directory
+     * @param  string $url URL of file
+     * @return string Media URL, FALSE if error
+     */
+    public static function download($url)
+    {
+        // if already in media library, do nothing
+        if (substr($url, 0, 8) == 'media://') {
+            return $url;
+        }
+
+        return self::copy($url);
     }
 
 

@@ -1,5 +1,9 @@
 # Changelog for OnMyShelf API
 
+# 1.0.0 (202X-XX-XX)
+- Collections are sorted by name
+- Add download function in `Import` and `Storage` class to store a file into media library
+
 # 1.0.0 RC 4 (2022-11-26)
 - New loans support
 - New Amazon Books import module

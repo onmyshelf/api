@@ -133,11 +133,11 @@ abstract class SqlDatabase extends GlobalDatabase
     public function getCollections($owner=null, $template=false)
     {
         $query = "SELECT c.`id` FROM `collection` c JOIN `collectionLabel` l ON l.`collectionId`=c.`id`
-                  WHERE c.`template`=?";
+                  WHERE `template`=?";
         $args = [$template];
 
         if (!is_null($owner)) {
-            $query .= " AND c.`owner`=?";
+            $query .= " AND `owner`=?";
             $args[] = $owner;
         }
 

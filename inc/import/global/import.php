@@ -249,4 +249,29 @@ abstract class GlobalImport
         // if source is a file, delete it
         Storage::delete($this->source);
     }
+
+
+    /**
+     * Download a file into the media library
+     *
+     * @param  string $url           URL of file
+     * @param  bool   $ignore_errors Keep URL if could not be downloaded
+     * @return string Media URL, FALSE if error
+     */
+    public function download($url, $ignore_errors = false)
+    {
+        $path = Storage::download($url);
+        if ($path) {
+            return $path;
+        }
+
+        // if failed,
+        if ($ignore_errors) {
+            Logger::debug("Failed to download for import (ignored): $url");
+            return $url;
+        } else {
+            Logger::error("Failed to download for import: $url");
+            return false;
+        }
+    }
 }
