@@ -54,7 +54,7 @@ abstract class HtmlImport extends GlobalImport
 
     /**
      * Get data from the HTML DOM
-     * @param  object $dom      DOM object
+     * @param  object $dom DOM object
      * @param  string $search
      * @param  string $selector
      * @return mixed
@@ -66,5 +66,26 @@ abstract class HtmlImport extends GlobalImport
         }
 
         return html_entity_decode(trim(strip_tags($dom->innertext)));
+    }
+
+
+    /**
+     * Get text from a ul list
+     *
+     * @param object $dom
+     * @return array Array of strings
+     */
+    protected function getList($dom)
+    {
+        if (!$dom) {
+            return null;
+        }
+
+        $items = [];
+        foreach ($dom->find('li') as $list) {
+            $items[] = $this->getText($list);
+        }
+
+        return $items;
     }
 }
