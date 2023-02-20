@@ -194,20 +194,41 @@ abstract class GlobalImport
 
                         // guess type of property from property name
                         switch ($key) {
+                            // image
                             case 'cover':
                             case 'image':
+                            case 'picture':
                             case 'poster':
                                 $propertyConfig['type'] = 'image';
                                 $propertyConfig['isCover'] = true;
                                 break;
+                            // url
                             case 'source':
+                            case 'url':
                                 $propertyConfig['type'] = 'url';
                                 break;
+                            // title
                             case 'title':
                                 $propertyConfig['isTitle'] = true;
                                 break;
+                            // long text
+                            case 'comment':
+                            case 'description':
+                            case 'summary':
+                            case 'synopsis':
+                                $propertyConfig['type'] = 'longtext';
+                                break;
+                            // color
+                            case 'color':
+                            case 'colour':
+                                $propertyConfig['type'] = 'color';
+                                break;
+                            // name = type
+                            case 'date':
+                            case 'datetime':
+                            case 'file':
                             case 'rating':
-                            case 'url':
+                            case 'video':
                                 $propertyConfig['type'] = $key;
                                 break;
                         }
