@@ -82,31 +82,7 @@ class Collection
      */
     public function addItem($data=[])
     {
-        $properties = [];
-
-        if (isset($data['properties'])) {
-            $properties = $data['properties'];
-            unset($data['properties']);
-        }
-
-        $id = (new Database)->createItem($this->id, $data);
-        if (!$id) {
-            Logger::error("Failed to create item");
-            return false;
-        }
-
-        $data['id'] = $id;
-        $data['collectionId'] = $this->id;
-        $data['properties'] = $properties;
-        $item = new Item($data);
-
-        foreach ($properties as $key => $value) {
-            if (!$item->setProperty($key, $value)) {
-                Logger::error("Failed to set property $key to item $id");
-            }
-        }
-
-        return $item;
+        return Item::create($this->id, $data);
     }
 
 

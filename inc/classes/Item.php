@@ -210,6 +210,50 @@ class Item
 
 
     /**
+     * Create item
+     * @param  int   $collectionId
+     * @param  array $data
+     * @return int   Item ID, FALSE if error
+     */
+    public static function create($collectionId, $data)
+    {
+        // remove non allowed data
+        $allowed = ['properties', 'visibility'];
+        foreach (array_keys($data) as $key) {
+            if (!in_array($key, $allowed)) {
+                unset($data[$key]);
+            }
+        }
+
+        $properties = [];
+
+        if (isset($data['properties'])) {
+            $properties = $data['properties'];
+            unset($data['properties']);
+        }
+
+        $id = (new Database)->createItem($collectionId, $data);
+        if (!$id) {
+            Logger::error("Failed to create item");
+            return false;
+        }
+
+        $data['id'] = $id;
+        $data['collectionId'] = $collectionId;
+        $data['properties'] = $properties;
+        $item = new self($data);
+
+        foreach ($properties as $key => $value) {
+            if (!$item->setProperty($key, $value)) {
+                Logger::error("Failed to set property $key to item $id");
+            }
+        }
+
+        return $item;
+    }
+
+
+    /**
      * Get data
      * @param  string $type    Type of source
      * @param  string $source  Import source
