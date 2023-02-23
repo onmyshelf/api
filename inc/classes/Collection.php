@@ -12,7 +12,7 @@ class Collection
 
     public function __construct($data=null)
     {
-        // affect properties from $data
+        // affect object properties from $data
         foreach (array_keys(get_object_vars($this)) as $p) {
             if (isset($data[$p])) {
                 $this->$p = $data[$p];
@@ -100,21 +100,21 @@ class Collection
     /**
      * Add property to collection
      * @param  string  $name
-     * @param  array   $properties
+     * @param  array   $params
      * @return boolean Success
      */
-    public function addProperty(string $name, array $properties=[])
+    public function addProperty($name, array $params=[])
     {
         // do nothing if already exists
         if (isset($this->properties[$name])) {
             return true;
         }
 
-        if (!(new Database)->createProperty($this->id, $name, $properties)) {
+        if (!(new Database)->createProperty($this->id, $name, $params)) {
             return false;
         }
 
-        $this->properties[$name] = $properties;
+        $this->properties[$name] = $params;
         return true;
     }
 

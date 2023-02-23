@@ -844,17 +844,46 @@ abstract class SqlDatabase extends GlobalDatabase
 
 
     /**
+     * Check property parameters
+     *
+     * @param int    $collectionId
+     * @param string $name
+     * @param array  $params
+     * @return void
+     */
+    protected function checkPropertyParams($collectionId, $name, $params)
+    {
+        // fields that needs to be unique
+        $fields = [
+            'isId',
+            'isTitle',
+            'isSubTitle',
+            'isCover',
+        ];
+
+        foreach ($fields as $field) {
+            // reset if needed
+            if ($params[$field]) {
+                if (!$this->write("UPDATE `property` SET `$field`=0 WHERE `collectionId`=? AND NOT `name`=?", [$collectionId, $name])) {
+                    Logger::error("Failed to update property fields");
+                }
+            }
+        }
+    }
+
+
+    /**
      * Add property
-     * @param  int    $collectionID
+     * @param  int    $collectionId
      * @param  string $name  Property name
-     * @param  array  $data
+     * @param  array  $params
      * @return bool   Inserted ID
      */
-    public function createProperty($collectionID, $name, $data)
+    public function createProperty($collectionId, $name, $params)
     {
         // filter data keys because labels are not in the same table
-        $row = $data;
-        $row['collectionId'] = $collectionID;
+        $row = $params;
+        $row['collectionId'] = $collectionId;
         $row['name'] = $name;
         unset($row['label']);
         unset($row['description']);
@@ -866,17 +895,20 @@ abstract class SqlDatabase extends GlobalDatabase
             return false;
         }
 
+        // check parameters
+        $this->checkPropertyParams($collectionId, $name, $params);
+
         // label and description
-        if (!isset($data['label'])) {
+        if (!isset($params['label'])) {
             // avoid bug
-            $data['label'] = [];
+            $params['label'] = [];
         }
-        if (!isset($data['description'])) {
+        if (!isset($params['description'])) {
             // avoid bug
-            $data['description'] = [];
+            $params['description'] = [];
         }
 
-        $rows = $this->labelToDB('label', $data['label'], $data['description']);
+        $rows = $this->labelToDB('label', $params['label'], $params['description']);
         if (count($rows) == 0) {
             return true;
         }
@@ -886,10 +918,10 @@ abstract class SqlDatabase extends GlobalDatabase
         }
 
         $orUpdate = [];
-        if (count($data['label']) > 0) {
+        if (count($params['label']) > 0) {
             $orUpdate[] = 'label';
         }
-        if (count($data['description']) > 0) {
+        if (count($params['description']) > 0) {
             $orUpdate[] = 'description';
         }
 
@@ -922,6 +954,9 @@ abstract class SqlDatabase extends GlobalDatabase
                 Logger::debug('Failed to update property');
                 return false;
             }
+
+            // check parameters
+            $this->checkPropertyParams($collectionId, $name, $params);
         }
 
         // label and description

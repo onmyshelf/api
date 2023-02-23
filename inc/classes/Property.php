@@ -9,9 +9,11 @@ class Property
     private $type;
     private $suffix;
     private $default;
+    private $authorizedValues;
     private $visibility;
     private $required;
     private $hideLabel;
+    private $isId;
     private $isTitle;
     private $isSubTitle;
     private $isCover;
@@ -21,12 +23,12 @@ class Property
     private $sortable;
     private $order;
 
-    public function __construct($data=null)
+
+    public function __construct($params=null)
     {
-        // affect properties from $data
         foreach (array_keys(get_object_vars($this)) as $p) {
-            if (isset($data[$p])) {
-                $this->$p = $data[$p];
+            if (isset($params[$p])) {
+                $this->$p = $params[$p];
             }
         }
     }
