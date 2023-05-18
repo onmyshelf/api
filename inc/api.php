@@ -624,7 +624,7 @@ class Api
 
     private function routeCollectionsIdImportData()
     {
-        $this->requireData(['module', 'source']);
+        $this->requireParams(['module', 'source']);
 
         // default options
         if (!isset($this->data['options'])) {
@@ -633,11 +633,11 @@ class Api
 
         // load module
         require_once('inc/classes/Module.php');
-        if (!Module::load('import', $this->data['module'])) {
+        if (!Module::load('import', $_GET['module'])) {
             $this->error(500, "Error while loading import module");
         }
 
-        $import = new Import($this->data['source'], $this->data['options']);
+        $import = new Import($_GET['source'], $this->data['options']);
         if (!$import) {
             $this->error(500, "Error while loading import module");
         }
@@ -647,7 +647,7 @@ class Api
             $this->error(500, "Error while opening import source");
         }
 
-        $this->response($import->getData());
+        $this->response($import->getData($_GET['source']));
     }
 
 
