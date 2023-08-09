@@ -1,9 +1,13 @@
 # Changelog for OnMyShelf API
 
-# 1.0.0 (202X-XX-XX)
+# 1.0.0 RC 5 (2023-08-09)
 - Collections are sorted by name
-- Add download function in `Import` and `Storage` class to store a file into media library
+- New `/media/download` route to download a file into media library
+- Added a `download` function in `Import` and `Storage` classes to store a file into media library
 - Fixed missing values when importing properties with multiple values
+- Fixed crash when deleting an item with existing loans
+- Fixed bugs in Tellico collection import
+- Other fixes and improvements
 
 # 1.0.0 RC 4 (2022-11-26)
 - New loans support
