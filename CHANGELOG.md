@@ -1,5 +1,8 @@
 # Changelog for OnMyShelf API
 
+# 1.0.0 (2023-11-25)
+- First stable release
+
 # 1.0.0 RC 5 (2023-08-09)
 - Collections are sorted by name
 - New `/media/download` route to download a file into media library
