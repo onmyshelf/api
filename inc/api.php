@@ -715,14 +715,11 @@ class Api
                         continue;
                     }
 
+                    // get property name (without p_ prefix; must have 1 char at least)
                     $property = substr($key, 2);
-                    if (!preg_match('/^\w+$/', $property)) {
-                        continue;
-                    }
-
-                    // security check (avoid symbols)
-                    if (preg_match('/^\P{S}+$/u', $value)) {
-                        $filters[$property] = $value;
+                    if (preg_match('/^\w+$/', $property)) {
+                        // limit value to 255 chars (to avoid malicious script)
+                        $filters[$property] = substr($value, 0, 255);
                     }
                 }
 
