@@ -193,7 +193,7 @@ class Collection
                                 $continue = true;
                             }
                         } else {
-                            if ($value == $filters[$key]) {
+                            if (strtolower($value) == strtolower($filters[$key])) {
                                 $continue = true;
                             }
                         }
