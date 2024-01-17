@@ -1,5 +1,9 @@
 # Changelog for OnMyShelf API
 
+# 1.0.1 (2024-01-18)
+- Item filters are now case insensitive and accepts symbols
+- Item filters can manage a range of numbers and ratings
+
 # 1.0.0 (2023-11-25)
 - First stable release
 
