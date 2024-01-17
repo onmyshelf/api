@@ -189,13 +189,14 @@ class Collection
                     // filter item
                     if (isset($filters[$key])) {
                         if (is_array($value)) {
-                            if (in_array($filters[$key], $value)) {
-                                $continue = true;
+                            foreach ($value as $v) {
+                                if ($this->filterProperty($key, $v, $filters[$key])) {
+                                    $continue = true;
+                                    break;
+                                }
                             }
                         } else {
-                            if (strtolower($value) == strtolower($filters[$key])) {
-                                $continue = true;
-                            }
+                            $continue = $this->filterProperty($key, $value, $filters[$key]);
                         }
                     }
                 }
@@ -213,6 +214,46 @@ class Collection
         }
 
         return $items;
+    }
+
+
+    /**
+     * Filter item by property
+     *
+     * @param str $name     Name of property
+     * @param mixed $value  Value of the property
+     * @param str $filter   Value to filter
+     * @return Bool
+     */
+    protected function filterProperty($name, $value, $filter) : Bool {
+        switch ($this->properties[$name]['type']) {
+            case 'yesno':
+                # convert to boolean
+                return (filter_var($value, FILTER_VALIDATE_BOOLEAN) == filter_var($filter, FILTER_VALIDATE_BOOLEAN));
+                break;
+
+            case 'number':
+                # property of type number: filter by value or boundaries
+                if (preg_match('/^>.+/', $filter)) {
+                    # syntax >min
+                    return $value >= substr($filter, 1);
+                } elseif (preg_match('/^<.+/', $filter)) {
+                    # syntax <max
+                    return $value <= substr($filter, 1);
+                } elseif (preg_match('/^.+<.+/', $filter)) {
+                    # syntax min<max
+                    $boundaries = explode('<', $filter);
+                    return ($value >= $boundaries[0] && $value <= $boundaries[1]);
+                } else {
+                    # simple value
+                    return $value == $filter;
+                }
+                break;
+            
+            default:
+                return strtolower($value) == strtolower($filter);
+                break;
+        }
     }
 
 
