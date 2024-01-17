@@ -233,6 +233,7 @@ class Collection
                 break;
 
             case 'number':
+            case 'rating':
                 # property of type number: filter by value or boundaries
                 if (preg_match('/^>.+/', $filter)) {
                     # syntax >min
