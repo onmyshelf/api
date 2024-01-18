@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS `collection` (
   `owner` int(11) NOT NULL,
   `template` tinyint(4) NOT NULL DEFAULT 0,
   `visibility` int(10) NOT NULL DEFAULT 3,
+  `created` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -37,6 +39,8 @@ CREATE TABLE IF NOT EXISTS `item` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `collectionId` int(11) NOT NULL,
   `visibility` int(10) NOT NULL DEFAULT 0,
+  `created` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `collection` (`collectionId`),
   CONSTRAINT `item_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`)

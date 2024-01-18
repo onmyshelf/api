@@ -8,6 +8,27 @@ require_once('sqlDatabase.php');
 class Database extends SqlDatabase
 {
     /**
+     * Upgrade procedure for v1.1.0
+     * @return bool Success
+     */
+    protected function upgrade_v110() {
+        // add created/updated columns
+        foreach (['collection', 'item'] as $table) {
+            $sql = "ALTER TABLE `$table`
+                    ADD COLUMN IF NOT EXISTS `created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    ADD COLUMN IF NOT EXISTS `updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP";
+
+            if (!$this->execute($sql)) {
+                Logger::fatal("Upgrade v1.1.0: Failed to add created/updated columns to $table table");
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
      * Creates a prepared query, binds the given parameters and returns the result of the executed
      * @param  string $table    Table name
      * @param  array  $values   Array or arrays key => value
