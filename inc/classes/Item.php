@@ -146,6 +146,7 @@ class Item
             }
         }
 
+        // update item in database
         return (new Database)->updateItem($this->collectionId, $this->id, $data);
     }
 
@@ -232,6 +233,7 @@ class Item
             unset($data['properties']);
         }
 
+        // creates item in database
         $id = (new Database)->createItem($collectionId, $data);
         if (!$id) {
             Logger::error("Failed to create item");
@@ -243,6 +245,7 @@ class Item
         $data['properties'] = $properties;
         $item = new self($data);
 
+        // set item properties
         foreach ($properties as $key => $value) {
             if (!$item->setProperty($key, $value)) {
                 Logger::error("Failed to set property $key to item $id");

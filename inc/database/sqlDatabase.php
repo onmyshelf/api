@@ -2,11 +2,6 @@
 /*
  *  Database support on standard SQL databases
  *  MySQL/MariaDB, PostgreSQL, SQLite should be classes that extends this one.
- *
- *  DISCLAIMER:
- *  I know, NoSQL like mongoDB should be used for this project, but for now,
- *  I try to do my best with the things I know best.
- *  Please help me to make OnMyShelf better!
  */
 
 abstract class SqlDatabase extends GlobalDatabase
@@ -266,6 +261,18 @@ abstract class SqlDatabase extends GlobalDatabase
 
         $collection['properties'] = $properties;
         return $collection;
+    }
+
+
+    /**
+     * Set updated field in collection table
+     *
+     * @param  int  $collectionId
+     * @return bool Success
+     */
+    public function setCollectionUpdated(int $collectionId)
+    {
+        return $this->write("UPDATE `collection` SET `updated`=CURRENT_TIMESTAMP WHERE `id`=$collectionId");
     }
 
 
@@ -619,6 +626,18 @@ abstract class SqlDatabase extends GlobalDatabase
 
 
     /**
+     * Set updated field in item table
+     *
+     * @param  int  $itemId
+     * @return bool Success
+     */
+    public function setItemUpdated(int $itemId)
+    {
+        return $this->write("UPDATE `item` SET `updated`=CURRENT_TIMESTAMP WHERE `id`=$itemId");
+    }
+
+
+    /**
      * Creates an item
      * @param  int   $collectionId
      * @param  array $data Item data (optionnal)
@@ -626,8 +645,17 @@ abstract class SqlDatabase extends GlobalDatabase
      */
     public function createItem($collectionId, $data=[])
     {
+        // append collection ID
         $data['collectionId'] = $collectionId;
-        return $this->insertOne('item', $data);
+
+        // insert item & get its ID
+        $id = $this->insertOne('item', $data);
+        if ($id) {
+            // notify collection has changed (ignore errors)
+            $this->setCollectionUpdated($collectionId);
+        }
+
+        return $id;
     }
 
 
@@ -640,12 +668,16 @@ abstract class SqlDatabase extends GlobalDatabase
      */
     public function updateItem($collectionId, $id, $data)
     {
+        $updatedProperties = false;
+
         if (isset($data['properties'])) {
             $properties = $data['properties'];
 
             foreach ($properties as $name => $property) {
                 // update property
-                if (!$this->setItemProperty($collectionId, $id, $name, $property)) {
+                if ($this->setItemProperty($collectionId, $id, $name, $property)) {
+                    $updatedProperties = true;
+                } else {
                     Logger::warn('Failed to set item property '.$name.' for item '.$id.
                                  ' in collection '.$collectionId);
                 }
@@ -654,6 +686,12 @@ abstract class SqlDatabase extends GlobalDatabase
             unset($data['properties']);
         }
 
+        // notify item has changed (ignore errors)
+        if ($updatedProperties) {
+            $this->setItemUpdated($id);
+        }
+
+        // if nothing left to update, quit
         if (count($data) == 0) {
             return true;
         }

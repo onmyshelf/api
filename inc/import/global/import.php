@@ -6,7 +6,8 @@ abstract class GlobalImport
     protected $options;
     protected $properties;
     protected $importedProperties;
-    protected $importedItemsCount;
+    protected $importedItems;
+    protected $importErrors;
 
 
     public function __construct($source, $options = []) {
@@ -15,7 +16,8 @@ abstract class GlobalImport
 
         $this->properties = [];
         $this->importedProperties = [];
-        $this->importedItemsCount = 0;
+        $this->importedItems = [];
+        $this->importErrors = [];
     }
 
 
@@ -135,7 +137,7 @@ abstract class GlobalImport
         }
 
         // increment imported
-        $this->importedItemsCount++;
+        $this->importedItems[] = $item->getId();
 
         // load properties mapping if exists
         if (isset($this->options['mapping'])) {
@@ -146,6 +148,8 @@ abstract class GlobalImport
 
         // get existing properties defined in collection
         $currentProperties = array_keys($collection->getProperties());
+
+        $importedItemProperties = false;
 
         // parse properties to insert
         foreach ($properties as $key => $values) {
@@ -247,7 +251,17 @@ abstract class GlobalImport
             }
 
             // set property
-            $item->setProperty($key, $value);
+            if ($item->setProperty($key, $value)) {
+                $importedItemProperties = true;
+            } else {
+                $importErrors[] = "Property $key for item ".$item->getId();
+                Logger::error("Failed to import property $key for item ".$item->getId());
+            }
+        }
+
+        // notify item has changed (ignore errors)
+        if ($importedItemProperties) {
+            (new Database)->setItemUpdated($item->getId());
         }
 
         return $item;
@@ -263,9 +277,10 @@ abstract class GlobalImport
     {
         return [
             'imported' => [
-                'items'  => $this->importedItemsCount,
+                'items'  => count($this->importedItems),
                 'properties' => $this->importedProperties,
             ],
+            'errors' => $this->importErrors,
         ];
     }
 
