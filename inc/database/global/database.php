@@ -73,7 +73,13 @@ abstract class GlobalDatabase
      */
     public function install()
     {
-        // we need to reset database connection after install
+        // check if database version is set
+        // Note: (new Database) is because we need to reset database connection after install
+        if ((new Database)->getConfig('version') !== false) {
+            return true;
+        }
+        
+        // first installation: set version
         return (new Database)->setConfig('version', VERSION);
     }
 

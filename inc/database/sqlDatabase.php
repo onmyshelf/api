@@ -1202,7 +1202,7 @@ abstract class SqlDatabase extends GlobalDatabase
         # allow multiple queries
         $this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, 0);
 
-        if ($this->connection->exec($sql) === false) {
+        if (!$this->execute($sql)) {
             Logger::fatal('Database initialization failed!');
             return false;
         }
@@ -1221,18 +1221,35 @@ abstract class SqlDatabase extends GlobalDatabase
         // get current version
         $currentVersion = $this->getConfig('version');
 
+        echo "Create missing tables...\n";
+        if (!$this->install()) {
+            Logger::fatal("Failed to init tables");
+            return false;
+        }
+
+        // call custom upgrade functions
         $changes = [
-            "1.0.0-rc.4" => "install", // just create missing tables
+            "1.1.0" => "upgrade_v110",
         ];
 
         // migrate versions step-by-step
         foreach ($changes as $version => $function) {
+            // if current version is lower than changes version, run custom upgrade function
             if (Config::compareVersions($version, $currentVersion)) {
-                echo "Migrate database from '$currentVersion' to '$version'...\n";
-                $this->$function();
+                // if migration method exists, run it
+                if (method_exists($this, $function)) {
+                    echo "Migrate database from '$currentVersion' to '$version'...\n";
+                    if ($this->$function() !== false) {
+                        // set upgraded version into database
+                        parent::upgrade($version);
+                    } else {
+                        return false;
+                    }
+                }
             }
         }
 
+        // set upgraded version into database
         return parent::upgrade($newVersion);
     }
 
@@ -1240,6 +1257,18 @@ abstract class SqlDatabase extends GlobalDatabase
     /************************
      *  DATABASE SQL UTILS  *
      ************************/
+
+    /**
+     * Runs a SQL query (e.g. ALTER TABLE)
+     *
+     * @param string $sql SQL query
+     * @return bool  Success
+     */
+    protected function execute(string $sql)
+    {
+        return $this->connection->exec($sql) !== false;
+    }
+
 
     /**
      * Runs a SELECT query
