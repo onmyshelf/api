@@ -178,8 +178,8 @@ abstract class SqlDatabase extends GlobalDatabase
     public function getCollection($id, $template=false)
     {
         // get collection
-        $collection = $this->selectFirst("SELECT `id`,`cover`,`owner`,`visibility`
-                                          FROM `collection` WHERE `id`=? AND `template`=?",
+        $collection = $this->selectFirst("SELECT * FROM `collection`
+                                           WHERE `id`=? AND `template`=?",
                                          [$id, $template]);
         if (!$collection) {
             return false;
@@ -187,8 +187,12 @@ abstract class SqlDatabase extends GlobalDatabase
 
         // security: filter
         if ($collection['visibility'] > $GLOBALS['accessRights'] &&
-            $collection['owner'] != $GLOBALS['currentUserID'])
+            $collection['owner'] != $GLOBALS['currentUserID']) {
             return false;
+        }
+
+        // clear unnecessary fields
+        unset($collection['template']);
 
         // get collection labels
         $labels = $this->select("SELECT `lang`,`name`,`description`

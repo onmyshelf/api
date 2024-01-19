@@ -7,6 +7,9 @@ class Item
     protected $name;
     protected $properties;
     protected $visibility;
+    protected $created;
+    protected $updated;
+
 
     public function __construct($data=null)
     {
@@ -122,6 +125,8 @@ class Item
             'collectionId' => $this->collectionId,
             'properties' => $this->properties,
             'visibility' => $this->visibility,
+            'created' => $this->created,
+            'updated' => $this->updated,
             'lent' => $this->isLent(),
         ];
     }

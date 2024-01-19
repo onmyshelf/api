@@ -8,7 +8,10 @@ class Collection
     protected $cover;
     protected $owner;
     protected $visibility;
+    protected $created;
+    protected $updated;
     protected $properties;
+
 
     public function __construct($data=null)
     {
@@ -133,7 +136,9 @@ class Collection
             'thumbnail' => Storage::getThumbnails($this->cover),
             'owner' => $this->owner,
             'visibility' => $this->visibility,
-            'properties' => $this->properties
+            'created' => $this->created,
+            'updated' => $this->updated,
+            'properties' => $this->properties,
         ];
     }
 
