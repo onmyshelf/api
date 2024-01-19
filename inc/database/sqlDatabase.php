@@ -493,24 +493,38 @@ abstract class SqlDatabase extends GlobalDatabase
     public function getItems($collectionId, $sortBy=[])
     {
         // no sorting => simple request on item table
-        $query = "SELECT `id` FROM `item` WHERE `collectionId`=? AND `visibility`<=?";
+        $query = "SELECT `id` FROM `item` WHERE `collectionId`=? AND `visibility`<=? ";
         $args = [$collectionId, $GLOBALS['accessRights']];
 
         // if sorting...
         if (count($sortBy) > 0) {
+            // NOTE: this only works with one sorting field
+            //       must be rewritten for multiple sorting fields
+            $sorting = $sortBy[0];
+            $order = ""; // default is ascending
+
+            // descending order (e.g. -property)
+            if (substr($sorting, 0, 1) == '-') {
+                $sorting = substr($sorting, 1);
+                $order = "DESC";
+            }
+
+            // the case of created/updated properties: are stored into item table
+            if ($sorting == 'created' || $sorting == 'updated') {
+                $query .= "ORDER BY `$sorting` $order, `name`";
+            } else {
+                // order by item property then by item name
             $query = "SELECT i.id, p.name, p.value FROM `item` i ".
                      "LEFT JOIN `itemProperty` p ON p.itemId=i.id AND p.name=? ".
                      "WHERE i.collectionId=? AND i.visibility<=? ".
-                     "ORDER BY p.value";
+                        "ORDER BY p.value $order, i.name";
 
-            // NOTE: this only works with one sorting field
-            //       must be rewritten for multiple sorting fields
-            $sort = $sortBy[0];
-            if (substr($sort,0,1) == '-') {
-                $sort = substr($sortBy[0], 1);
-                $query.= " DESC";
+                // add property name to query args (first in array)
+                array_unshift($args, $sorting);
             }
-            array_unshift($args, $sort);
+        } else {
+            // or else: always sort by name
+            $query .= "ORDER BY `name`";
         }
 
         return $this->selectColumn($query, $args);

@@ -24,6 +24,32 @@ class Database extends SqlDatabase
             }
         }
 
+        // add item.name column
+        $sql = "ALTER TABLE `item`
+                ADD COLUMN IF NOT EXISTS `name` varchar(255) DEFAULT NULL AFTER `collectionId`";
+
+        if (!$this->execute($sql)) {
+            Logger::fatal("Upgrade v1.1.0: Failed to add item name column");
+            return false;
+        }
+
+        // get title properties of each collection
+        $titleProperties = $this->select("SELECT `collectionId`, `name` AS `titleProperty` FROM `property` WHERE `isTitle`=1");
+        
+        // for each collection where title property is defined,
+        foreach ($titleProperties as $collection) {
+            // get all items of this collection
+            $items = $this->selectColumn("SELECT `id` FROM `item` WHERE `collectionId`=?", [$collection["collectionId"]]);
+            foreach ($items as $itemId) {
+                // set item name from the title property
+                if (!$this->write("UPDATE `item`
+                                SET `name`=(SELECT `value` FROM `itemProperty` WHERE `collectionId`=? AND `itemId`=? AND `name`=?)
+                                WHERE `id`=?", [$collection["collectionId"], $itemId, $collection["titleProperty"], $itemId])) {
+                    Logger::error("Upgrade v1.1.0: Failed to set item name for item $itemId");
+                }
+            }
+        }
+
         return true;
     }
 
