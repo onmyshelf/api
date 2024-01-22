@@ -261,7 +261,7 @@ abstract class GlobalImport
 
         // notify item has changed (ignore errors)
         if ($importedItemProperties) {
-            (new Database)->setItemUpdated($item->getId());
+            $item->setChanged();
         }
 
         return $item;

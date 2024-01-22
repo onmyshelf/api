@@ -73,6 +73,16 @@ class Item
     }
 
 
+    /**
+     * Set item has changed
+     * @return bool Success
+     */
+    public function setChanged()
+    {
+        return (new Database)->setItemUpdated($this->collectionId, $this->id);
+    }
+
+
     /*
      *  Other methods
      */
@@ -144,6 +154,10 @@ class Item
         unset($allowed['id']);
         unset($allowed['collectionId']);
         unset($allowed['name']);
+        unset($allowed['created']);
+        unset($allowed['updated']);
+
+        // filter data to update
         $allowed = array_keys($allowed);
         foreach (array_keys($data) as $key) {
             if (!in_array($key, $allowed)) {

@@ -306,6 +306,10 @@ class Collection
         $allowed = get_object_vars($this);
         unset($allowed['id']);
         unset($allowed['properties']);
+        unset($allowed['created']);
+        unset($allowed['updated']);
+
+        // filter data to update
         $allowed = array_keys($allowed);
         foreach (array_keys($data) as $key) {
             if (!in_array($key, $allowed)) {

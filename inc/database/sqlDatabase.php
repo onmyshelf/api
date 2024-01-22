@@ -646,12 +646,13 @@ abstract class SqlDatabase extends GlobalDatabase
     /**
      * Set updated field in item table
      *
+     * @param  int  $collectionId
      * @param  int  $itemId
      * @return bool Success
      */
-    public function setItemUpdated(int $itemId)
+    public function setItemUpdated(int $collectionId, int $itemId)
     {
-        return $this->write("UPDATE `item` SET `updated`=CURRENT_TIMESTAMP WHERE `id`=$itemId");
+        return $this->write("UPDATE `item` SET `updated`=CURRENT_TIMESTAMP WHERE `collectionId`=$collectionId AND `id`=$itemId");
     }
 
 
@@ -706,7 +707,7 @@ abstract class SqlDatabase extends GlobalDatabase
 
         // notify item has changed (ignore errors)
         if ($updatedProperties) {
-            $this->setItemUpdated($id);
+            $this->setItemUpdated($collectionId, $id);
         }
 
         // if nothing left to update, quit
