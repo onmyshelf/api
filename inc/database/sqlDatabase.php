@@ -688,16 +688,24 @@ abstract class SqlDatabase extends GlobalDatabase
     public function updateItem($collectionId, $id, $data)
     {
         $updatedProperties = false;
+        $itemTitle = null;
 
         if (isset($data['properties'])) {
+            // get title property
+            $itemProperty = $this->selectOne("SELECT `name` FROM `property` WHERE `collectionId`=$collectionId AND `isTitle`=1");
+            
             $properties = $data['properties'];
 
-            foreach ($properties as $name => $property) {
+            foreach ($properties as $property => $value) {
                 // update property
-                if ($this->setItemProperty($collectionId, $id, $name, $property)) {
+                if ($this->setItemProperty($collectionId, $id, $property, $value)) {
+                    // if item title, change it
+                    if ($property == $itemProperty) {
+                        $itemTitle = $value;
+                    }
                     $updatedProperties = true;
                 } else {
-                    Logger::warn('Failed to set item property '.$name.' for item '.$id.
+                    Logger::warn('Failed to set item property '.$property.' for item '.$id.
                                  ' in collection '.$collectionId);
                 }
             }
@@ -710,6 +718,11 @@ abstract class SqlDatabase extends GlobalDatabase
             $this->setItemUpdated($collectionId, $id);
         }
 
+        // change item title if needed (limit characters)
+        if (isset($itemTitle)) {
+            $data['name'] = substr($itemTitle, 0, 250);
+        }
+
         // if nothing left to update, quit
         if (count($data) == 0) {
             return true;
@@ -717,6 +730,30 @@ abstract class SqlDatabase extends GlobalDatabase
 
         // update item
         return $this->update('item', $data, ['collectionId' => $collectionId, 'id' => $id]);
+    }
+
+
+    /**
+     * Rename all items of a collection, based on the property title
+     *
+     * @param int $collectionId
+     * @return void
+     */
+    protected function renameItems(int $collectionId)
+    {
+        // get title property of the collection
+        $titleProperty = $this->selectOne("SELECT `name` FROM `property` WHERE `collectionId`=$collectionId AND `isTitle`=1");
+
+        // get all items of the collection
+        $items = $this->selectColumn("SELECT `id` FROM `item` WHERE `collectionId`=$collectionId");
+        foreach ($items as $itemId) {
+            // set item name from the title property (limited)
+            if (!$this->write("UPDATE `item`
+                               SET `name`=(SELECT SUBSTRING(`value`, 1, 200) FROM `itemProperty` WHERE `collectionId`=? AND `itemId`=? AND `name`=?)
+                               WHERE `id`=?", [$collectionId, $itemId, $titleProperty, $itemId])) {
+                Logger::error("Failed to change item name for item $itemId of collection $collectionId");
+            }
+        }
     }
 
 
@@ -921,8 +958,14 @@ abstract class SqlDatabase extends GlobalDatabase
         foreach ($fields as $field) {
             // reset if needed
             if ($params[$field]) {
+                // force all other properties to have this field = false
                 if (!$this->write("UPDATE `property` SET `$field`=0 WHERE `collectionId`=? AND NOT `name`=?", [$collectionId, $name])) {
                     Logger::error("Failed to update property fields");
+                }
+
+                // if property title has changed, rename all items
+                if ($field == 'isTitle') {
+                    $this->renameItems($collectionId);
                 }
             }
         }

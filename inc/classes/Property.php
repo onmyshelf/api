@@ -45,6 +45,7 @@ class Property
         $allowed = get_object_vars($this);
         unset($allowed['collection']);
         unset($allowed['name']);
+
         $allowed = array_keys($allowed);
         foreach (array_keys($data) as $key) {
             if (!in_array($key, $allowed)) {
