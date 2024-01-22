@@ -170,52 +170,77 @@ class Collection
         // parse items
         foreach ($result as $i) {
             $item = Item::getById($i, $this->id);
-            if ($item) {
-                $dumpItem = $item->dump();
+            if (!$item) {
+                continue;
+            }
 
-                $continue = count($filters) == 0;
-                $filterFound = false;
-                $itemProperties = [];
-                $thumbnails = [];
+            // dump item
+            $dumpItem = $item->dump();
 
-                // parse properties of the item
-                foreach ($dumpItem['properties'] as $key => $value) {
-                    // search in collection definition of the property
-                    if (isset($this->properties[$key])) {
-                        if ($this->properties[$key]['isCover'] || $this->properties[$key]['isTitle'] || $this->properties[$key]['preview']) {
-                            $itemProperties[$key] = $value;
-                        }
-                        // add thumbnails
-                        if ($this->properties[$key]['isCover']) {
-                            $thumbnails = Storage::getThumbnails($value);
-                        }
-                    }
+            $itemProperties = [];
+            $thumbnails = [];
 
-                    // filter item
-                    if (isset($filters[$key])) {
-                        if (is_array($value)) {
-                            foreach ($value as $v) {
-                                if ($this->filterProperty($key, $v, $filters[$key])) {
-                                    $continue = true;
-                                    break;
-                                }
-                            }
-                        } else {
-                            $continue = $this->filterProperty($key, $value, $filters[$key]);
-                        }
-                    }
+            $continue = true;
+            foreach ($filters as $filter_key => $filter_value) {
+                // if value not defined in this object, ignore it
+                if (!isset($dumpItem['properties']) || !isset($dumpItem['properties'][$filter_key])) {
+                    $continue = false;
+                    break;
                 }
 
-                if ($continue) {
-                    $items[] = [
-                        'id' => $dumpItem['id'],
-                        'properties' => $itemProperties,
-                        'thumbnail' => $thumbnails,
-                        'visibility' => $dumpItem['visibility'],
-                        'lent' => $item->isLent(),
-                    ];
+                $value = $dumpItem['properties'][$filter_key];
+
+                // if property has multiple values,
+                if (is_array($value)) {
+                    // filter each value
+                    $found_value = false;
+                    foreach ($value as $v) {
+                        // if one value is found, it's OK
+                        if ($this->filterProperty($filter_key, $v, $filter_value)) {
+                            $found_value = true;
+                            break;
+                        }
+                    }
+                    if (!$found_value) {
+                        $continue = false;
+                        break;
+                    }
+                } else {
+                    // single value
+                    if (!$this->filterProperty($filter_key, $value, $filter_value)) {
+                        $continue = false;
+                        break;
+                    }
                 }
             }
+
+            // if filters not passed, ignore and go to the next item
+            if (!$continue) {
+                continue;
+            }
+
+            // parse properties of the item
+            foreach ($dumpItem['properties'] as $key => $value) {
+                // search in collection definition of the property
+                if (isset($this->properties[$key])) {
+                    if ($this->properties[$key]['isCover'] || $this->properties[$key]['isTitle'] || $this->properties[$key]['preview']) {
+                        $itemProperties[$key] = $value;
+                    }
+                    // add thumbnails
+                    if ($this->properties[$key]['isCover']) {
+                        $thumbnails = Storage::getThumbnails($value);
+                    }
+                }
+            }
+
+            // append item to dump
+            $items[] = [
+                'id' => $dumpItem['id'],
+                'properties' => $itemProperties,
+                'thumbnail' => $thumbnails,
+                'visibility' => $dumpItem['visibility'],
+                'lent' => $item->isLent(),
+            ];
         }
 
         return $items;
