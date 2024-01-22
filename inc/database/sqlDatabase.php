@@ -953,7 +953,7 @@ abstract class SqlDatabase extends GlobalDatabase
         }
 
         // check parameters
-        $this->checkPropertyParams($collectionId, $name, $params);
+        $this->checkPropertyParams($collectionId, $name, $row);
 
         // label and description
         if (!isset($params['label'])) {
@@ -1013,7 +1013,7 @@ abstract class SqlDatabase extends GlobalDatabase
             }
 
             // check parameters
-            $this->checkPropertyParams($collectionId, $name, $params);
+            $this->checkPropertyParams($collectionId, $name, $row);
         }
 
         // label and description
