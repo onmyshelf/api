@@ -37,7 +37,7 @@ class Database extends SqlDatabase
         $collections = $this->selectColumn("SELECT `collectionId` FROM `property` WHERE `isTitle`=1");
 
         // for each collection where title property is defined,
-        foreach ($collections as $collection) {
+        foreach ($collections as $collectionId) {
             $this->renameItems($collectionId);
         }
 

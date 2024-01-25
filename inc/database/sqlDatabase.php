@@ -692,7 +692,7 @@ abstract class SqlDatabase extends GlobalDatabase
 
         if (isset($data['properties'])) {
             // get title property
-            $itemProperty = $this->selectOne("SELECT `name` FROM `property` WHERE `collectionId`=$collectionId AND `isTitle`=1");
+            $titleProperty = $this->selectOne("SELECT `name` FROM `property` WHERE `collectionId`=$collectionId AND `isTitle`=1");
             
             $properties = $data['properties'];
 
@@ -700,7 +700,7 @@ abstract class SqlDatabase extends GlobalDatabase
                 // update property
                 if ($this->setItemProperty($collectionId, $id, $property, $value)) {
                     // if item title, change it
-                    if ($property == $itemProperty) {
+                    if ($property == $titleProperty) {
                         $itemTitle = $value;
                     }
                     $updatedProperties = true;
@@ -720,6 +720,9 @@ abstract class SqlDatabase extends GlobalDatabase
 
         // change item title if needed (limit characters)
         if (isset($itemTitle)) {
+            if (is_array($itemTitle)) {
+                $itemTitle = $itemTitle[0];
+            }
             $data['name'] = substr($itemTitle, 0, 250);
         }
 
