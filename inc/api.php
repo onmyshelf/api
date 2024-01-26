@@ -694,36 +694,47 @@ class Api
                 // get filters and sorting
                 $filters = [];
                 $sortBy = [];
+                $limit = 0;
+                $offset = 0;
 
                 foreach ($_GET as $key => $value) {
-                    // sorting
-                    if ($key == 'sort') {
-                        // split fields by comma
-                        $sort = explode(',', $value);
+                    switch ($key) {
+                        // sorting
+                        case 'sort':
+                            // split fields by comma
+                            $sort = explode(',', $value);
 
-                        // security checking
-                        foreach ($sort as $property) {
-                            if (preg_match('/^-?\w+$/', $property)) {
-                                $sortBy[] = $property;
+                            // security checking
+                            foreach ($sort as $property) {
+                                if (preg_match('/^-?\w+$/', $property)) {
+                                    $sortBy[] = $property;
+                                }
                             }
-                        }
-                        continue;
-                    }
+                            break;
 
-                    // detect property
-                    if (substr($key, 0, 2) !== 'p_') {
-                        continue;
-                    }
+                        case 'limit':
+                            $limit = intval($value);
+                            break;
 
-                    // get property name (without p_ prefix; must have 1 char at least)
-                    $property = substr($key, 2);
-                    if (preg_match('/^\w+$/', $property)) {
-                        // limit value to 255 chars (to avoid malicious script)
-                        $filters[$property] = substr($value, 0, 255);
+                        case 'offset':
+                            $offset = intval($value);
+                            break;
+
+                        default:
+                            // filters: detect property
+                            if (substr($key, 0, 2) == 'p_') {
+                                // get property name (without p_ prefix; must have 1 char at least)
+                                $property = substr($key, 2);
+                                if (preg_match('/^\w+$/', $property)) {
+                                    // limit value to 255 chars (to avoid malicious script)
+                                    $filters[$property] = substr($value, 0, 255);
+                                }
+                            }
+                            break;
                     }
                 }
 
-                $this->response($collection->dumpItems($filters, $sortBy));
+                $this->response($collection->dumpItems($filters, $sortBy, $limit, $offset));
                 break;
         }
     }

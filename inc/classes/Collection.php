@@ -149,7 +149,7 @@ class Collection
      * @param  array $sortBy  (optionnal)
      * @return array Collection dumped
      */
-    public function dumpItems($filters=[], $sortBy=[])
+    public function dumpItems($filters=[], $sortBy=[], $limit=0, $offset=0)
     {
         // default sorting by main name property
         if (count($sortBy) == 0) {
@@ -168,8 +168,9 @@ class Collection
         $items = [];
 
         // parse items
-        foreach ($result as $i) {
-            $item = Item::getById($i, $this->id);
+        $i = 0;
+        foreach ($result as $itemId) {
+            $item = Item::getById($itemId, $this->id);
             if (!$item) {
                 continue;
             }
@@ -219,6 +220,13 @@ class Collection
                 continue;
             }
 
+            if ($limit > 0) {
+                if ($i < $offset || $i >= $limit + $offset) {
+                    $i++;
+                    continue;
+                }
+            }
+
             // parse properties of the item
             foreach ($dumpItem['properties'] as $key => $value) {
                 // search in collection definition of the property
@@ -241,9 +249,14 @@ class Collection
                 'visibility' => $dumpItem['visibility'],
                 'lent' => $item->isLent(),
             ];
+
+            $i++;
         }
 
-        return $items;
+        return [
+            'total' => $i,
+            'items' => $items,
+        ];
     }
 
 
