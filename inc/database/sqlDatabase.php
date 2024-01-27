@@ -960,7 +960,7 @@ abstract class SqlDatabase extends GlobalDatabase
 
         foreach ($fields as $field) {
             // reset if needed
-            if ($params[$field]) {
+            if (isset($params[$field]) && $params[$field]) {
                 // force all other properties to have this field = false
                 if (!$this->write("UPDATE `property` SET `$field`=0 WHERE `collectionId`=? AND NOT `name`=?", [$collectionId, $name])) {
                     Logger::error("Failed to update property fields");
