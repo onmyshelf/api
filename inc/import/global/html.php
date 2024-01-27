@@ -5,6 +5,7 @@ require_once('simplehtmldom/simple_html_dom.php');
 abstract class HtmlImport extends GlobalImport
 {
     protected $html;
+    protected $website;
 
 
     /**
@@ -12,7 +13,7 @@ abstract class HtmlImport extends GlobalImport
      * @param  string $url
      * @return boolean Success
      */
-    public function loadHtml()
+    protected function loadHtml()
     {
         // Note: We use curl (not file_get_html) with user agent defined to cover every cases.
         // e.g. Amazon module needs this to read properly a product page.
@@ -70,7 +71,20 @@ abstract class HtmlImport extends GlobalImport
 
 
     /**
-     * Get text from a ul list
+     * Get an image source URL from the HTML DOM
+     *
+     * @param string $search
+     * @param object $dom
+     * @return void
+     */
+    protected function getImgSrc($search, $dom = null)
+    {
+        return $this->urlFullPath($this->getHtml($search, $dom, 'src'));
+    }
+
+
+    /**
+     * Get text from a ul list and return it as an array
      *
      * @param object $dom
      * @return array Array of strings
@@ -87,5 +101,52 @@ abstract class HtmlImport extends GlobalImport
         }
 
         return $items;
+    }
+
+
+    /**
+     * Download a file from the web
+     *
+     * @param string $url
+     * @param bool   $ignore_errors
+     * @return void
+     */
+    protected function download($url, $ignore_errors = true)
+    {
+        # download from complete path and ignore errors (will keep the origin url)
+        return parent::download($this->urlFullPath($url), true);
+    }
+
+
+    /**
+     * Transforms an partial url in a complete one
+     *
+     * @param  string $url
+     * @return string Full url
+     */
+    protected function urlFullPath($url)
+    {
+        # returns nothing if bad url
+        if (!is_string($url)) {
+            return '';
+        }
+
+        # if http(s) prefix is missing, add it
+        if (substr($url, 0, 2) == '//') {
+            # get http or https from website variable if set
+            if (isset($this->website) && substr($this->website, 0, 4) == 'http') {
+                $url = explode(':', $this->website)[0].":$url";
+            } else {
+                # or we assume 99% of websites are in https
+                $url = "https:$url";
+            }
+        } elseif (substr($url, 0, 1) == '/') {
+            # url starts with /... => add website url
+            if (isset($this->website)) {
+                $url = $this->website.$url;
+            }
+        }
+
+        return $url;
     }
 }

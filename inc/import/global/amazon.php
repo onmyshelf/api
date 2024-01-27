@@ -4,7 +4,6 @@ require_once('html.php');
 
 abstract class AmazonImport extends HtmlImport
 {
-    protected $website;
     protected $amzcategory;
 
 
@@ -70,7 +69,7 @@ abstract class AmazonImport extends HtmlImport
             $results[] = [
                 'source' => $this->website.$source,
                 'name' => $this->getText($this->getHtml('h2', $product)),
-                'image' => $this->getHtml('div.s-product-image-container img', $product, 'src'),
+                'image' => $this->getImgSrc('div.s-product-image-container img', $product),
                 'description' => $this->getText($this->getHtml('div.a-color-secondary', $product)),
             ];
         }
@@ -81,7 +80,7 @@ abstract class AmazonImport extends HtmlImport
 
     protected function getProductImage()
     {
-        return $this->getHtml('#landingImage', null, 'src');
+        return $this->getImgSrc('#landingImage');
     }
 
     protected function getProductTitle()
@@ -93,7 +92,6 @@ abstract class AmazonImport extends HtmlImport
     {
         return $this->getText($this->getHtml('#productSubtitle'));
     }
-
 
     protected function getRpiAttribute($name)
     {

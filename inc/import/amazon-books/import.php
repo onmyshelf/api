@@ -53,9 +53,9 @@ class Import extends AmazonImport
 
     protected function getProductImage()
     {
-        $image = $this->getHtml('#imgBlkFront', null, 'src');
+        $image = $this->getImgSrc('#imgBlkFront');
         if (!$image) {
-            $image = $this->getHtml('#ebooksImgBlkFront', null, 'src');
+            $image = $this->getImgSrc('#ebooksImgBlkFront');
         }
 
         return $image;
