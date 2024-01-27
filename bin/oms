@@ -93,6 +93,15 @@ class Cmd
         } else {
             echo "OnMyShelf is already up-to-date\n";
         }
+
+        // search all external git modules
+        $modules = glob("inc/modules/*/*/.git");
+        foreach ($modules as $module) {
+            $module = dirname($module);
+            echo "Upgrade external module: $module\n";
+            $result = shell_exec('cd "'.dirname($module).'" && git pull');
+            echo $result;
+        }
     }
 
 
