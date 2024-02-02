@@ -38,6 +38,7 @@ class Api
             '/collections/{cid}/items/{id}' => 'CollectionsIdItemsId',
             '/collections/{cid}/items/{id}/loans' => 'CollectionsIdItemsIdLoans',
             '/collections/{cid}/items/{iid}/loans/{id}' => 'CollectionsIdItemsIdLoansId',
+            '/collectiontemplates' => 'CollectionTemplates',
             '/config' => 'Config',
             '/media/download' => 'MediaDownload',
             '/media/upload' => 'MediaUpload',
@@ -878,6 +879,30 @@ class Api
             default:
                 // return loan details
                 $this->response($loan->dump());
+                break;
+        }
+    }
+
+
+    private function routeCollectionTemplates()
+    {
+        // forbidden if not logged in
+        $this->requireAuthentication();
+
+        switch ($this->method) {
+            // TODO
+            // case 'POST':
+            //     // create new collection template
+            //     break;
+
+            default:
+                // get collection templates
+                $templates = CollectionTemplate::dumpAll();
+                if ($templates === false) {
+                    $this->error(500);
+                }
+
+                $this->response($templates);
                 break;
         }
     }

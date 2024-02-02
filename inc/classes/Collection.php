@@ -5,6 +5,7 @@ class Collection
     protected $id;
     protected $name;
     protected $description;
+    protected $type;
     protected $cover;
     protected $owner;
     protected $visibility;
@@ -135,6 +136,7 @@ class Collection
             'cover' => $this->cover,
             'thumbnail' => Storage::getThumbnails($this->cover),
             'owner' => $this->owner,
+            'type' => $this->type,
             'visibility' => $this->visibility,
             'created' => $this->created,
             'updated' => $this->updated,
@@ -421,11 +423,18 @@ class Collection
             }
         }
 
-        // remove non allowed data
+        // defines allowed data fields
         $allowed = [
-            'name', 'description',
-            'cover', 'owner', 'visibility'
+            'name',
+            'description',
+            'type',
+            'cover',
+            'owner',
+            'visibility',
+            'properties',
         ];
+
+        // remove non allowed data
         foreach (array_keys($data) as $key) {
             if (!in_array($key, $allowed)) {
                 unset($data[$key]);

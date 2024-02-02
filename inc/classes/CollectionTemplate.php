@@ -19,4 +19,19 @@ class CollectionTemplate extends Collection
     {
         return false;
     }
+
+
+    /********************
+    *  STATIC METHODS  *
+    ********************/
+
+    /**
+     * Dump all templates
+     * @param  int   $userId (optional)
+     * @return array
+     */
+    public static function dumpAll($userId=null)
+    {
+        return (new Database)->getCollectionTemplates($userId);
+    }
 }

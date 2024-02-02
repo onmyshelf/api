@@ -145,7 +145,7 @@ abstract class SqlDatabase extends GlobalDatabase
 
         $collections = [];
         foreach ($ids as $id) {
-            $collection = $this->getCollection($id);
+            $collection = $this->getCollection($id, $template);
             if (!$collection) {
                 continue;
             }
@@ -322,7 +322,7 @@ abstract class SqlDatabase extends GlobalDatabase
     {
         // filter data keys because labels are not in the same table
         $row = [];
-        $fields = ['cover','owner','visibility'];
+        $fields = ['type','cover','owner','visibility'];
         foreach ($fields as $f) {
             if (isset($data[$f])) {
                 $row[$f] = $data[$f];
@@ -354,6 +354,13 @@ abstract class SqlDatabase extends GlobalDatabase
 
         if (!$this->insert('collectionLabel', $rows)) {
             Logger::var_dump($rows);
+        }
+
+        // create properties if defined
+        if (isset($data['properties'])) {
+            foreach ($data['properties'] as $name => $params) {
+                $this->createProperty($id, $name, $params);
+            }
         }
 
         return $id;
@@ -459,6 +466,17 @@ abstract class SqlDatabase extends GlobalDatabase
      */
 
     /**
+     * Get collection templates
+     * @param  int   $owner  Show only owner (optional)
+     * @return array         Collection templates
+     */
+    public function getCollectionTemplates($owner=null)
+    {
+        return $this->getCollections($owner, true);
+    }
+
+
+     /**
      * Get collection template
      * @param  int    $id Collection template ID
      * @return array  Collection template data
