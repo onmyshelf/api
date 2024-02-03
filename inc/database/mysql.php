@@ -27,7 +27,6 @@ class Database extends SqlDatabase
         // add item.name column
         $sql = "ALTER TABLE `item`
                 ADD COLUMN IF NOT EXISTS `name` varchar(255) DEFAULT NULL AFTER `collectionId`";
-
         if (!$this->execute($sql)) {
             Logger::fatal("Upgrade v1.1.0: Failed to add item.name column");
             return false;
@@ -44,9 +43,16 @@ class Database extends SqlDatabase
         // add collection.type column
         $sql = "ALTER TABLE `collection`
                 ADD COLUMN IF NOT EXISTS `type` varchar(255) DEFAULT NULL AFTER `id`";
-
         if (!$this->execute($sql)) {
             Logger::fatal("Upgrade v1.1.0: Failed to add collection.type column");
+            return false;
+        }
+
+        // add property.hidden column
+        $sql = "ALTER TABLE `property`
+                ADD COLUMN IF NOT EXISTS `hidden` tinyint(1) NOT NULL DEFAULT 0";
+        if (!$this->execute($sql)) {
+            Logger::fatal("Upgrade v1.1.0: Failed to add property.hidden column");
             return false;
         }
 

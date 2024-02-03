@@ -22,6 +22,7 @@ class Property
     private $searchable;
     private $sortable;
     private $order;
+    private $hidden;
 
 
     public function __construct($params=null)
