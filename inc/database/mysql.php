@@ -29,16 +29,25 @@ class Database extends SqlDatabase
                 ADD COLUMN IF NOT EXISTS `name` varchar(255) DEFAULT NULL AFTER `collectionId`";
 
         if (!$this->execute($sql)) {
-            Logger::fatal("Upgrade v1.1.0: Failed to add item name column");
+            Logger::fatal("Upgrade v1.1.0: Failed to add item.name column");
             return false;
         }
 
         // get all collection IDs
         $collections = $this->selectColumn("SELECT `collectionId` FROM `property` WHERE `isTitle`=1");
 
-        // for each collection where title property is defined,
+        // for each collection where title property is defined, give name to items
         foreach ($collections as $collectionId) {
             $this->renameItems($collectionId);
+        }
+
+        // add collection.type column
+        $sql = "ALTER TABLE `collection`
+                ADD COLUMN IF NOT EXISTS `type` varchar(255) DEFAULT NULL AFTER `id`";
+
+        if (!$this->execute($sql)) {
+            Logger::fatal("Upgrade v1.1.0: Failed to add collection.type column");
+            return false;
         }
 
         return true;
