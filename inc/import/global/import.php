@@ -149,7 +149,7 @@ abstract class GlobalImport
         // get existing properties defined in collection
         $currentProperties = array_keys($collection->getProperties());
 
-        $importedItemProperties = false;
+        $importedItemProperties = [];
 
         // parse properties to insert
         foreach ($properties as $key => $values) {
@@ -250,18 +250,13 @@ abstract class GlobalImport
                 }
             }
 
-            // set property
-            if ($item->setProperty($key, $value)) {
-                $importedItemProperties = true;
-            } else {
-                $importErrors[] = "Property $key for item ".$item->getId();
-                Logger::error("Failed to import property $key for item ".$item->getId());
-            }
+            // save property to import
+            $importedItemProperties[$key] = $value;
         }
 
-        // notify item has changed (ignore errors)
-        if ($importedItemProperties) {
-            $item->setChanged();
+        // update item if there are properties to import
+        if (count($importedItemProperties) > 0) {
+            $item->update(["properties" => $importedItemProperties]);
         }
 
         return $item;
