@@ -121,15 +121,15 @@ abstract class SqlDatabase extends GlobalDatabase
 
     /**
      * Get all collections
-     * @param  int     $owner    Show only owner (optional)
-     * @param  boolean $template Get templates
-     * @return array             Collections data
+     * @param  int     $owner      Show only owner (optional)
+     * @param  boolean $isTemplate Get templates
+     * @return array   Collections data
      */
-    public function getCollections($owner=null, $template=false)
+    public function getCollections($owner=null, $isTemplate=false)
     {
         $query = "SELECT c.`id` FROM `collection` c JOIN `collectionLabel` l ON l.`collectionId`=c.`id`
                   WHERE `template`=?";
-        $args = [$template];
+        $args = [$isTemplate];
 
         if (!is_null($owner)) {
             $query .= " AND `owner`=?";
@@ -145,7 +145,7 @@ abstract class SqlDatabase extends GlobalDatabase
 
         $collections = [];
         foreach ($ids as $id) {
-            $collection = $this->getCollection($id, $template);
+            $collection = $this->getCollection($id, $isTemplate);
             if (!$collection) {
                 continue;
             }
@@ -155,7 +155,7 @@ abstract class SqlDatabase extends GlobalDatabase
                 $accessRights = 3;
             }
 
-            if (!$template) {
+            if (!$isTemplate) {
                 // get number of items
                 $collection['items'] = $this->selectOne(
                     "SELECT COUNT(*) FROM `item` WHERE `collectionId`=? AND `visibility`<=?",
@@ -172,15 +172,15 @@ abstract class SqlDatabase extends GlobalDatabase
     /**
      * Get collection from ID
      * @param  int    $id Collection ID
-     * @param  bool   $template Get a template
+     * @param  bool   $isTemplate Get a template
      * @return array  Collection data
      */
-    public function getCollection($id, $template=false)
+    public function getCollection($id, $isTemplate=false)
     {
         // get collection
         $collection = $this->selectFirst("SELECT * FROM `collection`
-                                           WHERE `id`=? AND `template`=?",
-                                         [$id, $template]);
+                                          WHERE `id`=? AND `template`=?",
+                                         [$id, $isTemplate]);
         if (!$collection) {
             return false;
         }
@@ -321,12 +321,14 @@ abstract class SqlDatabase extends GlobalDatabase
     public function createCollection($data)
     {
         // filter data keys because labels are not in the same table
-        $row = [];
-        $fields = ['type','cover','owner','visibility'];
-        foreach ($fields as $f) {
-            if (isset($data[$f])) {
-                $row[$f] = $data[$f];
-            }
+        $row = $data;
+        unset($row['name']);
+        unset($row['description']);
+        unset($row['properties']);
+
+        // set default owner if not specified
+        if (!isset($row['owner'])) {
+            $row['owner'] = 1;
         }
 
         // insert collection in table
@@ -379,6 +381,7 @@ abstract class SqlDatabase extends GlobalDatabase
         $row = $data;
         unset($row['name']);
         unset($row['description']);
+        unset($row['properties']);
 
         // update collection table
         if (count($row) > 0) {
@@ -419,6 +422,13 @@ abstract class SqlDatabase extends GlobalDatabase
             Logger::var_dump($rows);
         }
 
+        // update properties if defined
+        if (isset($data['properties'])) {
+            foreach ($data['properties'] as $name => $params) {
+                $this->setProperty($id, $name, $params);
+            }
+        }
+
         return true;
     }
 
@@ -426,10 +436,9 @@ abstract class SqlDatabase extends GlobalDatabase
     /**
      * Delete collection
      * @param  int  $id Collection ID
-     * @param  bool $template Is template (optionnal)
      * @return bool Success
      */
-    public function deleteCollection($id, $template=false)
+    public function deleteCollection($id)
     {
         // get associated items
         $items = $this->getItems($id);
@@ -457,7 +466,7 @@ abstract class SqlDatabase extends GlobalDatabase
         $this->delete('collectionLabel', ['collectionId' => $id]);
 
         // delete collection
-        return $this->delete('collection', ['template' => $template, 'id' => $id]);
+        return $this->delete('collection', ['id' => $id]);
     }
 
 
@@ -488,13 +497,40 @@ abstract class SqlDatabase extends GlobalDatabase
 
 
     /**
+     * Create collection template
+     *
+     * @param array $data
+     * @return bool Success
+     */
+    public function createCollectionTemplate($data)
+    {
+        $data['template'] = true;
+        return $this->createCollection($data);
+    }
+
+
+    /**
+     * Update collection template
+     *
+     * @param int   $id
+     * @param array $data
+     * @return bool Success
+     */
+    public function updateCollectionTemplate($id, $data)
+    {
+        $data['template'] = true;
+        return $this->updateCollection($id, $data);
+    }
+
+
+    /**
      * Delete collection template
      * @param  int  $id Collection template ID
      * @return bool Success
      */
     public function deleteCollectionTemplate($id)
     {
-        return $this->deleteCollection($id, true);
+        return $this->deleteCollection($id);
     }
 
 
@@ -1268,7 +1304,7 @@ abstract class SqlDatabase extends GlobalDatabase
     {
         $sql = file_get_contents(__DIR__.'/init/'.DATABASE.'.sql');
 
-        # allow multiple queries
+        // allow multiple queries
         $this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, 0);
 
         if (!$this->execute($sql)) {

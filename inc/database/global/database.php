@@ -17,11 +17,11 @@ abstract class GlobalDatabase
     abstract public function setConfig($param, $value);
 
     // collections
-    abstract public function getCollections($owner, $template);
-    abstract public function getCollection($id, $template);
+    abstract public function getCollections($owner, $isTemplate);
+    abstract public function getCollection($id, $isTemplate);
     abstract public function createCollection($data);
     abstract public function updateCollection($id, $data);
-    abstract public function deleteCollection($id, $template);
+    abstract public function deleteCollection($id);
 
     // collection templates
     abstract public function getCollectionTemplate($id);
