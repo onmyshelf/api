@@ -164,7 +164,7 @@ class Collection
         // get items
         $result = $this->getItems($sortBy);
         if (!$result) {
-            return [];
+            $result = [];
         }
 
         $items = [];
