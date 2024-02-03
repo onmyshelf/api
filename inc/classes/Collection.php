@@ -114,7 +114,7 @@ class Collection
             return true;
         }
 
-        if (!(new Database)->createProperty($this->id, $name, $params)) {
+        if (!(new Database)->setProperty($this->id, $name, $params)) {
             return false;
         }
 

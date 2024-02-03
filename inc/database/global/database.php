@@ -40,8 +40,7 @@ abstract class GlobalDatabase
 
     // properties
     abstract public function getProperty($collectionId, $name);
-    abstract public function createProperty($collectionID, $name, $data);
-    abstract public function updateProperty($collectionId, $name, $data);
+    abstract public function setProperty($collectionId, $name, $data);
     abstract public function deleteProperty($collectionId, $name);
 
     // loans

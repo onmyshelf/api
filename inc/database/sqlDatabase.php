@@ -359,7 +359,7 @@ abstract class SqlDatabase extends GlobalDatabase
         // create properties if defined
         if (isset($data['properties'])) {
             foreach ($data['properties'] as $name => $params) {
-                $this->createProperty($id, $name, $params);
+                $this->setProperty($id, $name, $params);
             }
         }
 
@@ -994,91 +994,40 @@ abstract class SqlDatabase extends GlobalDatabase
 
 
     /**
-     * Add property
+     * Set property (insert or update)
      * @param  int    $collectionId
      * @param  string $name  Property name
-     * @param  array  $params
-     * @return bool   Inserted ID
-     */
-    public function createProperty($collectionId, $name, $params)
-    {
-        // filter data keys because labels are not in the same table
-        $row = $params;
-        $row['collectionId'] = $collectionId;
-        $row['name'] = $name;
-        unset($row['label']);
-        unset($row['description']);
-
-        // create property
-        $propertyId = $this->insertOne('property', $row);
-        if ($propertyId === false) {
-            Logger::error('Failed to insert new property: '.$name);
-            return false;
-        }
-
-        // check parameters
-        $this->checkPropertyParams($collectionId, $name, $row);
-
-        // label and description
-        if (!isset($params['label'])) {
-            // avoid bug
-            $params['label'] = [];
-        }
-        if (!isset($params['description'])) {
-            // avoid bug
-            $params['description'] = [];
-        }
-
-        $rows = $this->labelToDB('label', $params['label'], $params['description']);
-        if (count($rows) == 0) {
-            return true;
-        }
-
-        foreach ($rows as &$row) {
-            $row['propertyId'] = $propertyId;
-        }
-
-        $orUpdate = [];
-        if (count($params['label']) > 0) {
-            $orUpdate[] = 'label';
-        }
-        if (count($params['description']) > 0) {
-            $orUpdate[] = 'description';
-        }
-
-        // insert or update translations
-        if (!$this->insert('propertyLabel', $rows, $orUpdate)) {
-            Logger::var_dump($rows);
-        }
-
-        return true;
-    }
-
-
-    /**
-     * Update property
-     * @param  int    $collectionId
-     * @param  string $name
      * @param  array  $data
      * @return bool   Success
      */
-    public function updateProperty($collectionId, $name, $data)
+    public function setProperty($collectionId, $name, $data)
     {
         // filter data keys because labels are not in the same table
         $row = $data;
         unset($row['label']);
         unset($row['description']);
 
-        // update property table
-        if (count($row) > 0) {
-            if (!$this->update('property', $row, ['collectionId' => $collectionId, 'name' => $name])) {
-                Logger::debug('Failed to update property');
+        // creates property if not exists
+        if (!$this->exists('property', ['collectionId' => $collectionId, 'name' => $name])) {
+            $row['collectionId'] = $collectionId;
+            $row['name'] = $name;
+            
+            if ($this->insertOne('property', $row) === false) {
+                Logger::error("Failed to create new property '$name' in collection $collectionId");
                 return false;
             }
-
-            // check parameters
-            $this->checkPropertyParams($collectionId, $name, $row);
+        } else {
+            // or update property
+            if (count($row) > 0) {
+                if (!$this->update('property', $row, ['collectionId' => $collectionId, 'name' => $name])) {
+                    Logger::debug("Failed to update property '$name' in collection $collectionId");
+                    return false;
+                }
+            }
         }
+
+        // check parameters
+        $this->checkPropertyParams($collectionId, $name, $row);
 
         // label and description
         if (!isset($data['label'])) {

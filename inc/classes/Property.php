@@ -54,7 +54,7 @@ class Property
         }
 
         // create in database
-        return (new Database)->updateProperty($this->collectionId, $this->name, $data);
+        return (new Database)->setProperty($this->collectionId, $this->name, $data);
     }
 
 
