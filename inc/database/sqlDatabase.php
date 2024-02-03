@@ -476,7 +476,7 @@ abstract class SqlDatabase extends GlobalDatabase
     }
 
 
-     /**
+    /**
      * Get collection template
      * @param  int    $id Collection template ID
      * @return array  Collection template data
@@ -1096,12 +1096,11 @@ abstract class SqlDatabase extends GlobalDatabase
         }
 
         // get property ID
-        // update property table
         $propertyId = $this->selectOne("SELECT `id` FROM `property` WHERE `collectionId`=? AND `name`=?",
             [$collectionId, $name]
         );
         if (!$propertyId) {
-            Logger::error("Failed to get property ID for collection ".$collectionId.", property: ".$name);
+            Logger::error("Failed to get property ID for collection $collectionId, property: $name");
             return false;
         }
 
@@ -1521,13 +1520,13 @@ abstract class SqlDatabase extends GlobalDatabase
      */
     protected function count($table, array $filters=[])
     {
-        $query = 'SELECT COUNT(*) FROM `'.$table.'`';
+        $query = "SELECT COUNT(*) FROM `$table`";
 
         if (count($filters) > 0) {
-            $query .= ' WHERE ';
+            $query .= " WHERE ";
 
             foreach ($filters as $key => $value) {
-                $query .= $key.'=? AND ';
+                $query .= "`$key`=? AND ";
             }
 
             // delete last " AND "
@@ -1535,7 +1534,7 @@ abstract class SqlDatabase extends GlobalDatabase
         }
 
         // runs query
-        return $this->selectOne($query, $filters);
+        return $this->selectOne($query, array_values($filters));
     }
 
 
