@@ -1,5 +1,18 @@
 # Changelog for OnMyShelf API
 
+# 1.1.0 RC 1 (2024-02-03)
+## New features
+- New collection templates
+- Add limit & offset filters to dump collection items
+- Always sort items by name
+- New created/updated fields for collections and items
+- External modules with git repositories can now be upgraded automatically
+- New functions for HTML import modules
+## Bugfixes
+- Prevent multiple properties to have unique tags like isTitle, isCover, ...
+- Fix multiple filters to use AND requests and not OR
+- Other fixes and code improvements
+
 # 1.0.1 (2024-01-18)
 - Item filters are now case insensitive and accepts symbols
 - Item filters can manage a range of numbers and ratings
