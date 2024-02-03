@@ -1312,6 +1312,24 @@ abstract class SqlDatabase extends GlobalDatabase
             return false;
         }
 
+        // initialize default collection templates from JSON file
+        $json = file_get_contents(__DIR__.'/init/collectionTemplates.json');
+        if ($json) {
+            $templates = json_decode($json, true);
+            foreach ($templates as $template) {
+                // get template ID (if exists)
+                // Note: reset connection is needed so we recall the object
+                $templateId = (new Database)->selectOne("SELECT `id` FROM `collection` WHERE `template`=1 AND `type`=?",
+                                                        [$template['type']]);
+
+                if ($templateId) {
+                    (new Database)->updateCollectionTemplate($templateId, $template);
+                } else {
+                    (new Database)->createCollectionTemplate($template);
+                }
+            }
+        }
+
         return parent::install();
     }
 

@@ -1,0 +1,50 @@
+[
+  {
+    "type": "books",
+    "name": {
+      "en_US": "Books",
+      "fr_FR": "Livres"
+    },
+    "properties": {
+      "title": {
+        "label": {
+          "en_US": "Title",
+          "fr_FR": "Titre"
+        },
+        "isTitle": true
+      },
+      "cover": {
+        "type": "image",
+        "label": {
+          "en_US": "Cover",
+          "fr_FR": "Couverture"
+        },
+        "isCover": true
+      }
+    }
+  },
+  {
+    "type": "movies",
+    "name": {
+      "en_US": "Movies",
+      "fr_FR": "Films"
+    },
+    "properties": {
+      "title": {
+        "label": {
+          "en_US": "Title",
+          "fr_FR": "Titre"
+        },
+        "isTitle": true
+      },
+      "cover": {
+        "type": "image",
+        "label": {
+          "en_US": "Cover",
+          "fr_FR": "Couverture"
+        },
+        "isCover": true
+      }
+    }
+  }
+]
