@@ -1042,6 +1042,8 @@ abstract class SqlDatabase extends GlobalDatabase
         $row = $data;
         unset($row['label']);
         unset($row['description']);
+        // remove values if herited from a collection
+        unset($row['values']);
 
         // creates property if not exists
         if (!$this->exists('property', ['collectionId' => $collectionId, 'name' => $name])) {
