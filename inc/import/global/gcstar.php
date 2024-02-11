@@ -8,7 +8,9 @@ abstract class GCstarImport extends XmlImport
 
 
     /**
-     * Open GCstar zipped file
+     * Load the GCstar file
+     *
+     * @return boolean Success
      */
     public function load()
     {

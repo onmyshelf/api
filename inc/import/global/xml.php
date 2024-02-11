@@ -9,9 +9,9 @@ abstract class XmlImport extends GlobalImport
 
 
     /**
-     * Class constructor
-     * @param string $file    The path to the XML file to import
-     * @param array  $options Import options
+     * Load the XML file
+     *
+     * @return boolean Success
      */
     public function load()
     {

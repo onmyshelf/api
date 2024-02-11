@@ -6,6 +6,11 @@ abstract class CsvImport extends GlobalImport
     protected $handle;
 
 
+    /**
+     * Load the CSV file
+     *
+     * @return boolean Success
+     */
     public function load()
     {
         $file = Storage::path($this->source);
@@ -98,12 +103,6 @@ abstract class CsvImport extends GlobalImport
         fclose($csv);
 
         return true;
-    }
-
-
-    public function search($search)
-    {
-        return false;
     }
 
 

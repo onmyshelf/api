@@ -21,12 +21,34 @@ abstract class GlobalImport
     }
 
 
-    // load source (e.g. open file)
+    /**
+     * Load source (e.g. open file, set properties)
+     *
+     * @return boolean Success
+     */
     abstract public function load();
 
 
-    // search
-    public function search($search) {
+    /**
+     * Search for items.
+     * Override this method if you want to use it.
+     *
+     * @param string $text Text to search
+     * @return array Array of results
+     */
+    public function search($text) {
+        return false;
+    }
+
+
+    /**
+     * Get item data.
+     * It is meant to be used with $this->source as item data source.
+     * You should override this method, unless you have rewritten the import() method.
+     *
+     * @return array  Array of properties and values
+     */
+    public function getData() {
         return false;
     }
 
@@ -42,8 +64,7 @@ abstract class GlobalImport
 
 
     /**
-     * Import function, used for basic compatibility;
-     * each child class should override this
+     * Import items, here just one item, but you can override this
      * @return array
      */
     public function import($collection)
@@ -110,7 +131,9 @@ abstract class GlobalImport
 
     /**
      * Import item in database
+     * @param  object $collection
      * @param  array  $properties
+     * @param  string $propertyId  Property to be used as id to avoid duplicates
      * @return object Item object
      */
     protected function importItem($collection, $properties, $propertyId=null)

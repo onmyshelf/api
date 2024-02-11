@@ -8,7 +8,9 @@ abstract class TellicoImport extends XmlImport
 
 
     /**
-     * Load tellico file
+     * Load the Tellico file
+     *
+     * @return boolean Success
      */
     public function load()
     {
