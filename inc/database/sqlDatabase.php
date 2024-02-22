@@ -1299,11 +1299,12 @@ abstract class SqlDatabase extends GlobalDatabase
 
 
     /**
-     * Initialize database
+     * Initialize database structure
      * @return bool  Success
      */
     public function install()
     {
+        // loads SQL file
         $sql = file_get_contents(__DIR__.'/init/'.DATABASE.'.sql');
 
         // allow multiple queries
@@ -1312,24 +1313,6 @@ abstract class SqlDatabase extends GlobalDatabase
         if (!$this->execute($sql)) {
             Logger::fatal('Database initialization failed!');
             return false;
-        }
-
-        // initialize default collection templates from JSON file
-        $json = file_get_contents(__DIR__.'/init/collectionTemplates.json');
-        if ($json) {
-            $templates = json_decode($json, true);
-            foreach ($templates as $template) {
-                // get template ID (if exists)
-                // Note: reset connection is needed so we recall the object
-                $templateId = (new Database)->selectOne("SELECT `id` FROM `collection` WHERE `template`=1 AND `type`=?",
-                                                        [$template['type']]);
-
-                if ($templateId) {
-                    (new Database)->updateCollectionTemplate($templateId, $template);
-                } else {
-                    (new Database)->createCollectionTemplate($template);
-                }
-            }
         }
 
         return parent::install();
@@ -1376,6 +1359,37 @@ abstract class SqlDatabase extends GlobalDatabase
 
         // set upgraded version into database
         return parent::upgrade($newVersion);
+    }
+
+
+    /**
+     * Initialize database content
+     * @return bool   Success
+     */
+    public function init()
+    {
+        // initialize default collection templates from JSON file
+        $json = file_get_contents(__DIR__.'/init/collectionTemplates.json');
+        if (!$json) {
+            Logger::error("Failed to load collection templates from JSON definition!");
+            return false;
+        }
+
+        // open json
+        $templates = json_decode($json, true);
+        foreach ($templates as $template) {
+            // get template ID (if exists)
+            $templateId = $this->selectOne("SELECT `id` FROM `collection` WHERE `template`=1 AND `type`=?",
+                                                    [$template['type']]);
+
+            if ($templateId) {
+                $this->updateCollectionTemplate($templateId, $template);
+            } else {
+                $this->createCollectionTemplate($template);
+            }
+        }
+
+        return true;
     }
 
 

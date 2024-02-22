@@ -27,7 +27,7 @@ class Cmd
         try {
             $db = new Database();
         } catch (Throwable $t) {
-            echo "ERROR: cannot connect to database!";
+            echo "ERROR: cannot connect to database!\n";
             exit(1);
         }
 
@@ -42,7 +42,7 @@ class Cmd
         if ($version) {
             echo "\nOnMyShelf is already installed\n";
         } else {
-            echo "Initialize database...";
+            echo "Initialize database structure...";
             // WARN: we need to create a separate connection here
             if (!(new Database)->install()) {
                 echo " FAILED! (see log file for more details)\n";
@@ -56,6 +56,11 @@ class Cmd
                     echo " FAILED! (see log file for more details)\n";
                     exit(1);
                 }
+            }
+
+            echo "\nInitialize database content...";
+            if (!$db->init()) {
+                echo " FAILED! (see log file for more details)";
             }
 
             echo "\nOnMyShelf is ready!\n";
@@ -73,22 +78,36 @@ class Cmd
         $currentVersion = Config::get('version');
 
         if (!$currentVersion) {
-            echo "ERROR: cannot get current version!";
+            echo "ERROR: cannot get current version!\n";
             exit(1);
         }
 
-        $newVersion = preg_replace('/\+.*/', '', VERSION);
-
         // run upgrade
         if (Config::compareVersions(VERSION, $currentVersion)) {
+            // get new version without build number
+            $newVersion = preg_replace('/\+.*/', '', VERSION);
+
             echo "Upgrading from $currentVersion to $newVersion...\n";
 
-            // upgrade version (without build number)
-            if ((new Database)->upgrade($newVersion)) {
-                echo "\nUpgrade finished\n";
+            // test database connection
+            try {
+                $db = new Database();
+            } catch (Throwable $t) {
+                echo "ERROR: cannot connect to database!\n";
+                exit(1);
+            }
+
+            // upgrade to new version
+            if (!$db->upgrade($newVersion)) {
+                echo "FAILED! (see log file for more details)\n";
+                exit(1);
+            }
+
+            echo "\nInitialize database content...";
+            if ($db->init()) {
+                echo "\n";
             } else {
                 echo " FAILED! (see log file for more details)\n";
-                exit(1);
             }
         } else {
             echo "OnMyShelf is already up-to-date\n";
