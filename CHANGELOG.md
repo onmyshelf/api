@@ -1,5 +1,10 @@
 # Changelog for OnMyShelf API
 
+# 1.1.0 RC 2 (2024-02-22)
+- Improved books template
+- Fixed bug when creating a collection from template
+- Fixed bugs in upgrade procedure
+
 # 1.1.0 RC 1 (2024-02-03)
 ## New features
 - New collection templates
@@ -8,6 +13,7 @@
 - New created/updated fields for collections and items
 - External modules with git repositories can now be upgraded automatically
 - New functions for HTML import modules
+- Added support for hidden properties
 ## Bugfixes
 - Prevent multiple properties to have unique tags like isTitle, isCover, ...
 - Fix multiple filters to use AND requests and not OR
