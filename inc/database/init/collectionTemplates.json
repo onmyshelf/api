@@ -76,6 +76,15 @@
         "filterable": true,
         "order": 6
       },
+      "pub_year": {
+        "type": "number",
+        "label": {
+          "en_US": "Published year",
+          "fr_FR": "Année de publication"
+        },
+        "preview": true,
+        "order": 7
+      },
       "format": {
         "label": {
           "en_US": "Format",
