@@ -24,6 +24,14 @@ class Database extends SqlDatabase
             }
         }
 
+        // add collection.type column
+        $sql = "ALTER TABLE `collection`
+                ADD COLUMN IF NOT EXISTS `type` varchar(255) DEFAULT NULL AFTER `id`";
+        if (!$this->execute($sql)) {
+            Logger::fatal("Upgrade v1.1.0: Failed to add collection.type column");
+            return false;
+        }
+
         // add item.name column
         $sql = "ALTER TABLE `item`
                 ADD COLUMN IF NOT EXISTS `name` varchar(255) DEFAULT NULL AFTER `collectionId`";
@@ -38,14 +46,6 @@ class Database extends SqlDatabase
         // for each collection where title property is defined, give name to items
         foreach ($collections as $collectionId) {
             $this->renameItems($collectionId);
-        }
-
-        // add collection.type column
-        $sql = "ALTER TABLE `collection`
-                ADD COLUMN IF NOT EXISTS `type` varchar(255) DEFAULT NULL AFTER `id`";
-        if (!$this->execute($sql)) {
-            Logger::fatal("Upgrade v1.1.0: Failed to add collection.type column");
-            return false;
         }
 
         // add property.hidden column
