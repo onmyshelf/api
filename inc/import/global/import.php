@@ -295,7 +295,7 @@ abstract class GlobalImport
     {
         return [
             'imported' => [
-                'items'  => count($this->importedItems),
+                'items'  => $this->importedItems,
                 'properties' => $this->importedProperties,
             ],
             'errors' => $this->importErrors,
