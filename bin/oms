@@ -195,5 +195,4 @@ if (isset($argv[2]) && $argv[2] == '--help') {
 }
 
 // call function
-// TODO: call with arguments
-call_user_func(['Cmd', $argv[1]]);
+call_user_func_array([(new Cmd), $argv[1]], array_slice($argv, 2));
