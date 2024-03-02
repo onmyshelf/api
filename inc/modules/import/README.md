@@ -61,6 +61,8 @@ class Import extends HtmlImport
      */
     public function search($text)
     {
+        // do search things...
+
         // Note: you must follow this structure
         return [
             [
@@ -79,14 +81,13 @@ class Import extends HtmlImport
      */
     public function getData()
     {
+        // get data...
+
         return [
-            'source' => "...",
+            'source' => $this->source,
             'title' => "...",
             ...
         ];
     }
 }
 ```
-
-# Explore modules
-Some modules are available here: https://gitlab.com/onmyshelf/modules

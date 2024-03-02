@@ -8,9 +8,8 @@ Creates a folder here with a file named `storage.php`.
 e.g. of file:
 ```php
 <?php
-class Database extends DatabaseGlobal {
+class Storage extends GlobalStorage
+{
   ...
 }
 ```
-
-For more information about database, see the [README file](../database/README.md)

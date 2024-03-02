@@ -8,7 +8,8 @@ Creates a folder here with a file named `database.php`.
 e.g. of file:
 ```php
 <?php
-class Database extends DatabaseGlobal {
+class Database extends GlobalDatabase
+{
   ...
 }
 ```
