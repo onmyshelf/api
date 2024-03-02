@@ -274,7 +274,7 @@ abstract class SqlDatabase extends GlobalDatabase
      * @param  int  $collectionId
      * @return bool Success
      */
-    public function setCollectionUpdated(int $collectionId)
+    public function setCollectionUpdated($collectionId)
     {
         return $this->write("UPDATE `collection` SET `updated`=CURRENT_TIMESTAMP WHERE `id`=$collectionId");
     }
@@ -471,70 +471,6 @@ abstract class SqlDatabase extends GlobalDatabase
 
 
     /*
-     * Collection templates
-     */
-
-    /**
-     * Get collection templates
-     * @param  int   $owner  Show only owner (optional)
-     * @return array         Collection templates
-     */
-    public function getCollectionTemplates($owner=null)
-    {
-        return $this->getCollections($owner, true);
-    }
-
-
-    /**
-     * Get collection template
-     * @param  int    $id Collection template ID
-     * @return array  Collection template data
-     */
-    public function getCollectionTemplate($id)
-    {
-        return $this->getCollection($id, true);
-    }
-
-
-    /**
-     * Create collection template
-     *
-     * @param array $data
-     * @return bool Success
-     */
-    public function createCollectionTemplate($data)
-    {
-        $data['template'] = true;
-        return $this->createCollection($data);
-    }
-
-
-    /**
-     * Update collection template
-     *
-     * @param int   $id
-     * @param array $data
-     * @return bool Success
-     */
-    public function updateCollectionTemplate($id, $data)
-    {
-        $data['template'] = true;
-        return $this->updateCollection($id, $data);
-    }
-
-
-    /**
-     * Delete collection template
-     * @param  int  $id Collection template ID
-     * @return bool Success
-     */
-    public function deleteCollectionTemplate($id)
-    {
-        return $this->deleteCollection($id);
-    }
-
-
-    /*
      *  Items
      */
 
@@ -704,7 +640,7 @@ abstract class SqlDatabase extends GlobalDatabase
      * @param  int  $itemId
      * @return bool Success
      */
-    public function setItemUpdated(int $collectionId, int $itemId)
+    public function setItemUpdated($collectionId, $itemId)
     {
         return $this->write("UPDATE `item` SET `updated`=CURRENT_TIMESTAMP WHERE `collectionId`=$collectionId AND `id`=$itemId");
     }
