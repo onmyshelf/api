@@ -13,7 +13,7 @@ abstract class SqlDatabase extends GlobalDatabase
         try {
             $this->connection = new PDO(DATABASE.':host='.DB_HOST.';dbname='.DB_NAME.';charset=utf8', DB_USER, DB_PASSWORD);
         } catch (Exception $e) {
-            Logger::fatal("error while testing database connection: ".$e);
+            Logger::fatal("Error while connecting to database:\n".$e);
             exit(1);
         }
     }
@@ -1137,6 +1137,16 @@ abstract class SqlDatabase extends GlobalDatabase
      */
 
     /**
+     * Get users
+     * @return array
+     */
+    public function getUsers()
+    {
+        return $this->select("SELECT `id`,`username`,`enabled`,`email`,`avatar` FROM `user`");
+    }
+
+
+    /**
      * Get user by username
      * @param  string $username
      * @return array  Result
@@ -1221,16 +1231,6 @@ abstract class SqlDatabase extends GlobalDatabase
             ['password' => password_hash($password, PASSWORD_BCRYPT)],
             ['id' => $userId]
         );
-    }
-
-
-    /**
-     * Count number of users
-     * @return int
-     */
-    public function countUsers()
-    {
-        return $this->count('user');
     }
 
 

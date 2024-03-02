@@ -23,13 +23,7 @@ class Cmd
      */
     public static function install()
     {
-        // test database connection
-        try {
-            $db = new Database();
-        } catch (Throwable $t) {
-            echo "ERROR: cannot connect to database!\n";
-            exit(1);
-        }
+        $db = new Database();
 
         // get current version
         try {
@@ -40,17 +34,17 @@ class Cmd
         }
 
         if ($version) {
-            echo "\nOnMyShelf is already installed\n";
+            echo "\nOnMyShelf is already installed";
         } else {
             echo "Initialize database structure...";
-            // WARN: we need to create a separate connection here
+            // WARN: we need to call a separate Database instance here
             if (!(new Database)->install()) {
                 echo " FAILED! (see log file for more details)\n";
                 exit(1);
             }
 
             // create default user
-            if ($db->countUsers() == 0) {
+            if (!$db->getUserByName("onmyshelf")) {
                 echo "\nCreate default user...";
                 if (!$db->createUser('onmyshelf', 'onmyshelf')) {
                     echo " FAILED! (see log file for more details)\n";
@@ -63,8 +57,10 @@ class Cmd
                 echo " FAILED! (see log file for more details)";
             }
 
-            echo "\nOnMyShelf is ready!\n";
+            echo "\nOnMyShelf is ready!";
         }
+
+        echo "\n\n";
     }
 
 
@@ -83,34 +79,35 @@ class Cmd
         }
 
         // run upgrade
-        if (Config::compareVersions(VERSION, $currentVersion)) {
-            // get new version without build number
-            $newVersion = preg_replace('/\+.*/', '', VERSION);
+        if (!Config::compareVersions(VERSION, $currentVersion)) {
+            echo "OnMyShelf is already up-to-date\n\n";
+            return;
+        }
 
-            echo "Upgrading from $currentVersion to $newVersion...\n";
+        // get new version without build number
+        $newVersion = preg_replace('/\+.*/', '', VERSION);
 
-            // test database connection
-            try {
-                $db = new Database();
-            } catch (Throwable $t) {
-                echo "ERROR: cannot connect to database!\n";
-                exit(1);
-            }
+        echo "Upgrading from $currentVersion to $newVersion...\n";
 
-            // upgrade to new version
-            if (!$db->upgrade($newVersion)) {
-                echo "FAILED! (see log file for more details)\n";
-                exit(1);
-            }
+        echo "Upgrade database structure...";
+        // WARN: we need to call a separate Database instance here
+        if (!(new Database)->install()) {
+            echo " FAILED! (see log file for more details)\n";
+            exit(1);
+        }
 
-            echo "\nInitialize database content...";
-            if ($db->init()) {
-                echo "\n";
-            } else {
-                echo " FAILED! (see log file for more details)\n";
-            }
+        // upgrade to new version
+        $db = new Database();
+        if (!$db->upgrade($newVersion)) {
+            echo "FAILED! (see log file for more details)\n";
+            exit(1);
+        }
+
+        echo "\nInitialize database content...";
+        if ($db->init()) {
+            echo "\n";
         } else {
-            echo "OnMyShelf is already up-to-date\n";
+            echo " FAILED! (see log file for more details)\n";
         }
 
         // search all external git modules
@@ -121,6 +118,8 @@ class Cmd
             $result = shell_exec('cd "'.dirname($module).'" && git pull');
             echo $result;
         }
+
+        echo "\n";
     }
 
 
