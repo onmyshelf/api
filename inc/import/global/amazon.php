@@ -41,7 +41,7 @@ abstract class AmazonImport extends HtmlImport
      */
     public function search($search)
     {
-        $this->source = $this->website."/s?k=".preg_replace('/\s/', '+', $search);
+        $this->source = $this->website."/s?k=".preg_replace('/\s+/', '+', $search);
 
         if (isset($this->amzcategory)) {
             $this->source .= "&i=".$this->amzcategory;

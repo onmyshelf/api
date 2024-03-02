@@ -619,7 +619,12 @@ class Api
             $this->error(500, "Error while opening import source");
         }
 
-        $this->response($import->search($_GET['search']));
+        $results = $import->search($_GET['search']);
+        if (!is_array($results)) {
+            $this->error(500, "Error while searching");
+        }
+
+        $this->response($results);
     }
 
 
