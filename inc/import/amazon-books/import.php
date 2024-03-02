@@ -6,7 +6,17 @@ class Import extends AmazonImport
 {
     public function load()
     {
-        $this->amzcategory = 'stripbooks';
+        switch (substr($GLOBALS['currentLanguage'], 0, 2)) {
+            case "de":
+            case "fr":
+                $this->amzcategory = 'stripbooks';
+                break;
+
+            default:
+                // Amazon.com has a custom category for books
+                $this->amzcategory = 'stripbooks-intl-ship';
+                break;
+        }
 
         $this->properties = [
             'source',
