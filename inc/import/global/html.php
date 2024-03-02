@@ -15,9 +15,9 @@ abstract class HtmlImport extends GlobalImport
      */
     protected function loadHtml()
     {
-        // Note: We use curl (not file_get_html) with user agent defined to cover every cases.
+        // Note: We use curl (not file_get_html) in silent mode with user agent defined to cover every cases.
         // e.g. Amazon module needs this to read properly a product page.
-        $content = shell_exec("curl --compressed -H \"User-Agent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/605.1.15 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/605.1.15'\" \"".$this->source.'"');
+        $content = shell_exec("curl -sS --compressed -H \"User-Agent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/605.1.15 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/605.1.15'\" \"".$this->source.'"');
         
         // load page in a simplehtmldom object
         $this->html = str_get_html($content);
