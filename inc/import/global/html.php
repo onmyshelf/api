@@ -71,6 +71,19 @@ abstract class HtmlImport extends GlobalImport
 
 
     /**
+     * Get a link
+     *
+     * @param string $search
+     * @param object $dom
+     * @return void
+     */
+    protected function getLink($search, $dom = null)
+    {
+        return $this->getHtml($search, $dom, 'href');
+    }
+
+
+    /**
      * Get an image source URL from the HTML DOM
      *
      * @param string $search

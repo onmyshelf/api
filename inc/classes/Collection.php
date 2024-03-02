@@ -64,7 +64,6 @@ class Collection
      */
 
 
-
     /**
      * Return the property that is used for main item name
      * @return string Property name

@@ -10,7 +10,8 @@ abstract class GlobalImport
     protected $importErrors;
 
 
-    public function __construct($source, $options = []) {
+    public function __construct($source, $options = [])
+    {
         $this->source = $source;
         $this->options = $options;
 
@@ -36,7 +37,8 @@ abstract class GlobalImport
      * @param string $text Text to search
      * @return array Array of results
      */
-    public function search($text) {
+    public function search($text) 
+    {
         return false;
     }
 
@@ -48,7 +50,8 @@ abstract class GlobalImport
      *
      * @return array  Array of properties and values
      */
-    public function getData() {
+    public function getData()
+    {
         return false;
     }
 
