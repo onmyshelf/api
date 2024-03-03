@@ -6,44 +6,16 @@
       "fr_FR": "Livres"
     },
     "properties": {
-      "title": {
-        "label": {
-          "en_US": "Title",
-          "fr_FR": "Titre"
-        },
-        "isTitle": true
-      },
-      "subtitle": {
-        "label": {
-          "en_US": "Subtitle",
-          "fr_FR": "Sous-titre"
-        },
-        "isSubTitle": true
-      },
-      "cover": {
-        "type": "image",
-        "label": {
-          "en_US": "Cover",
-          "fr_FR": "Couverture"
-        },
-        "isCover": true
-      },
+      "title": {},
+      "subtitle": {},
+      "cover": {},
       "author": {
-        "label": {
-          "en_US": "Author",
-          "fr_FR": "Auteur"
-        },
         "preview": true,
         "multiple": true,
-        "filterable": true,
         "searchable": true,
         "order": 10
       },
       "editor": {
-        "label": {
-          "en_US": "Editor",
-          "fr_FR": "Éditeur"
-        },
         "preview": true,
         "filterable": true,
         "order": 9
@@ -68,12 +40,7 @@
         "order": 7
       },
       "genre": {
-        "label": {
-          "en_US": "Genre",
-          "fr_FR": "Genre"
-        },
         "preview": true,
-        "filterable": true,
         "order": 6
       },
       "pub_year": {
@@ -83,22 +50,15 @@
           "fr_FR": "Année de publication"
         },
         "preview": true,
+        "sortable": true,
         "order": 7
       },
       "format": {
-        "label": {
-          "en_US": "Format",
-          "fr_FR": "Format"
-        },
         "filterable": true,
         "order": 5
       },
       "pages": {
         "type": "number",
-        "label": {
-          "en_US": "Pages",
-          "fr_FR": "Pages"
-        },
         "preview": true,
         "sortable": true,
         "order": 4
@@ -113,25 +73,15 @@
         "order": 3
       },
       "summary": {
-        "type": "longtext",
-        "label": {
-          "en_US": "Summary",
-          "fr_FR": "Résumé"
-        },
         "order": 2
       },
       "language": {
-        "label": {
-          "en_US": "Language",
-          "fr_FR": "Langue"
-        },
         "filterable": true,
         "order": 1
       },
       "isbn": {
         "label": {
-          "en_US": "ISBN",
-          "fr_FR": "ISBN"
+          "en_US": "ISBN"
         }
       },
       "read": {
@@ -149,19 +99,8 @@
         },
         "visibility": 3
       },
-      "images": {
-        "type": "image",
-        "label": {
-          "en_US": "Images",
-          "fr_FR": "Images"
-        }
-      },
+      "images": {},
       "source": {
-        "type": "url",
-        "label": {
-          "en_US": "Source",
-          "fr_FR": "Source"
-        },
         "visibility": 3,
         "hidden": true
       }
@@ -174,21 +113,15 @@
       "fr_FR": "Films"
     },
     "properties": {
-      "title": {
+      "title": {},
+      "cover": {},
+      "director": {
         "label": {
-          "en_US": "Title",
-          "fr_FR": "Titre"
-        },
-        "isTitle": true
+          "en_US": "Director",
+          "fr_FR": "Réalisateur"
+        }
       },
-      "cover": {
-        "type": "image",
-        "label": {
-          "en_US": "Cover",
-          "fr_FR": "Couverture"
-        },
-        "isCover": true
-      }
+      "format": {}
     }
   }
 ]

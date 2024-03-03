@@ -135,19 +135,19 @@ abstract class GlobalImport
     /**
      * Import item in database
      * @param  object $collection
-     * @param  array  $properties
+     * @param  array  $data
      * @param  string $propertyId  Property to be used as id to avoid duplicates
      * @return object Item object
      */
-    protected function importItem($collection, $properties, $propertyId=null)
+    protected function importItem($collection, $data, $propertyId=null)
     {
         $item = false;
 
         if (!is_null($propertyId)) {
-            if (isset($properties[$propertyId])) {
+            if (isset($data[$propertyId])) {
                 // load existing item
-                Logger::debug("Get item by property $propertyId=".$properties[$propertyId]);
-                $item = Item::getByProperty($collection->getId(), $propertyId, $properties[$propertyId]);
+                Logger::debug("Get item by property $propertyId=".$data[$propertyId]);
+                $item = Item::getByProperty($collection->getId(), $propertyId, $data[$propertyId]);
             }
         }
 
@@ -178,7 +178,7 @@ abstract class GlobalImport
         $importedItemProperties = [];
 
         // parse properties to insert
-        foreach ($properties as $key => $values) {
+        foreach ($data as $key => $values) {
             if (!is_array($values)) {
                 $values = [$values];
             }
@@ -220,48 +220,15 @@ abstract class GlobalImport
                     if (in_array($key, $currentProperties)) {
                         $this->importedProperties[] = $key;
                     } else {
-                        $propertyConfig = ['type' => 'text'];
-
-                        // guess type of property from property name
-                        switch ($key) {
-                            // image
-                            case 'cover':
-                            case 'image':
-                            case 'picture':
-                            case 'poster':
-                                $propertyConfig['type'] = 'image';
-                                $propertyConfig['isCover'] = true;
-                                break;
-                            // url
-                            case 'source':
-                            case 'url':
-                                $propertyConfig['type'] = 'url';
-                                break;
-                            // title
-                            case 'title':
-                                $propertyConfig['isTitle'] = true;
-                                break;
-                            // long text
-                            case 'comment':
-                            case 'description':
-                            case 'summary':
-                            case 'synopsis':
-                                $propertyConfig['type'] = 'longtext';
-                                break;
-                            // color
-                            case 'color':
-                            case 'colour':
-                                $propertyConfig['type'] = 'color';
-                                break;
-                            // name = type
-                            case 'date':
-                            case 'datetime':
-                            case 'file':
-                            case 'rating':
-                            case 'video':
-                                $propertyConfig['type'] = $key;
-                                break;
+                        // get property definition from import module
+                        if (isset($this->properties[$key])) {
+                            $propertyConfig = $this->properties[$key];
+                        } else {
+                            $propertyConfig = [];
                         }
+
+                        // try to guess property config from its name
+                        $propertyConfig = array_merge(Property::guessTypeFromName($key), $propertyConfig);
 
                         // add new property
                         if ($collection->addProperty($key, $propertyConfig)) {

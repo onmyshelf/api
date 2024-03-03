@@ -952,7 +952,7 @@ abstract class SqlDatabase extends GlobalDatabase
             // reset if needed
             if (isset($params[$field]) && $params[$field]) {
                 // force all other properties to have this field = false
-                if (!$this->write("UPDATE `property` SET `$field`=0 WHERE `collectionId`=? AND NOT `name`=?", [$collectionId, $name])) {
+                if (!$this->write("UPDATE `property` SET `$field`=? WHERE `collectionId`=? AND NOT `name`=?", [0, $collectionId, $name])) {
                     Logger::error("Failed to update property fields");
                 }
 
@@ -981,11 +981,21 @@ abstract class SqlDatabase extends GlobalDatabase
         // remove values if herited from a collection
         unset($row['values']);
 
+        // convert booleans
+        foreach ($row as &$param) {
+            if ($param === true) {
+                $param = 1;
+            } elseif ($param === false) {
+                $param = 0;
+            }
+        }
+        unset($param); // PHP recommendation
+
         // creates property if not exists
         if (!$this->exists('property', ['collectionId' => $collectionId, 'name' => $name])) {
             $row['collectionId'] = $collectionId;
             $row['name'] = $name;
-            
+
             if ($this->insertOne('property', $row) === false) {
                 Logger::error("Failed to create new property '$name' in collection $collectionId");
                 return false;
@@ -1314,6 +1324,11 @@ abstract class SqlDatabase extends GlobalDatabase
         // open json
         $templates = json_decode($json, true);
         foreach ($templates as $template) {
+            // merge properties
+            foreach ($template['properties'] as $name => $property) {
+                $template['properties'][$name] = array_merge(Property::guessConfigFromName($name), $property);
+            }
+
             // get template ID (if exists)
             $templateId = $this->selectOne("SELECT `id` FROM `collection` WHERE `template`=1 AND `type`=?",
                                                     [$template['type']]);
