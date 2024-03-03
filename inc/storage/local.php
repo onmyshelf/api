@@ -74,23 +74,10 @@ class Storage extends GlobalStorage
             return false;
         }
 
+        // create thumbnails (ignore errors)
+        self::createThumbnails($path);
+
         return 'media://'.$path;
-    }
-
-
-    /**
-     * Download a file to media directory
-     * @param  string $url URL of file
-     * @return string Media URL, FALSE if error
-     */
-    public static function download($url)
-    {
-        // if already in media library, do nothing
-        if (substr($url, 0, 8) == 'media://') {
-            return $url;
-        }
-
-        return self::copy($url);
     }
 
 
