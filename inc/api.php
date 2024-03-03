@@ -29,7 +29,6 @@ class Api
             '/collections' => 'Collections',
             '/collections/{id}' => 'CollectionsId',
             '/collections/{id}/import' => 'CollectionsIdImport',
-            '/collections/{id}/import/scan' => 'CollectionsIdImportScan',
             '/collections/{id}/import/search' => 'CollectionsIdImportSearch',
             '/collections/{id}/import/data' => 'CollectionsIdImportData',
             '/collections/{cid}/items' => 'CollectionsIdItems',
@@ -550,42 +549,6 @@ class Api
         }
 
         $this->response($result);
-    }
-
-
-    private function routesCollectionsIdImportScan()
-    {
-        // forbidden in read only mode
-        if (READ_ONLY) {
-            $this->error(403);
-        }
-
-        $this->post = true;
-        $this->requireData(['type', 'source']);
-
-        // default options
-        if (!isset($this->data['options'])) {
-            $this->data['options'] = [];
-        }
-
-        try {
-            $fields = Collection::scanImport($this->data['type'],
-                                            $this->data['source'],
-                                            $this->data['options']);
-
-            if ($fields === false) {
-                $this->error(400, 'Bad type');
-            }
-
-            if (count($fields)) {
-                $this->response(['fields' => $fields]);
-            } else {
-                $this->error(500, 'No fields detected');
-            }
-        } catch (Throwable $t) {
-            Logger::fatal($t);
-            $this->error(500);
-        }
     }
 
 

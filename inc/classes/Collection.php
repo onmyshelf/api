@@ -443,34 +443,4 @@ class Collection
         // create in database
         return (new Database)->createCollection($data);
     }
-
-
-    /*
-     *  Import methods
-     */
-
-    /**
-     * Analyse fields for import
-     * @param  string $type    Type of source
-     * @param  string $source  Import source
-     * @param  array  $options Options
-     * @return array|bool      Array of properties, false if error
-     */
-    public static function scanImport($module, $source, $options=[])
-    {
-        require_once('inc/classes/Module.php');
-        if (!Module::load('import', $module)) {
-            return false;
-        }
-
-        try {
-            $import = new Import($source, $options);
-        } catch (Throwable $t) {
-            Logger::fatal("error while loading import class: $module");
-            return false;
-        }
-
-        // get and return properties
-        return $import->getProperties();
-    }
 }
