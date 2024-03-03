@@ -15,7 +15,7 @@ abstract class XmlImport extends GlobalImport
      */
     public function load()
     {
-        $file = Storage::path($this->source);
+        $file = Storage::urlToPath($this->source);
 
         if (!file_exists($file)) {
             Logger::error("Import XML: file ".$file." does not exists!");

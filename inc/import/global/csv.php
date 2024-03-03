@@ -13,7 +13,7 @@ abstract class CsvImport extends GlobalImport
      */
     public function load()
     {
-        $file = Storage::path($this->source);
+        $file = Storage::urlToPath($this->source);
 
         if (!file_exists($file)) {
             Logger::error('CSV file does not exists!');
@@ -110,7 +110,7 @@ abstract class CsvImport extends GlobalImport
     {
         // open CSV file
         try {
-            if (($handle = fopen(Storage::path($this->source), 'r')) === false) {
+            if (($handle = fopen(Storage::urlToPath($this->source), 'r')) === false) {
                 Logger::error("failed to load CSV: $this->source");
                 return false;
             }

@@ -2,7 +2,9 @@
 
 abstract class GlobalStorage
 {
-    abstract public static function path($url);
+    abstract public static function urlToPath($url);
+    abstract public static function pathToUrl($path);
+    abstract public static function glob($search);
     abstract public static function copy($url);
     abstract public static function download($url);
     abstract public static function moveUploadedFile($field);

@@ -11,9 +11,37 @@ class Cmd
      */
     public static function cleanup()
     {
-        echo "Cleanup expired tokens...";
-        (new Database)->cleanupTokens();
-        echo "\nCleanup finished.\n";
+        $db = new Database();
+
+        echo "Cleanup expired tokens...\n";
+        $db->cleanupTokens();
+
+        echo "Cleanup unused medias...\n";
+        
+        $medias = Storage::glob('*/*.*');
+        foreach ($medias as $media) {
+            // ignore thumbnails
+            if (preg_match('/-normal\..*/', $media)) {
+                continue;
+            }
+            if (preg_match('/-small\..*/', $media)) {
+                continue;
+            }
+
+            // if media is never referened into DB
+            if (!$db->mediaExists($media)) {
+                // delete media
+                Storage::delete($media);
+
+                // search and delete thumbnails
+                $thumbnails = Storage::getThumbnails($media);
+                foreach ($thumbnails as $thumbnail) {
+                    Storage::delete($thumbnail);
+                }
+            }
+        }
+
+        echo "Cleanup finished.\n";
     }
 
 

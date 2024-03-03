@@ -1116,6 +1116,7 @@ abstract class SqlDatabase extends GlobalDatabase
     {
         // search in collection covers
         $count = $this->count('collection', ['cover' => $path]);
+        // if error, consider test as true to avoid delete real used medias
         if ($count === false || $count > 0) {
             return true;
         }

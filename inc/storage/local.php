@@ -3,85 +3,42 @@
 class Storage extends GlobalStorage
 {
     /**
-     * Check if path exists in media
-     * @param  string $path Path (relative to media directory)
-     * @return bool   File/directory exists
-     */
-    private static function exists($path)
-    {
-        return file_exists(MEDIA_DIR.'/'.$path);
-    }
-
-
-    /**
-     * Prepare to store a media
-     * @param  string $filename
-     * @return string Path (relative to media directory), FALSE if error
-     */
-    private static function prepare($filename)
-    {
-        if (strlen($filename) == 0) {
-            return false;
-        }
-
-        // get file extension
-        $extension = pathinfo($filename, PATHINFO_EXTENSION);
-
-        // security: remove extensions with a "?"
-        // sometimes, files from the web are like ....jpg?v=123456
-        $extension = preg_replace('/\?.*/', '', $extension);
-
-        // security: trunk too long extensions
-        if (strlen($extension) > 12) {
-            $extension = substr($extension, 0, 12);
-        }
-
-        // generate a random name
-        while (true) {
-            $file = bin2hex(random_bytes(12)).'.'.$extension;
-
-            // put it in a subdir with the first character
-            $dir = substr($file, 0, 1);
-            $path = $dir.'/'.$file;
-
-            if (!self::exists($path)) {
-                break;
-            }
-        }
-
-        try {
-            set_error_handler(function($errno, $errstr) {
-                Logger::error("Storage: Failed to create directory: ".$errstr);
-            });
-
-            // create directory if not exists
-            if (!self::exists($dir)) {
-                mkdir(MEDIA_DIR.'/'.$dir);
-            }
-
-            restore_error_handler();
-        } catch (Throwable $t) {
-            Logger::error("Storage: Failed to create directory ".$dir);
-            return false;
-        }
-
-        // double check if directory OK
-        if (!self::exists($dir)) {
-            return false;
-        }
-
-        return $path;
-    }
-
-
-    /**
-     * Return media path
+     * Return media path from URL
      * @param  string $url
      * @return string Real path
      */
-    public static function path($url)
+    public static function urlToPath($url)
     {
         return preg_replace('/^media:\/\//', MEDIA_DIR.'/', $url);
+    }
+
+
+    /**
+     * Return media URL from path
+     * @param  string $path
+     * @return string Media URL
+     */
+    public static function pathToUrl($path)
+    {
+        return preg_replace('/^'.str_repeat('.',strlen(MEDIA_DIR)).'/', 'media:/', $path);
+    }
+
+
+    /**
+     * Glob files
+     *
+     * @param  string $search
+     * @return array  Results
+     */
+    public static function glob($search)
+    {
+        $medias = [];
+        $files = glob(MEDIA_DIR."/$search");
+        foreach ($files as $file) {
+            $medias[] = self::pathToUrl($file);
+        }
+
+        return $medias;
     }
 
 
@@ -287,7 +244,7 @@ class Storage extends GlobalStorage
         }
 
         // convert URL to path if needed
-        $path = self::path($path);
+        $path = self::urlToPath($path);
         $pathinfo = pathinfo($path);
 
         $destination = $pathinfo['dirname'].'/'.$pathinfo['filename'].'/';
@@ -347,6 +304,8 @@ class Storage extends GlobalStorage
             return false;
         }
 
+        $path = self::urlToPath($path);
+
         // delete file
         try {
             set_error_handler(function($errno, $errstr) {
@@ -364,5 +323,77 @@ class Storage extends GlobalStorage
 
         // double check if file is deleted
         return !self::exists($path);
+    }
+
+
+    /**
+     * Check if path exists in media
+     * @param  string $path Path (relative to media directory)
+     * @return bool   File/directory exists
+     */
+    private static function exists($path)
+    {
+        return file_exists(MEDIA_DIR.'/'.$path);
+    }
+
+
+    /**
+     * Prepare to store a media
+     * @param  string $filename
+     * @return string Path (relative to media directory), FALSE if error
+     */
+    private static function prepare($filename)
+    {
+        if (strlen($filename) == 0) {
+            return false;
+        }
+
+        // get file extension
+        $extension = pathinfo($filename, PATHINFO_EXTENSION);
+
+        // security: remove extensions with a "?"
+        // sometimes, files from the web are like ....jpg?v=123456
+        $extension = preg_replace('/\?.*/', '', $extension);
+
+        // security: trunk too long extensions
+        if (strlen($extension) > 12) {
+            $extension = substr($extension, 0, 12);
+        }
+
+        // generate a random name
+        while (true) {
+            $file = bin2hex(random_bytes(12)).'.'.$extension;
+
+            // put it in a subdir with the first character
+            $dir = substr($file, 0, 1);
+            $path = $dir.'/'.$file;
+
+            if (!self::exists($path)) {
+                break;
+            }
+        }
+
+        try {
+            set_error_handler(function($errno, $errstr) {
+                Logger::error("Storage: Failed to create directory: ".$errstr);
+            });
+
+            // create directory if not exists
+            if (!self::exists($dir)) {
+                mkdir(MEDIA_DIR.'/'.$dir);
+            }
+
+            restore_error_handler();
+        } catch (Throwable $t) {
+            Logger::error("Storage: Failed to create directory ".$dir);
+            return false;
+        }
+
+        // double check if directory OK
+        if (!self::exists($dir)) {
+            return false;
+        }
+
+        return $path;
     }
 }

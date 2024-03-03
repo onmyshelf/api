@@ -15,7 +15,7 @@ abstract class JsonImport extends GlobalImport
      */
     public function load()
     {
-        $file = Storage::path($this->source);
+        $file = Storage::urlToPath($this->source);
 
         if (!preg_match('/^https*:\/\//', $file) && !file_exists($file)) {
             Logger::error("Import JSON: file ".$file." does not exists!");
