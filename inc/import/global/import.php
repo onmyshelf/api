@@ -228,7 +228,7 @@ abstract class GlobalImport
                         }
 
                         // try to guess property config from its name
-                        $propertyConfig = array_merge(Property::guessTypeFromName($key), $propertyConfig);
+                        $propertyConfig = array_merge(Property::guessConfigFromName($key), $propertyConfig);
 
                         // add new property
                         if ($collection->addProperty($key, $propertyConfig)) {
