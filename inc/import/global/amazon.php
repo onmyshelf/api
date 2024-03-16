@@ -20,6 +20,7 @@ abstract class AmazonImport extends HtmlImport
         switch ($lang) {
             case "de":
             case "fr":
+            case "it":
                 $domain = $lang;
                 break;
 
