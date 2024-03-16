@@ -1,5 +1,18 @@
 # Changelog for OnMyShelf API
 
+# 1.1.0 (2024-03-16)
+## New features
+- New cleanup oms command
+## Improvements
+- Major improvements in properties detection
+- Manage import search errors
+- Minor code refactoring
+## Bugfixes
+- Creates thumbnails when Import->download() method is used
+- Fixed Amazon.com books import
+- Numeric properties are now sorted correctly (fixed by MariaDB migration)
+- Handle arguments in oms command line
+
 # 1.1.0 RC 2 (2024-02-22)
 - Improved books template
 - Fixed bug when creating a collection from template
