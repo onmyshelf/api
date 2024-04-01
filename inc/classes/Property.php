@@ -18,6 +18,7 @@ class Property
     private $isSubTitle;
     private $isCover;
     private $preview;
+    private $multiple;
     private $filterable;
     private $searchable;
     private $sortable;
