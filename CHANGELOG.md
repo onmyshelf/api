@@ -1,5 +1,8 @@
 # Changelog for OnMyShelf API
 
+# 1.1.1 (2024-04-01)
+- Fix bug when setting multiple parameter in a property
+
 # 1.1.0 (2024-03-16)
 ## New features
 - New cleanup oms command
