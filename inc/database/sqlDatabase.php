@@ -504,10 +504,10 @@ abstract class SqlDatabase extends GlobalDatabase
                 $query .= "ORDER BY `$sorting` $order, `name`";
             } else {
                 // order by item property then by item name
-            $query = "SELECT i.id, p.name, p.value FROM `item` i ".
-                     "LEFT JOIN `itemProperty` p ON p.itemId=i.id AND p.name=? ".
-                     "WHERE i.collectionId=? AND i.visibility<=? ".
-                        "ORDER BY p.value $order, i.name";
+                $query = "SELECT i.id, p.name, p.value FROM `item` i
+                          LEFT JOIN `itemProperty` p ON p.itemId=i.id AND p.name=?
+                          WHERE i.collectionId=? AND i.visibility<=?
+                          ORDER BY p.value $order, i.name";
 
                 // add property name to query args (first in array)
                 array_unshift($args, $sorting);
@@ -554,10 +554,10 @@ abstract class SqlDatabase extends GlobalDatabase
      */
     public function getItemProperties($collectionId, $itemId)
     {
-        $result = $this->select('SELECT i.name AS `name`, i.value AS `value` FROM `itemProperty` i
+        $result = $this->select("SELECT i.name AS `name`, i.value AS `value` FROM `itemProperty` i
                                  JOIN `property` p ON i.collectionId=p.collectionId AND i.name=p.name
                                  WHERE i.collectionId=? AND i.itemId=? AND p.visibility<=?
-                                 ORDER BY `name`',
+                                 ORDER BY `name`, `value`",
                                 [$collectionId, $itemId, $GLOBALS['accessRights']]);
         if ($result === false) {
             return false;
