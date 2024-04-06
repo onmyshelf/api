@@ -46,6 +46,8 @@ class Api
             '/properties/types' => 'PropertiesTypes',
             '/resetpassword' => 'Resetpassword',
             '/token' => 'Token',
+            '/users' => 'Users',
+            '/users/{uid}' => 'UsersId',
             '/users/{uid}/collections' => 'UsersIdCollections',
             '/users/{uid}/password' => 'UsersIdPassword',
         ];
@@ -1018,6 +1020,83 @@ class Api
         }
 
         $this->response(['url' => $url]);
+    }
+
+
+    private function routeUsers()
+    {
+        // requires to be administrator
+        $this->requireAdmin();
+
+        switch ($this->method) {
+            case 'POST':
+                // create user
+
+                // forbidden in read only mode
+                if (READ_ONLY) {
+                    $this->error(403);
+                }
+
+                $this->responseOperation('created', User::create($this->data));
+                break;
+
+            default:
+                // get users
+                $this->response(User::dumpAll());
+                break;
+        }
+    }
+
+
+    private function routeUsersId()
+    {
+        $this->requireArgs(['uid']);
+
+        $this->requireAuthentication();
+
+        // requires user to be himself or administrator
+        if (!$this->compareUserID($this->args['uid'])) {
+            $this->requireAdmin();
+        }
+
+        $user = User::getById($this->args['uid']);
+        if (!$user) {
+            $this->error(404);
+        }
+
+        switch ($this->method) {
+            case 'PATCH':
+                // update user
+
+                // forbidden in read only mode
+                if (READ_ONLY) {
+                    $this->error(403);
+                }
+
+                $this->responseOperation('updated', $user->update($this->data));
+                break;
+
+            case 'DELETE':
+                // delete user
+
+                // forbidden in read only mode
+                if (READ_ONLY) {
+                    $this->error(403);
+                }
+
+                $this->responseOperation('deleted', $user->delete());
+                break;
+
+            default:
+                // get user profile
+                $response = $user->dump();
+                if ($user === false) {
+                    $this->error();
+                }
+
+                $this->response($response);
+                break;
+        }
     }
 
 
