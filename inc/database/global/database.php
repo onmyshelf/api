@@ -113,7 +113,7 @@ abstract class GlobalDatabase
     abstract public function deleteLoan($id);
 
     // notifications
-    abstract public function addNotification($type, $text);
+    abstract public function addNotification($userId, $type, $text);
 
     // storage
     abstract public function mediaExists($path);

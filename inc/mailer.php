@@ -6,7 +6,7 @@ use PHPMailer\PHPMailer\Exception;
 class Mailer
 {
     /**
-     * Sent email
+     * Send email
      * @param  string $message Message
      * @param  string $prefix  Prefix (inserted in start line)
      * @param  string $context Context (append at the end)
@@ -63,17 +63,40 @@ class Mailer
         // email content
         $mail->isHTML(true);
         $mail->Subject = "[OnMyShelf] $subject";
-        $mail->Body = $message;
+        $mail->Body = $message . self::footer();
+
+        // text-only email: preserve end of lines
+        $message = preg_replace(["<br\s*/>", "<p>"], ["\n", "\n<p>"], $message);
         $mail->AltBody = strip_tags($message);
 
+        // send email
         try {
             $mail->send();
-            Logger::debug("Email sent to $dest");
+            Logger::debug("An email was sent to $dest");
             return true;
         } catch (Exception $e) {
             Logger::error("Failed to send email to $dest:\n$e");
         }
 
         return false;
+    }
+
+
+    /**
+     * Generate email footer content
+     *
+     * @return string
+     */
+    private static function footer()
+    {
+        $oms_url = Config::getHomeUrl();
+        $footer = "<p>--<br />Your OnMyShelf application";
+
+        if ($oms_url)
+            $footer .= "<br /><a href='$oms_url'>$oms_url</a>";
+
+        $footer .= "</p>";
+
+        return $footer;
     }
 }

@@ -1101,23 +1101,16 @@ class Api
             if (!$user) {
                 Logger::warn('Reset password request for unknown username: '.$this->data['username']);
 
-                // we send a positive feedback to avoid guessing usernames
+                // we send a positive feedback to avoid malicious guessing usernames
                 $this->response(['asked' => true]);
                 return;
             }
 
             // create reset token for user
-            $token = $user->createToken('resetpassword');
-            if (!$token) {
-                $this->error(500, 'Failed to create token');
+            if (!$user->resetPassword()) {
+                $this->error(500, 'Failed to create reset token');
             }
 
-            Logger::message("*************  RESET PASSWORD REQUEST  *************");
-            Logger::message("*  UserID: ".$user->getId());
-            Logger::message("*  URL:    /resetpassword?token=$token");
-            Logger::message("****************************************************");
-
-            // quit
             $this->response(['asked' => true]);
             return;
         }

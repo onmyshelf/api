@@ -4,16 +4,6 @@ class Config
 {
     /**
      * Get config value
-     * @return array
-     */
-    public static function dump()
-    {
-        return (new Database)->dumpConfig();
-    }
-
-
-    /**
-     * Get config value
      * @param  string $param Parameter name
      * @return mixed         Parameter value
      */
@@ -32,6 +22,38 @@ class Config
     public static function set(string $param, $value)
     {
         return (new Database)->setConfig($param, $value);
+    }
+
+
+    /**
+     * Get OnMyShelf home URL
+     *
+     * @return string
+     */
+    public static function getHomeUrl()
+    {
+        // if defined, return it
+        if (defined('OMS_URL') && OMS_URL !== '') {
+            return OMS_URL;
+        }
+
+        // no web call: cancel
+        if (!isset($_SERVER['HTTP_HOST'])) {
+            return '';
+        }
+
+        // we assume that root URL is the home of OnMyShelf instance
+        return (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://'.$_SERVER['HTTP_HOST'];
+    }
+
+
+    /**
+     * Get config value
+     * @return array
+     */
+    public static function dump()
+    {
+        return (new Database)->dumpConfig();
     }
 
 

@@ -67,6 +67,9 @@ define('SMTP_PASSWORD', '');
  *  Advanced configuration
  */
 
+// OnMyShelf public URL (optionnal)
+define('OMS_URL', '');
+
 // Token retention time (in minutes)
 define('TOKEN_LIFETIME', 43200);
 

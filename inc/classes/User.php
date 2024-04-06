@@ -38,9 +38,20 @@ class User
 
 
     /**
+     * Set password
+     * @param  string  $password
+     * @return boolean Success
+     */
+    public function setPassword(string $password)
+    {
+        return (new Database)->setUserPassword($this->id, $password);
+    }
+
+
+    /**
      * Create token
-     * @param  string $type               [description]
-     * @return [type]       [description]
+     * @param  string $type
+     * @return string Token
      */
     public function createToken($type=null)
     {
@@ -69,13 +80,31 @@ class User
 
 
     /**
-     * Set password
-     * @param  string  $password
-     * @return boolean Success
+     * Create reset password request
+     *
+     * @return bool Success
      */
-    public function setPassword(string $password)
+    public function resetPassword()
     {
-        return (new Database)->setUserPassword($this->id, $password);
+        // create reset token for user
+        $token = $this->createToken('resetpassword');
+        if (!$token) {
+            return false;
+        }
+
+        $reset_url = Config::getHomeUrl()."/resetpassword?token=$token";
+
+        // log request
+        Logger::message("*************  RESET PASSWORD REQUEST  *************");
+        Logger::message("*  UserID: ".$this->id);
+        Logger::message("*  URL:    $reset_url");
+        Logger::message("****************************************************");
+
+        // send reset URL to user
+        if ($this->email)
+            Mailer::send($this->email, "To reset your password, please click on this link: <a href='$reset_url'>$reset_url</a>", 'Your reset password request');
+
+        return true;
     }
 
 
