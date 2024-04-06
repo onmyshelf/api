@@ -162,6 +162,28 @@ class Api
 
 
     /**
+     * Login as user
+     *
+     * @param string  $user
+     * @param string  $password
+     * @return object User object
+     */
+    private function login($user, $password)
+    {
+        $user = User::getByLogin($user, base64_decode($password));
+        if ($user) {
+            return $user;
+        }
+
+        // login failed
+
+        // add some latency to avoid bruteforce
+        sleep(2);
+        $this->error(401, 'Authentication failed');
+    }
+
+
+    /**
      * Check if user is authenticated
      * @return void
      */
@@ -382,10 +404,7 @@ class Api
         $this->requireData(['username', 'password']);
 
         // authentication
-        $user = User::getByLogin($this->data['username'], base64_decode($this->data['password']));
-        if (!$user) {
-            $this->error(401, 'Authentication failed');
-        }
+        $user = $this->login($this->data['username'], $this->data['password']);
 
         // clean expired tokens
         (new Database)->cleanupTokens();
@@ -1073,6 +1092,16 @@ class Api
                     $this->error(403);
                 }
 
+                // check user password
+                $this->requireData(['password']);
+                $this->login($GLOBALS['currentUsername'], $this->data['password']);
+                unset($this->data['password']);
+
+                // prevent user from disabling himself
+                if ($this->compareUserID($this->args['uid'])) {
+                    unset($this->data['enabled']);
+                }
+
                 $this->responseOperation('updated', $user->update($this->data));
                 break;
 
@@ -1083,6 +1112,16 @@ class Api
                 if (READ_ONLY) {
                     $this->error(403);
                 }
+
+                // user cannot delete himself
+                if ($this->compareUserID($this->args['uid'])) {
+                    $this->error(403, "You cannot delete your own account!");
+                }
+
+                // check user password
+                $this->requireData(['password']);
+                $this->login($GLOBALS['currentUsername'], $this->data['password']);
+                unset($this->data['password']);
 
                 $this->responseOperation('deleted', $user->delete());
                 break;
@@ -1138,13 +1177,10 @@ class Api
         $this->requireUserID((int)$this->args['uid']);
 
         // check old password
-        $user = User::getByLogin($GLOBALS['currentUsername'], base64_decode($this->data['password']));
-        if (!$user) {
-            $this->error(401, 'Bad password');
-        }
+        $user = $this->login($GLOBALS['currentUsername'], $this->data['password']);
 
         // change password and return result
-        $this->response(['changed' => $user->setPassword(base64_decode($this->data['newpassword']))]);
+        $this->responseOperation('changed', $user->setPassword(base64_decode($this->data['newpassword'])));
     }
 
 
@@ -1191,12 +1227,12 @@ class Api
         // check reset token
         $user = User::getByToken($this->data['resetToken'], 'resetpassword');
         if (!$user) {
-            $this->error(401);
+            $this->error(401, "Invalid token");
         }
 
         // reset password
         if (!$user->setPassword(base64_decode($this->data['newpassword']))) {
-            $this->error(500, "Unexpected error");
+            $this->error();
         }
 
         // delete reset token
@@ -1422,21 +1458,5 @@ class Api
         }
 
         return true;
-    }
-
-
-    /**
-     * Return a simple JSON object to tell if something exists: {"exists": true}
-     * @param  boolean $exists Thing exists
-     * @param  boolean $quit   Quit after response
-     * @return void
-     */
-    private function responseExists($exists, $quit=false)
-    {
-        if (!is_bool($exists)) {
-            $this->error(500, 'bad exists response');
-        }
-
-        $this->response(['exists' => $exists], 200, $quit);
     }
 }
