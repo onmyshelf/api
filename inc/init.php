@@ -1,5 +1,5 @@
 <?php
-define('VERSION', '1.1.1');
+define('VERSION', '1.2.0-alpha.1+2024040601');
 
 // load config file
 if (!file_exists("config.php")) {
@@ -10,6 +10,7 @@ require_once('config.php');
 
 // load utils
 require_once('logger.php');
+require_once('mailer.php');
 require_once('notification.php');
 
 // check database type (security)

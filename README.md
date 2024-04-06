@@ -33,3 +33,7 @@ This project is licensed under the MIT License. See [LICENSE.md](LICENSE.md) for
 Website: https://onmyshelf.app
 
 Source code: https://github.com/onmyshelf/api
+
+Used in this project:
+- PHPMailer: https://github.com/PHPMailer/PHPMailer
+- PHP Simple HTML DOM Parser: https://sourceforge.net/projects/simplehtmldom

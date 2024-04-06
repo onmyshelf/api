@@ -44,6 +44,26 @@ define('MEDIA_URL', '/media');
 
 
 /*
+ *  Email configuration
+ */
+
+// Email address from
+define('EMAIL_FROM', '');
+
+// SMTP server
+define('SMTP_SERVER', '');
+
+// SMTP port
+define('SMTP_PORT', '465');
+
+// SMTP user
+define('SMTP_USER', '');
+
+// SMTP password
+define('SMTP_PASSWORD', '');
+
+
+/*
  *  Advanced configuration
  */
 
