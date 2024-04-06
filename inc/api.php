@@ -208,9 +208,9 @@ class Api
      * @param  string $username
      * @return void
      */
-    private function requireUsername($username)
+    private function requireAdmin()
     {
-        if (!is_null($GLOBALS['currentUsername']) && $username == $GLOBALS['currentUsername']) {
+        if (isset($GLOBALS['currentUsername']) && !is_null($GLOBALS['currentUsername']) && $GLOBALS['currentUsername'] == 'onmyshelf') {
             return;
         }
 
@@ -291,7 +291,7 @@ class Api
             $this->$function();
         } catch (Throwable $t) {
             Logger::fatal($t);
-            $this->error(500);
+            $this->error();
         }
     }
 
@@ -330,7 +330,7 @@ class Api
     private function routeConfig()
     {
         // requires to be the administrator
-        $this->requireUsername('onmyshelf');
+        $this->requireAdmin();
 
         switch ($this->method) {
             case 'PATCH':
@@ -358,8 +358,7 @@ class Api
                     }
                 }
 
-                // update item
-                $this->response(['updated' => $success]);
+                $this->responseOperation('updated', $success);
                 break;
 
             default:
@@ -455,7 +454,7 @@ class Api
                 // get collections
                 $collections = Collection::dumpAll();
                 if ($collections === false) {
-                    $this->error(500);
+                    $this->error();
                 }
 
                 $this->response($collections);
@@ -484,8 +483,8 @@ class Api
 
                 // check ownership
                 $this->requireUserID($collection->getOwner());
-                // update collection
-                $this->response(['updated' => $collection->update($this->data)]);
+
+                $this->responseOperation('updated', $collection->update($this->data));
                 break;
 
             case 'DELETE':
@@ -498,8 +497,8 @@ class Api
 
                 // check ownership
                 $this->requireUserID($collection->getOwner());
-                // delete collection
-                $this->response(['deleted' => $collection->delete()]);
+
+                $this->responseOperation('deleted', $collection->delete());
                 break;
 
             default:
@@ -541,11 +540,11 @@ class Api
                                           $this->data['options']);
         } catch (Throwable $t) {
             Logger::fatal($t);
-            $this->error(500);
+            $this->error();
         }
 
         if ($result === false) {
-            $this->error(500);
+            $this->error();
         }
 
         $this->response($result);
@@ -738,8 +737,7 @@ class Api
                 // check ownership
                 $this->requireUserID($collection->getOwner());
 
-                // update item
-                $this->response(['updated' => $item->update($this->data)]);
+                $this->responseOperation('updated', $item->update($this->data));
                 break;
 
             case 'DELETE':
@@ -753,7 +751,7 @@ class Api
                 // check ownership
                 $this->requireUserID($item->getOwner());
 
-                $this->response(['deleted' => $item->delete()]);
+                $this->responseOperation('deleted', $item->delete());
                 break;
 
             default:
@@ -832,7 +830,7 @@ class Api
                     $this->error(403);
                 }
 
-                $this->response(['updated' => $loan->update($this->data)]);
+                $this->responseOperation('updated', $loan->update($this->data));
                 break;
 
             case 'DELETE':
@@ -841,7 +839,7 @@ class Api
                     $this->error(403);
                 }
 
-                $this->response(['deleted' => $loan->delete()]);
+                $this->responseOperation('deleted', $loan->delete());
                 break;
 
             default:
@@ -867,7 +865,7 @@ class Api
                 // get collection templates
                 $templates = CollectionTemplate::dumpAll();
                 if ($templates === false) {
-                    $this->error(500);
+                    $this->error();
                 }
 
                 $this->response($templates);
@@ -899,11 +897,7 @@ class Api
                 $this->requireUserID($collection->getOwner());
 
                 $this->requireData(['name']);
-
-                if (!$collection->addProperty($this->data['name'], $this->data)) {
-                    $this->error(500);
-                }
-                $this->response(['updated' => true]);
+                $this->responseOperation('updated', $collection->addProperty($this->data['name'], $this->data));
                 break;
 
             default:
@@ -941,10 +935,7 @@ class Api
                 // check ownership
                 $this->requireUserID($collection->getOwner());
 
-                if (!$property->update($this->data)) {
-                    $this->error(500);
-                }
-                $this->response(['updated' => true]);
+                $this->responseOperation('updated', $property->update($this->data));
                 break;
 
             case 'DELETE':
@@ -958,10 +949,7 @@ class Api
                 // check ownership
                 $this->requireUserID($collection->getOwner());
 
-                if (!$property->delete()) {
-                    $this->error(500);
-                }
-                $this->response(['deleted' => true]);
+                $this->responseOperation('deleted', $property->delete());
                 break;
 
             default:
@@ -1001,7 +989,7 @@ class Api
         $url = Storage::download($this->data['url']);
         if (!$url) {
             Logger::error("API call: ".$this->route." error when downloading file");
-            $this->error(500);
+            $this->error();
         }
 
         $this->response(['url' => $url]);
@@ -1026,7 +1014,7 @@ class Api
         $url = Storage::moveUploadedFile();
         if (!$url) {
             Logger::error("API call: ".$this->route." error when storing file");
-            $this->error(500);
+            $this->error();
         }
 
         $this->response(['url' => $url]);
@@ -1043,7 +1031,7 @@ class Api
         // get collections
         $collections = Collection::dumpAll($GLOBALS['currentUserID']);
         if ($collections === false) {
-            $this->error(500);
+            $this->error();
         }
 
         $this->response($collections);
@@ -1281,6 +1269,23 @@ class Api
         Logger::debug('Exit code '.$code.': '.$details);
 
         exit($exitcode);
+    }
+
+
+    /**
+     * Returns a short response for operations
+     *
+     * @param string $tag
+     * @param bool   $success
+     * @return void
+     */
+    private function responseOperation($tag, $success)
+    {
+        if (!$success) {
+            $this->error();
+        }
+
+        $this->response([$tag => true]);
     }
 
 
