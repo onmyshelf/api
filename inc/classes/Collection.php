@@ -269,7 +269,8 @@ class Collection
      * @param str $filter   Value to filter
      * @return Bool
      */
-    protected function filterProperty($name, $value, $filter) : Bool {
+    protected function filterProperty($name, $value, $filter) : Bool
+    {
         switch ($this->properties[$name]['type']) {
             case 'yesno':
                 # convert to boolean

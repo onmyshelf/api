@@ -11,7 +11,8 @@ class Database extends SqlDatabase
      * Upgrade procedure for v1.1.0
      * @return bool Success
      */
-    protected function upgrade_v110() {
+    protected function upgrade_v110()
+    {
         // add created/updated columns
         foreach (['collection', 'item'] as $table) {
             $sql = "ALTER TABLE `$table`

@@ -1093,13 +1093,14 @@ abstract class SqlDatabase extends GlobalDatabase
 
     /**
      * Insert notification
+     * @param string $userId
      * @param string $type
      * @param string $text
      * @return bool  Success
      */
-    public function addNotification($type, $text)
+    public function addNotification($userId, $type, $text)
     {
-        return $this->insertOne('notification', ['type' => $type, 'text' => $text]);
+        return $this->insertOne('notification', ['userId' => $userId, 'type' => $type, 'text' => $text]);
     }
 
 

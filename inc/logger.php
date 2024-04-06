@@ -11,7 +11,8 @@ if (!defined('LOGFILE'))
 if (!defined('LOGGER_LEVEL'))
     define('LOGGER_LEVEL', 'INFO');
 
-class Logger {
+class Logger
+{
   private static function write($text)
   {
     try {
@@ -28,7 +29,8 @@ class Logger {
    * @param  string $context Context (append at the end)
    * @return void
    */
-  public static function message($message, $prefix='', $context='', $level='') {
+  public static function message($message, $prefix='', $context='', $level='')
+  {
 
     // if level is defined,
     if ($level != '') {
@@ -86,7 +88,8 @@ class Logger {
    * @param  string $context Context (optionnal)
    * @return void
    */
-  public static function debug($message, $context='') {
+  public static function debug($message, $context='')
+  {
     self::message($message, 'DEBUG', $context, 'DEBUG');
   }
 
@@ -97,7 +100,8 @@ class Logger {
    * @param  string $context Context (optionnal)
    * @return void
    */
-  public static function info($message, $context='') {
+  public static function info($message, $context='')
+  {
     self::message($message, 'INFO', $context, 'INFO');
   }
 
@@ -108,7 +112,8 @@ class Logger {
    * @param  string $context Context (optionnal)
    * @return void
    */
-  public static function warn($message, $context='') {
+  public static function warn($message, $context='')
+  {
     self::message($message, 'WARNING', $context, 'WARN');
   }
 
@@ -119,7 +124,8 @@ class Logger {
    * @param  string $context Context (optionnal)
    * @return void
    */
-  public static function error($message, $context='') {
+  public static function error($message, $context='')
+  {
     self::message($message, 'ERROR', $context, 'ERROR');
   }
 
@@ -130,7 +136,8 @@ class Logger {
    * @param  string $context Context (optionnal)
    * @return void
    */
-  public static function fatal($message, $context='') {
+  public static function fatal($message, $context='')
+  {
     self::message($message, 'FATAL', $context, 'FATAL');
   }
 }

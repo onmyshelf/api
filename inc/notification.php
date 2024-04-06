@@ -6,10 +6,14 @@ class Notification
      * Save notification
      * @param  string $text
      * @param  string $type (optionnal)
+     * @param  string $userId (optionnal)
      * @return void
      */
-    public static function notify(string $text, $type='INFO')
+    public static function notify($text, $type='INFO', $userId=null)
     {
-        (new Database)->addNotification($type, $text);
+        if (is_null($userId))
+            $userId = $GLOBALS['currentUserID'];
+
+        return (new Database)->addNotification($userId, $type, $text);
     }
 }
