@@ -1159,6 +1159,17 @@ abstract class SqlDatabase extends GlobalDatabase
 
 
     /**
+     * Get user by id
+     * @param  string $id
+     * @return array  Result
+     */
+    public function getUserById($id)
+    {
+        return $this->selectFirst("SELECT * FROM `user` WHERE `id`=?", [$id]);
+    }
+
+
+    /**
      * Get user by username
      * @param  string $username
      * @return array  Result
@@ -1243,6 +1254,29 @@ abstract class SqlDatabase extends GlobalDatabase
             ['password' => password_hash($password, PASSWORD_BCRYPT)],
             ['id' => $userId]
         );
+    }
+
+
+    /**
+     * Update user profile
+     * @param  int    $id
+     * @param  array  $data
+     * @return bool   Success
+     */
+    public function updateUser($id, $data)
+    {
+        return $this->update('user', $data, ['id' => $id]);
+    }
+
+
+    /**
+     * Delete user
+     * @param  int    $id
+     * @return bool   Success
+     */
+    public function deleteUser($id)
+    {
+        return $this->delete('user', ['id' => $id]);
     }
 
 

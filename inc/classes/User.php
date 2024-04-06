@@ -4,7 +4,9 @@ class User
 {
     protected $id;
     protected $username;
+    protected $enabled;
     protected $email;
+    protected $avatar;
 
     public function __construct($data)
     {
@@ -34,6 +36,22 @@ class User
     public function getUsername()
     {
         return $this->username;
+    }
+
+
+    /**
+     * Dump user
+     * @return array User
+     */
+    public function dump()
+    {
+        return [
+            'id' => $this->id,
+            'username' => $this->username,
+            'enabled' => $this->enabled,
+            'email' => $this->email,
+            'avatar' => $this->avatar,
+        ];
     }
 
 
@@ -108,9 +126,71 @@ class User
     }
 
 
+    /**
+     * Update user profile
+     * @param  array   $data
+     * @return boolean
+     */
+    public function update($data)
+    {
+        // remove non allowed data
+        $allowed = get_object_vars($this);
+        unset($allowed['id']);
+        unset($allowed['username']);
+
+        // filter data to update
+        $allowed = array_keys($allowed);
+        foreach (array_keys($data) as $key) {
+            if (!in_array($key, $allowed)) {
+                unset($data[$key]);
+            }
+        }
+
+        // update user in database
+        return (new Database)->updateUser($this->id, $data);
+    }
+
+
+    /**
+     * Delete user
+     * @return bool Success
+     */
+    public function delete()
+    {
+        return (new Database)->deleteUser($this->id);
+    }
+
+
     /*
      *  Static methods
      */
+
+    /**
+     * Get all users
+     *
+     * @return array
+     */
+    public static function dumpAll()
+    {
+        return (new Database)->getUsers();
+    }
+
+
+    /**
+     * Get user object by ID
+     * @param  int    $id
+     * @return object User object
+     */
+    public static function getById($id)
+    {
+        $data = (new Database)->getUserById($id);
+        if (!$data) {
+            return false;
+        }
+
+        return new self($data);
+    }
+
 
     /**
      * Get user object by name
