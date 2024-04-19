@@ -805,9 +805,15 @@ abstract class SqlDatabase extends GlobalDatabase
         $values = [];
         foreach ($value as $v) {
             // value null or empty: do nothing
-            if (is_null($v) || $v == '') {
+            if ($v === null || $v === '') {
                 continue;
             }
+
+            // false value: convert to 0 to avoid empty values
+            if ($v === false) {
+                $v = 0;
+            }
+
             $values[] = $v;
         }
 
