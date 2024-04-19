@@ -175,10 +175,6 @@ class Api
             return $user;
         }
 
-        // login failed
-
-        // add some latency to avoid bruteforce
-        sleep(2);
         $this->error(401, 'Authentication failed');
     }
 
@@ -644,7 +640,7 @@ class Api
             $this->error(404, 'Collection does not exists');
         }
 
-        // forbidden if not owner
+        // get access rights
         $this->compareUserID($collection->getOwner());
 
         switch ($this->method) {
@@ -732,6 +728,8 @@ class Api
         if (!$collection) {
             $this->error(404, 'Collection does not exists');
         }
+
+        // get access rights
         $this->compareUserID($collection->getOwner());
 
         // get item object
@@ -1050,6 +1048,15 @@ class Api
                     $this->error(403);
                 }
 
+                // check admin password
+                $this->requireData(['password']);
+                $this->login($GLOBALS['currentUsername'], $this->data['password']);
+                unset($this->data['password']);
+
+                // get new user password
+                $this->data['password'] = $this->data['newPassword'];
+                unset($this->data['newPassword']);
+
                 $this->responseOperation('created', User::create($this->data));
                 break;
 
@@ -1090,6 +1097,12 @@ class Api
                 $this->requireData(['password']);
                 $this->login($GLOBALS['currentUsername'], $this->data['password']);
                 unset($this->data['password']);
+                
+                // if new password set, change field name
+                if (isset($this->data['newPassword'])) {
+                    $this->data['password'] = $this->data['newPassword'];
+                    unset($this->data['newPassword']);
+                }
 
                 // prevent user from disabling himself
                 if ($this->compareUserID($this->args['uid'])) {

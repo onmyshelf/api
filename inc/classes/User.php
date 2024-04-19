@@ -239,4 +239,39 @@ class User
 
         return new self($data);
     }
+
+
+    /**
+     * Create user
+     * @param  array $data
+     * @return int   User ID, FALSE if error
+     */
+    public static function create($data)
+    {
+        // defines allowed data fields
+        $allowed = [
+            'username',
+            'password',
+            'enabled',
+            'email',
+            'avatar',
+        ];
+
+        // remove non allowed data
+        foreach (array_keys($data) as $key) {
+            if (!in_array($key, $allowed)) {
+                unset($data[$key]);
+            }
+        }
+
+        // creates user in database
+        $id = (new Database)->createUser($data);
+        if (!$id) {
+            Logger::error("Failed to create user");
+            return false;
+        }
+
+        $data['id'] = $id;
+        return new self($data);
+    }
 }
