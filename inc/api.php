@@ -170,7 +170,7 @@ class Api
      */
     private function login($user, $password)
     {
-        $user = User::getByLogin($user, base64_decode($password));
+        $user = User::getByLogin($user, $password);
         if ($user) {
             return $user;
         }
@@ -1165,7 +1165,7 @@ class Api
         }
 
         // check data
-        $this->requireData(['password', 'newpassword']);
+        $this->requireData(['password', 'newPassword']);
 
         // check user ID
         $this->requireUserID((int)$this->args['uid']);
@@ -1174,7 +1174,7 @@ class Api
         $user = $this->login($GLOBALS['currentUsername'], $this->data['password']);
 
         // change password and return result
-        $this->responseOperation('changed', $user->setPassword(base64_decode($this->data['newpassword'])));
+        $this->responseOperation('changed', $user->setPassword($this->data['newPassword']));
     }
 
 
@@ -1213,7 +1213,7 @@ class Api
         }
 
         // ask for password reset
-        $this->requireData(['newpassword']);
+        $this->requireData(['newPassword']);
 
         // clean expired tokens
         (new Database)->cleanupTokens();
@@ -1225,7 +1225,7 @@ class Api
         }
 
         // reset password
-        if (!$user->setPassword(base64_decode($this->data['newpassword']))) {
+        if (!$user->setPassword($this->data['newPassword'])) {
             $this->error();
         }
 
