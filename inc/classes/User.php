@@ -62,7 +62,7 @@ class User
      */
     public function setPassword(string $password)
     {
-        return (new Database)->setUserPassword($this->id, $password);
+        return (new Database)->updateUser($this->id, ['password' => $password]);
     }
 
 

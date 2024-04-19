@@ -74,7 +74,7 @@ class Cmd
             // create default user
             if (!$db->getUserByName("onmyshelf")) {
                 echo "\nCreate default user...";
-                if (!$db->createUser('onmyshelf', 'onmyshelf')) {
+                if (!$db->createUser(['username' => 'onmyshelf', 'password' => 'onmyshelf'])) {
                     echo " FAILED! (see log file for more details)\n";
                     exit(1);
                 }

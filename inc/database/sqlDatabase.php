@@ -1230,30 +1230,13 @@ abstract class SqlDatabase extends GlobalDatabase
 
     /**
      * Create user
-     * @param  string $username
-     * @param  string $password
+     * @param  array $data
      * @return bool   Success
      */
-    public function createUser($username, $password)
+    public function createUser($data)
     {
-        return $this->insertOne('user',
-            ['username' => $username, 'password' => password_hash($password, PASSWORD_BCRYPT)]
-        );
-    }
-
-
-    /**
-     * Set user password
-     * @param  int    $userId
-     * @param  string $password
-     * @return bool   Success
-     */
-    public function setUserPassword($userId, $password)
-    {
-        return $this->update('user',
-            ['password' => password_hash($password, PASSWORD_BCRYPT)],
-            ['id' => $userId]
-        );
+        $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
+        return $this->insertOne('user', $data);
     }
 
 
@@ -1265,6 +1248,9 @@ abstract class SqlDatabase extends GlobalDatabase
      */
     public function updateUser($id, $data)
     {
+        if (isset($data['password'])) {
+            $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
+        }
         return $this->update('user', $data, ['id' => $id]);
     }
 

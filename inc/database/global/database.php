@@ -124,8 +124,7 @@ abstract class GlobalDatabase
     abstract public function getUserByName($username);
     abstract public function getUserByLogin($username, $password);
     abstract public function getUserByToken($token, $type);
-    abstract public function createUser($username, $password);
-    abstract public function setUserPassword($userId, $password);
+    abstract public function createUser($data);
     abstract public function updateUser($id, $data);
     abstract public function deleteUser($id);
 

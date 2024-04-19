@@ -365,20 +365,14 @@ class Api
                     $this->error(403);
                 }
 
+                // remove forbidden config
+                unset($this->data['version']);
+
                 $success = true;
 
                 foreach ($this->data as $param => $value) {
-                    // forbidden params
-                    switch ($param) {
-                      case 'version':
-                        // do nothing
-                        break;
-
-                      default:
-                        if (!Config::set($param, $value)) {
-                            $success = false;
-                        }
-                        break;
+                    if (!Config::set($param, $value)) {
+                        $success = false;
                     }
                 }
 
