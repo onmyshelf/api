@@ -146,6 +146,11 @@ class User
             }
         }
 
+        // disabled: revoke tokens
+        if (isset($data['enabled']) && !$data['enabled']) {
+            (new Database)->deleteUserTokens($this->id);
+        }
+
         // update user in database
         return (new Database)->updateUser($this->id, $data);
     }
@@ -157,6 +162,9 @@ class User
      */
     public function delete()
     {
+        // revoke tokens
+        (new Database)->deleteUserTokens($this->id);
+
         return (new Database)->deleteUser($this->id);
     }
 

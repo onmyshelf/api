@@ -61,6 +61,17 @@ abstract class SqlDatabase extends GlobalDatabase
 
 
     /**
+     * Delete all user's tokens
+     * @param  int  $userId
+     * @return boolean Success
+     */
+    public function deleteUserTokens($userId)
+    {
+        return $this->delete('token', ['userId' => $userId]);
+    }
+
+
+    /**
      * Clean expired tokens
      * @return bool Success
      */
@@ -1188,7 +1199,7 @@ abstract class SqlDatabase extends GlobalDatabase
      */
     public function getUserByLogin($username, $password)
     {
-        $user = $this->selectFirst("SELECT * FROM `user` WHERE `username`=?",
+        $user = $this->selectFirst("SELECT * FROM `user` WHERE `username`=? AND `enabled`=1",
                                    [$username]);
         if (!$user) {
             return false;
@@ -1236,6 +1247,16 @@ abstract class SqlDatabase extends GlobalDatabase
     public function createUser($data)
     {
         $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
+
+        // convert boolean
+        if (isset($data['enabled'])) {
+            if ($data['enabled']) {
+                $data['enabled'] = 1;
+            } else {
+                $data['enabled'] = 0;
+            }
+        }
+
         return $this->insertOne('user', $data);
     }
 
@@ -1251,6 +1272,16 @@ abstract class SqlDatabase extends GlobalDatabase
         if (isset($data['password'])) {
             $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
         }
+
+        // convert boolean
+        if (isset($data['enabled'])) {
+            if ($data['enabled']) {
+                $data['enabled'] = 1;
+            } else {
+                $data['enabled'] = 0;
+            }
+        }
+
         return $this->update('user', $data, ['id' => $id]);
     }
 
