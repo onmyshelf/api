@@ -1048,11 +1048,6 @@ class Api
                     $this->error(403);
                 }
 
-                // check admin password
-                $this->requireData(['password']);
-                $this->login($GLOBALS['currentUsername'], $this->data['password']);
-                unset($this->data['password']);
-
                 // get new user password
                 $this->data['password'] = $this->data['newPassword'];
                 unset($this->data['newPassword']);
@@ -1093,11 +1088,6 @@ class Api
                     $this->error(403);
                 }
 
-                // check user password
-                $this->requireData(['password']);
-                $this->login($GLOBALS['currentUsername'], $this->data['password']);
-                unset($this->data['password']);
-                
                 // if new password set, change field name
                 if (isset($this->data['newPassword'])) {
                     $this->data['password'] = $this->data['newPassword'];
@@ -1124,11 +1114,6 @@ class Api
                 if ($this->compareUserID($this->args['uid'])) {
                     $this->error(403, "You cannot delete your own account!");
                 }
-
-                // check user password
-                $this->requireData(['password']);
-                $this->login($GLOBALS['currentUsername'], $this->data['password']);
-                unset($this->data['password']);
 
                 $this->responseOperation('deleted', $user->delete());
                 break;
