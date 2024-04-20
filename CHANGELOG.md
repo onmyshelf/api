@@ -1,5 +1,13 @@
 # Changelog for OnMyShelf API
 
+# 1.2.0 BETA 1 (2024-04-20)
+## New features
+- New users management routes
+- Add email support (using PHPMailer)
+- User reset password is sent by email
+## Bugfixes
+- Fixed bug in storage class when using download method
+
 # 1.1.1 (2024-04-01)
 - Fix bug when setting multiple parameter in a property
 
