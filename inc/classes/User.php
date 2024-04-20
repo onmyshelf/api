@@ -170,6 +170,14 @@ class User
         // revoke tokens
         (new Database)->deleteUserTokens($this->id);
 
+        // delete user's collections
+        foreach (Collection::dumpAll($this->id) as $c) {
+            $collection = Collection::getById($c['id']);
+            if ($collection) {
+                $collection->delete();
+            }
+        }
+        
         return (new Database)->deleteUser($this->id);
     }
 
