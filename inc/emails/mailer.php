@@ -66,7 +66,7 @@ class Mailer
         $mail->Body = $message . self::footer();
 
         // text-only email: preserve end of lines
-        $message = preg_replace(["<br\s*/>", "<p>"], ["\n", "\n<p>"], $message);
+        $message = preg_replace(["<br\s*/>", "</p>"], ["\n", "\n</p>"], $message);
         $mail->AltBody = strip_tags($message);
 
         // send email
