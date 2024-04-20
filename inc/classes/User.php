@@ -119,8 +119,13 @@ class User
         Logger::message("****************************************************");
 
         // send reset URL to user
-        if ($this->email)
-            Mailer::send($this->email, "To reset your password, please click on this link: <a href='$reset_url'>$reset_url</a>", 'Your reset password request');
+        if ($this->email) {
+            Mailer::send(
+                $this->email,
+                "<p>Dear ".$this->username.",</p>To reset your password, please click on this link:<br /><a href='$reset_url'>$reset_url</a>",
+                "Your reset password request"
+            );
+        }
 
         return true;
     }

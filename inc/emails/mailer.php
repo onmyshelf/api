@@ -65,9 +65,8 @@ class Mailer
         $mail->Subject = "[OnMyShelf] $subject";
         $mail->Body = $message . self::footer();
 
-        // text-only email: preserve end of lines
-        $message = preg_replace(["<br\s*/>", "</p>"], ["\n", "\n</p>"], $message);
-        $mail->AltBody = strip_tags($message);
+        // text-only email: preserve end of lines but deletes HTML tags
+        $mail->AltBody = strip_tags(preg_replace(["<br\s*/>", "<p>", "</p>"], ["\n", "\n", "\n"], $message));
 
         // send email
         try {
