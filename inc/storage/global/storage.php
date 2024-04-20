@@ -19,7 +19,7 @@ abstract class GlobalStorage
             return $url;
         }
 
-        return self::copy($url);
+        return Storage::copy($url);
     }
 
     abstract public static function moveUploadedFile($field);
