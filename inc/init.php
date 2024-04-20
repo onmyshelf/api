@@ -10,7 +10,7 @@ require_once('config.php');
 
 // load utils
 require_once('logger.php');
-require_once('mailer.php');
+require_once('emails/mailer.php');
 require_once('notification.php');
 
 // check database type (security)
