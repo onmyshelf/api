@@ -28,6 +28,7 @@ class Api
             '/' => 'Home',
             '/collections' => 'Collections',
             '/collections/{id}' => 'CollectionsId',
+            '/collections/{id}/export' => 'CollectionsIdExport',
             '/collections/{id}/import' => 'CollectionsIdImport',
             '/collections/{id}/import/search' => 'CollectionsIdImportSearch',
             '/collections/{id}/import/data' => 'CollectionsIdImportData',
@@ -517,6 +518,29 @@ class Api
                 $this->response($collection->dump());
                 break;
         }
+    }
+
+
+    private function routeCollectionsIdExport()
+    {
+        // forbidden in read only mode
+        if (READ_ONLY) {
+            $this->error(403);
+        }
+
+        $this->post = true;
+        $this->requireArgs(['id']);
+
+        $collection = Collection::getById($this->args['id']);
+        if ($collection === false) {
+            Logger::error("collection not found: ".$this->args['id']);
+            $this->error(404, 'Collection not found');
+        }
+
+        // only current user can export collection
+        $this->requireUserID($collection->getOwner());
+
+        $this->response($collection->export());
     }
 
 

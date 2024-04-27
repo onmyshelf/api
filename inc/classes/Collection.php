@@ -262,6 +262,37 @@ class Collection
 
 
     /**
+     * Export collection
+     * @return array Collection dumped
+     */
+    public function export()
+    {
+        $result = $this->dump();
+
+        // get items
+        $items = $this->getItems();
+        if (!$items) {
+            $items = [];
+        }
+
+        $result['items'] = [];
+
+        // parse items
+        foreach ($items as $itemId) {
+            $item = Item::getById($itemId, $this->id);
+            if (!$item) {
+                continue;
+            }
+
+            // dump item
+            $result['items'][] = $item->dump();
+        }
+
+        return $result;
+    }
+
+
+    /**
      * Filter item by property
      *
      * @param str $name     Name of property
