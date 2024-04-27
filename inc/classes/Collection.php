@@ -284,8 +284,13 @@ class Collection
                 continue;
             }
 
+            $itemDump = $item->dump();
+
+            // get loans
+            $itemDump['loans'] = $item->getLoans();
+
             // dump item
-            $result['items'][] = $item->dump();
+            $result['items'][] = $itemDump;
         }
 
         return $result;
