@@ -1,19 +1,20 @@
 # Changelog for OnMyShelf API
 
-# 1.2.0 RC 1 (2024-04-27)
+# 1.2.0 (2024-04-27)
 ## New features
 - New export collection route
+- New board_game collection template
 
 # 1.2.0 BETA 1 (2024-04-20)
 ## New features
 - New users management routes
-- Add email support (using PHPMailer)
+- Added email support (using PHPMailer)
 - User reset password is sent by email
 ## Bugfixes
 - Fixed bug in storage class when using download method
 
 # 1.1.1 (2024-04-01)
-- Fix bug when setting multiple parameter in a property
+- Fixed bug when setting multiple parameter in a property
 
 # 1.1.0 (2024-03-16)
 ## New features
