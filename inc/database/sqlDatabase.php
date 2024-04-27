@@ -1373,29 +1373,34 @@ abstract class SqlDatabase extends GlobalDatabase
      */
     public function init()
     {
-        // initialize default collection templates from JSON file
-        $json = file_get_contents(__DIR__.'/init/collectionTemplates.json');
-        if (!$json) {
-            Logger::error("Failed to load collection templates from JSON definition!");
-            return false;
-        }
+        $models = glob(__DIR__.'/init/collectionTemplates/*.json');
+        foreach ($models as $model) {
+            Logger::debug("Initialize collection template from: $model");
 
-        // open json
-        $templates = json_decode($json, true);
-        foreach ($templates as $template) {
-            // merge properties
-            foreach ($template['properties'] as $name => $property) {
-                $template['properties'][$name] = array_merge(Property::guessConfigFromName($name), $property);
+            // initialize default collection templates from JSON file
+            $json = file_get_contents($model);
+            if (!$json) {
+                Logger::error("Failed to load collection templates from JSON definition!");
+                return false;
             }
 
-            // get template ID (if exists)
-            $templateId = $this->selectOne("SELECT `id` FROM `collection` WHERE `template`=1 AND `type`=?",
-                                                    [$template['type']]);
+            // open json
+            $templates = json_decode($json, true);
+            foreach ($templates as $template) {
+                // merge properties
+                foreach ($template['properties'] as $name => $property) {
+                    $template['properties'][$name] = array_merge(Property::guessConfigFromName($name), $property);
+                }
 
-            if ($templateId) {
-                $this->updateCollectionTemplate($templateId, $template);
-            } else {
-                $this->createCollectionTemplate($template);
+                // get template ID (if exists)
+                $templateId = $this->selectOne("SELECT `id` FROM `collection` WHERE `template`=1 AND `type`=?",
+                                                        [$template['type']]);
+
+                if ($templateId) {
+                    $this->updateCollectionTemplate($templateId, $template);
+                } else {
+                    $this->createCollectionTemplate($template);
+                }
             }
         }
 

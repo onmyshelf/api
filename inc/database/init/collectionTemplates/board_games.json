@@ -1,0 +1,32 @@
+[
+  {
+    "type": "board_games",
+    "name": {
+      "en_US": "Board games",
+      "fr_FR": "Jeux de société"
+    },
+    "properties": {
+      "name": {},
+      "image": {},
+      "images": {},
+      "language": {},
+      "age": {},
+      "author": {},
+      "illustrator": {
+        "label": {
+          "en_US": "Illustrator",
+          "fr_FR": "Illustrateur"
+        },
+        "filterable": true
+      },
+      "editor": {},
+      "mechanism": {
+        "label": {
+          "en_US": "Mechanism",
+          "fr_FR": "Mécanisme"
+        },
+        "filterable": true
+      }
+    }
+  }
+]

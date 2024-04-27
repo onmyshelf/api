@@ -168,6 +168,7 @@ class Property
             
             case 'editor':
                 $config['label']['fr_FR'] = "Éditeur$plural";
+                $config['filterable'] = true;
                 break;
 
             case 'genre':
@@ -188,6 +189,15 @@ class Property
 
             case 'language':
                 $config['label']['fr_FR'] = "Langue$plural";
+                $config['filterable'] = true;
+                break;
+
+            case 'name':
+                $config['label'] = [
+                    "en_US" => "Name$plural",
+                    "fr_FR" => "Nom$plural",
+                ];
+                $config['isTitle'] = true;
                 break;
 
             case 'picture':
@@ -243,10 +253,6 @@ class Property
                 $config['isTitle'] = true;
                 break;
 
-            case 'trailer':
-                $config['type'] = 'video';
-                break;
-            
             case 'year':
                 $config['label']['fr_FR'] = "Année$plural";
                 $config['sortable'] = true;

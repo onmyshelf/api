@@ -17,7 +17,6 @@
       },
       "editor": {
         "preview": true,
-        "filterable": true,
         "order": 9
       },
       "series": {
@@ -76,7 +75,6 @@
         "order": 2
       },
       "language": {
-        "filterable": true,
         "order": 1
       },
       "isbn": {
@@ -104,24 +102,6 @@
         "visibility": 3,
         "hidden": true
       }
-    }
-  },
-  {
-    "type": "movies",
-    "name": {
-      "en_US": "Movies",
-      "fr_FR": "Films"
-    },
-    "properties": {
-      "title": {},
-      "cover": {},
-      "director": {
-        "label": {
-          "en_US": "Director",
-          "fr_FR": "Réalisateur"
-        }
-      },
-      "format": {}
     }
   }
 ]
