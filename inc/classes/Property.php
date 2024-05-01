@@ -126,10 +126,12 @@ class Property
      */
     public static function guessConfigFromName($name)
     {
+        // default type is text
+        // default label in english is the name with first 
         $config = [
             "type" => "text",
             "label" => [
-                "en_US" => ucfirst($name),
+                "en_US" => ucfirst(preg_replace('/_/', ' ', $name)),
             ],
         ];
 
@@ -158,11 +160,8 @@ class Property
 
             case 'cover':
                 $config['type'] = 'image';
-                $config['label'] = [
-                    "en_US" => "Cover$plural",
-                    "fr_FR" => "Couverture$plural",
-                ];
-                // do not consider coverS as a cover
+                $config['label']['fr_FR'] = "Couverture$plural";
+                // do not consider multiple covers as the main cover
                 $config['isCover'] = ($plural == '');
                 break;
             
@@ -171,7 +170,9 @@ class Property
                 $config['filterable'] = true;
                 break;
 
+            case 'format':
             case 'genre':
+            case 'type':
                 $config['filterable'] = true;
                 break;
 
@@ -183,7 +184,7 @@ class Property
             case 'image':
             case 'poster':
                 $config['type'] = 'image';
-                // do not consider images as a main image
+                // do not consider multiple images as the main image
                 $config['isCover'] = ($plural == '');
                 break;
 
@@ -193,17 +194,14 @@ class Property
                 break;
 
             case 'name':
-                $config['label'] = [
-                    "en_US" => "Name$plural",
-                    "fr_FR" => "Nom$plural",
-                ];
+                $config['label']['fr_FR'] = "Nom$plural";
                 $config['isTitle'] = true;
                 break;
 
             case 'picture':
                 $config['type'] = 'image';
                 $config['label']['fr_FR'] = "Image$plural";
-                // do not consider pictures as a main image
+                // do not consider pictures as the main image
                 $config['isCover'] = ($plural == '');
                 break;
 
@@ -228,11 +226,8 @@ class Property
                 break;
 
             case 'subtitle':
-                $config['label'] = [
-                    "en_US" => "Subtitle$plural",
-                    "fr_FR" => "Sous-titre$plural",
-                ];
-                // do not consider subtitleS as a subtitle
+                $config['label']['fr_FR'] = "Sous-titre$plural";
+                // do not consider subtitleS as the main sub-title
                 $config['isSubTitle'] = ($plural == '');
                 break;
 
@@ -246,10 +241,7 @@ class Property
                 break;
 
             case 'title':
-                $config['label'] = [
-                    "en_US" => "Title$plural",
-                    "fr_FR" => "Titre$plural",
-                ];
+                $config['label']['fr_FR'] = "Titre$plural";
                 $config['isTitle'] = true;
                 break;
 

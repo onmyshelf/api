@@ -14,7 +14,6 @@
       "author": {},
       "illustrator": {
         "label": {
-          "en_US": "Illustrator",
           "fr_FR": "Illustrateur"
         },
         "filterable": true
@@ -22,7 +21,6 @@
       "editor": {},
       "mechanism": {
         "label": {
-          "en_US": "Mechanism",
           "fr_FR": "Mécanisme"
         },
         "filterable": true

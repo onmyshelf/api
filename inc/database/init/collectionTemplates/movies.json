@@ -10,14 +10,12 @@
       "cover": {},
       "director": {
         "label": {
-          "en_US": "Director",
           "fr_FR": "Réalisateur"
         }
       },
       "rating": {
         "type": "rating",
         "label": {
-          "en_US": "Rating",
           "fr_FR": "Note"
         }
       },
@@ -25,14 +23,12 @@
       "synopsis": {
         "type": "longtext",
         "label": {
-          "en_US": "Synopsis",
           "fr_FR": "Résumé"
         }
       },
       "trailer": {
         "type": "video",
         "label": {
-          "en_US": "Trailer",
           "fr_FR": "Bande-annonce"
         }
       }
