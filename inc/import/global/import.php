@@ -214,6 +214,15 @@ abstract class GlobalImport
                     continue;
                 }
 
+                // trim value
+                if (is_string($v)) {
+                    $v = trim($v);
+                    // if value is an empty string, ignore it
+                    if ($v == '') {
+                        continue;
+                    }
+                }
+
                 // create property if not already imported
                 if (in_array($key, $this->importedProperties) === false) {
                     // check if property is already defined in collection
