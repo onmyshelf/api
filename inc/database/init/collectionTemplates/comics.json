@@ -1,0 +1,37 @@
+[
+  {
+    "type": "comics",
+    "name": {
+      "en_US": "Comics",
+      "fr_FR": "Bandes dessinées"
+    },
+    "properties": {
+      "title": {},
+      "cover": {},
+      "series": {
+        "label": {
+          "fr_FR": "Série"
+        },
+        "preview": true,
+        "filterable": true,
+        "searchable": true,
+        "order": 8
+      },
+      "series_number": {
+        "type": "number",
+        "label": {
+          "fr_FR": "Tome"
+        },
+        "preview": true,
+        "order": 7
+      },
+      "writer": {
+        "label": {
+          "fr_FR": "Auteur"
+        }
+      },
+      "format": {},
+      "synopsis": {}
+    }
+  }
+]
