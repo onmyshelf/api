@@ -66,7 +66,7 @@ abstract class HtmlImport extends GlobalImport
             return null;
         }
 
-        return html_entity_decode(trim(strip_tags($dom->innertext)));
+        return preg_replace('/\s+', ' ', html_entity_decode(strip_tags($dom->innertext)));
     }
 
 
