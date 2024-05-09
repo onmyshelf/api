@@ -171,9 +171,11 @@ class Api
      */
     private function login($user, $password)
     {
-        $user = User::getByLogin($user, $password);
-        if ($user) {
-            return $user;
+        if (!is_null($password)) {
+            $user = User::getByLogin($user, $password);
+            if ($user) {
+                return $user;
+            }
         }
 
         $this->error(401, 'Authentication failed');
@@ -225,8 +227,7 @@ class Api
 
 
     /**
-     * Require user name
-     * @param  string $username
+     * Require user to be administrator
      * @return void
      */
     private function requireAdmin()
@@ -392,10 +393,10 @@ class Api
         }
 
         // check data
-        $this->requireData(['username', 'password']);
+        $this->requireData(['login', 'password']);
 
         // authentication
-        $user = $this->login($this->data['username'], $this->data['password']);
+        $user = $this->login($this->data['login'], $this->data['password']);
 
         // clean expired tokens
         (new Database)->cleanupTokens();
@@ -1214,13 +1215,13 @@ class Api
 
         // ask for a reset token
         if (!isset($this->data['resetToken'])) {
-            $this->requireData(['username']);
+            $this->requireData(['login']);
 
-            $user = User::getByName($this->data['username']);
+            $user = User::getByLogin($this->data['login']);
             if (!$user) {
-                Logger::warn('Reset password request for unknown username: '.$this->data['username']);
+                Logger::warn('Reset password request for unknown login: '.$this->data['login']);
 
-                // we send a positive feedback to avoid malicious guessing usernames
+                // we send a positive feedback to avoid malicious guessing logins
                 $this->response(['asked' => true]);
                 return;
             }

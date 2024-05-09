@@ -214,33 +214,27 @@ class User
 
 
     /**
-     * Get user object by name
-     * @param  string $username
-     * @return object User object
-     */
-    public static function getByName($username)
-    {
-        $data = (new Database)->getUserByName($username);
-        if (!$data) {
-            return false;
-        }
-
-        return new self($data);
-    }
-
-
-    /**
      * Get user object by login
-     * @param  string $username
-     * @param  string $password
+     * @param  string $login    Username or email
+     * @param  string $password (optional)
      * @return object User object
      */
-    public static function getByLogin($username, $password)
+    public static function getByLogin($login, $password = null)
     {
-        $data = (new Database)->getUserByLogin($username, $password);
+        $data = (new Database)->getUserByLogin($login);
         if (!$data) {
             return false;
         }
+
+        // check password
+        if (!is_null($password)) {
+            if (!password_verify($password, $data['password'])) {
+                return false;
+            }
+        }
+
+        // remove password
+        unset($data['password']);
 
         return new self($data);
     }

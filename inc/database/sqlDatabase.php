@@ -1187,36 +1187,14 @@ abstract class SqlDatabase extends GlobalDatabase
 
 
     /**
-     * Get user by username
-     * @param  string $username
-     * @return array  Result
-     */
-    public function getUserByName($username)
-    {
-        return $this->selectFirst("SELECT * FROM `user` WHERE `username`=?", [$username]);
-    }
-
-
-    /**
      * Get user by login
-     * @param  string $username
-     * @param  string $password
+     * @param  string $login Username or email
      * @return array Result
      */
-    public function getUserByLogin($username, $password)
+    public function getUserByLogin($login)
     {
-        $user = $this->selectFirst("SELECT * FROM `user` WHERE `username`=? AND `enabled`=1",
-                                   [$username]);
-        if (!$user) {
-            return false;
-        }
-
-        if (!password_verify($password, $user['password'])) {
-            return false;
-        }
-
-        // return user details without password
-        unset($user['password']);
+        $user = $this->selectFirst("SELECT * FROM `user` WHERE (`username`=? OR `email`=?) AND `enabled`=1",
+                                   [$login, $login]);
         return $user;
     }
 
