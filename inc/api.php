@@ -340,7 +340,7 @@ class Api
         ];
 
         // more information if logged in
-        if (isset($GLOBALS['currentToken'])) {
+        if (isset($GLOBALS['currentUsername']) && $GLOBALS['currentUsername'] == 'onmyshelf') {
             $info['version'] = VERSION;
         }
 
