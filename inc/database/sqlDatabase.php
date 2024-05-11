@@ -62,12 +62,19 @@ abstract class SqlDatabase extends GlobalDatabase
 
     /**
      * Delete all user's tokens
-     * @param  int  $userId
+     * @param  int    $userId
+     * @param  string $type (optional)
      * @return boolean Success
      */
-    public function deleteUserTokens($userId)
+    public function deleteUserTokens($userId, $type=null)
     {
-        return $this->delete('token', ['userId' => $userId]);
+        $filters = ['userId' => $userId];
+
+        if (!is_null($type)) {
+            $filters['type'] = $type;
+        }
+
+        return $this->delete('token', $filters);
     }
 
 

@@ -9,7 +9,7 @@ abstract class GlobalDatabase
     // authentication
     abstract public function createToken($token, $userId, $expiration, $ipOrigin, $type);
     abstract public function deleteToken($token);
-    abstract public function deleteUserTokens($userId);
+    abstract public function deleteUserTokens($userId, $type);
     abstract public function cleanupTokens();
 
     // config

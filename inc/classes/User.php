@@ -62,7 +62,15 @@ class User
      */
     public function setPassword(string $password)
     {
-        return (new Database)->updateUser($this->id, ['password' => $password]);
+        $result = (new Database)->updateUser($this->id, ['password' => $password]);
+        if (!$result) {
+            return false;
+        }
+
+        // revoke all reset password tokens
+        (new Database)->deleteUserTokens($this->id, 'resetpassword');
+
+        return $result;
     }
 
 
