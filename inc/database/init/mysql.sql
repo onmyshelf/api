@@ -7,9 +7,9 @@ SET NAMES utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `collection` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` varchar(255) DEFAULT NULL,
   `cover` varchar(255) DEFAULT NULL,
   `owner` int(11) NOT NULL,
-  `type` varchar(255) DEFAULT '',
   `template` tinyint(4) NOT NULL DEFAULT 0,
   `visibility` int(10) NOT NULL DEFAULT 3,
   `created` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -153,6 +153,8 @@ CREATE TABLE IF NOT EXISTS `user` (
   `password` varchar(255) NOT NULL,
   `enabled` tinyint(1) NOT NULL DEFAULT 1,
   `email` varchar(255) DEFAULT NULL,
+  `firstname` varchar(255) DEFAULT NULL,
+  `lastname` varchar(255) DEFAULT NULL,
   `avatar` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)

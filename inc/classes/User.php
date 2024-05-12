@@ -6,6 +6,8 @@ class User
     protected $username;
     protected $enabled;
     protected $email;
+    protected $firstname;
+    protected $lastname;
     protected $avatar;
 
     public function __construct($data)
@@ -45,13 +47,7 @@ class User
      */
     public function dump()
     {
-        return [
-            'id' => $this->id,
-            'username' => $this->username,
-            'enabled' => $this->enabled,
-            'email' => $this->email,
-            'avatar' => $this->avatar,
-        ];
+        return get_object_vars($this);
     }
 
 
@@ -277,6 +273,8 @@ class User
             'password',
             'enabled',
             'email',
+            'firstname',
+            'lastname',
             'avatar',
         ];
 
