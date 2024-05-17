@@ -62,6 +62,25 @@ class Database extends SqlDatabase
 
 
     /**
+     * Upgrade procedure for v1.3.0
+     * @return bool Success
+     */
+    protected function upgrade_v130()
+    {
+        // add new user columns
+        $sql = "ALTER TABLE `user`
+                ADD COLUMN IF NOT EXISTS `firstname` varchar(255) DEFAULT NULL AFTER `email`,
+                ADD COLUMN IF NOT EXISTS `lastname` varchar(255) DEFAULT NULL AFTER `firstname`";
+        if (!$this->execute($sql)) {
+            Logger::fatal("Upgrade v1.3.0: Failed to add user firstname/lastname columns");
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /**
      * Creates a prepared query, binds the given parameters and returns the result of the executed
      * @param  string $table    Table name
      * @param  array  $values   Array or arrays key => value
