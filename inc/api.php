@@ -227,16 +227,16 @@ class Api
 
 
     /**
-     * Require user to be administrator
+     * Test if user is administrator
      * @return void
      */
-    private function requireAdmin()
+    private function userIsAdmin()
     {
         if (isset($GLOBALS['currentUsername']) && !is_null($GLOBALS['currentUsername']) && $GLOBALS['currentUsername'] == 'onmyshelf') {
-            return;
+            return true;
         }
 
-        $this->error(403);
+        return false;
     }
 
 
@@ -351,8 +351,10 @@ class Api
 
     private function routeConfig()
     {
-        // requires to be the administrator
-        $this->requireAdmin();
+        // requires to be administrator
+        if (!$this->userIsAdmin()) {
+            $this->error(403);
+        }
 
         switch ($this->method) {
             case 'PATCH':
@@ -1062,7 +1064,9 @@ class Api
     private function routeUsers()
     {
         // requires to be administrator
-        $this->requireAdmin();
+        if (!$this->userIsAdmin()) {
+            $this->error(403);
+        }
 
         switch ($this->method) {
             case 'POST':
@@ -1096,7 +1100,9 @@ class Api
 
         // requires user to be himself or administrator
         if (!$this->compareUserID($this->args['uid'])) {
-            $this->requireAdmin();
+            if (!$this->userIsAdmin()) {
+                $this->error(403);
+            }
         }
 
         $user = User::getById($this->args['uid']);
@@ -1117,6 +1123,11 @@ class Api
                 if (isset($this->data['newPassword'])) {
                     $this->data['password'] = $this->data['newPassword'];
                     unset($this->data['newPassword']);
+                }
+
+                // secure fields only administrator can change
+                if (!$this->userIsAdmin()) {
+                    unset($this->data['username']);
                 }
 
                 // prevent user from disabling himself

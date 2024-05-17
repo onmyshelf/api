@@ -145,7 +145,6 @@ class User
         // remove non allowed data
         $allowed = get_object_vars($this);
         unset($allowed['id']);
-        unset($allowed['username']);
 
         // filter data to update
         $allowed = array_keys($allowed);
