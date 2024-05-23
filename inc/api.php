@@ -413,6 +413,7 @@ class Api
         $this->response([
             'token' => $token,
             'userid' => $user->getId(),
+            'username' => $user->getUsername(),
             'readonly' => READ_ONLY,
         ]);
     }
