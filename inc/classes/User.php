@@ -229,6 +229,11 @@ class User
             return false;
         }
 
+        // check if user is enabled
+        if (!$data['enabled']) {
+            return false;
+        }
+
         // check password
         if (!is_null($password)) {
             if (!password_verify($password, $data['password'])) {

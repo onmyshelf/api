@@ -1178,7 +1178,7 @@ abstract class SqlDatabase extends GlobalDatabase
      */
     public function getUsers()
     {
-        return $this->select("SELECT `id`,`username`,`enabled`,`email`,`avatar` FROM `user`");
+        return $this->select("SELECT `id`,`username`,`firstname`,`lastname`,`enabled`,`email`,`avatar` FROM `user`");
     }
 
 
@@ -1200,9 +1200,7 @@ abstract class SqlDatabase extends GlobalDatabase
      */
     public function getUserByLogin($login)
     {
-        $user = $this->selectFirst("SELECT * FROM `user` WHERE (`username`=? OR `email`=?) AND `enabled`=1",
-                                   [$login, $login]);
-        return $user;
+        return $this->selectFirst("SELECT * FROM `user` WHERE (`username`=? OR `email`=?)", [$login, $login]);
     }
 
 
