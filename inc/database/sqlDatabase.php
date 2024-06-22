@@ -1400,7 +1400,7 @@ abstract class SqlDatabase extends GlobalDatabase
 
         // init default config
         $config = [
-            'borrowings' => 1,
+            'loans' => 1,
         ];
         foreach ($config as $param => $value) {
             if ($this->count('config', ['param' => $param]) == 0) {
