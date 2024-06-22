@@ -98,7 +98,8 @@ abstract class SqlDatabase extends GlobalDatabase
      */
     public function dumpConfig()
     {
-        $db = $this->select("SELECT * FROM `config`");
+        // dump config values, except locked ones
+        $db = $this->select("SELECT * FROM `config` WHERE `locked`=0");
         $config = [];
 
         foreach ($db as $row) {
@@ -123,13 +124,22 @@ abstract class SqlDatabase extends GlobalDatabase
 
     /**
      * Set config parameter value
-     * @param string $param Parameter name
-     * @param mixed $value  Value
-     * @return bool         Success
+     * @param string $param   Parameter name
+     * @param mixed  $value   Value
+     * @param bool   $locked  Locked value
+     * @return bool           Success
      */
-    public function setConfig($param, $value)
+    public function setConfig($param, $value, $locked=false)
     {
-        return $this->insertOne('config', ['param' => $param, 'value' => $value], ['value']);
+        // if locked, force change and set lock
+        if (!$locked) {
+            // prevent change if entry is locked
+            if ($this->selectOne("SELECT `locked` FROM `config` WHERE `param`=?", [$param])) {
+                return false;
+            }
+        }
+
+        return $this->insertOne('config', ['param' => $param, 'value' => $value, 'locked' => ($locked ? 1 : 0)], ['value', 'locked']);
     }
 
 
@@ -1378,12 +1388,24 @@ abstract class SqlDatabase extends GlobalDatabase
 
                 // get template ID (if exists)
                 $templateId = $this->selectOne("SELECT `id` FROM `collection` WHERE `template`=1 AND `type`=?",
-                                                        [$template['type']]);
+                                               [$template['type']]);
 
                 if ($templateId) {
                     $this->updateCollectionTemplate($templateId, $template);
                 } else {
                     $this->createCollectionTemplate($template);
+                }
+            }
+        }
+
+        // init default config
+        $config = [
+            'borrowings' => 1,
+        ];
+        foreach ($config as $param => $value) {
+            if ($this->count('config', ['param' => $param]) == 0) {
+                if (!$this->setConfig($param, $value)) {
+                    Logger::error("Failed to initialize default config for $param");
                 }
             }
         }

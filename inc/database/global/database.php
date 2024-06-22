@@ -15,7 +15,7 @@ abstract class GlobalDatabase
     // config
     abstract public function dumpConfig();
     abstract public function getConfig($param);
-    abstract public function setConfig($param, $value);
+    abstract public function setConfig($param, $value, $locked);
 
     // collections
     abstract public function getCollections($owner, $isTemplate);
@@ -142,7 +142,7 @@ abstract class GlobalDatabase
         }
         
         // first installation: set version
-        return (new Database)->setConfig('version', VERSION);
+        return (new Database)->setConfig('version', VERSION, true);
     }
 
 
@@ -153,7 +153,7 @@ abstract class GlobalDatabase
      */
     public function upgrade($newVersion)
     {
-        return $this->setConfig('version', $newVersion);
+        return $this->setConfig('version', $newVersion, true);
     }
 
 

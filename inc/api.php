@@ -365,18 +365,17 @@ class Api
                     $this->error(403);
                 }
 
-                // remove forbidden config
-                unset($this->data['version']);
-
                 $success = true;
-
+                $details = '';
                 foreach ($this->data as $param => $value) {
                     if (!Config::set($param, $value)) {
                         $success = false;
+                        $details = "Failed to set parameter '$param'";
+                        Logger::warn("User tried to change a locked config: $param to $value");
                     }
                 }
 
-                $this->responseOperation('updated', $success);
+                $this->responseOperation('updated', $success, $details);
                 break;
 
             default:
@@ -1419,17 +1418,18 @@ class Api
     /**
      * Returns a short response for operations
      *
-     * @param string $tag
-     * @param bool   $success
+     * @param string  $tag
+     * @param bool    $success
+     * @param string  $details  Optional details
      * @return void
      */
-    private function responseOperation($tag, $success)
+    private function responseOperation($tag, $success, $details='')
     {
         if (!$success) {
-            $this->error();
+            $this->error(500, $details);
         }
 
-        $this->response([$tag => true]);
+        $this->response([$tag => true, 'details' => $details]);
     }
 
 

@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS `collectionLabel` (
 CREATE TABLE IF NOT EXISTS `config` (
   `param` varchar(255) NOT NULL,
   `value` text DEFAULT NULL,
+  `locked` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`param`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
