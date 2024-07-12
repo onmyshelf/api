@@ -1,5 +1,13 @@
 # Changelog for OnMyShelf API
 
+# 1.3.0 BETA 1 (2024-07-12)
+## New features
+- Permit users to log in with email address
+- New comics collection template
+## Improvements
+- Trim values before import
+- Various improvements
+
 # 1.2.0 (2024-04-27)
 ## New features
 - New export collection route
