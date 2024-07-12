@@ -150,6 +150,7 @@ CREATE TABLE IF NOT EXISTS `token` (
 
 CREATE TABLE IF NOT EXISTS `user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `role` varchar(255) NOT NULL DEFAULT 'user',
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `enabled` tinyint(1) NOT NULL DEFAULT 1,
@@ -158,5 +159,6 @@ CREATE TABLE IF NOT EXISTS `user` (
   `lastname` varchar(255) DEFAULT NULL,
   `avatar` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `username` (`username`)
+  UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

@@ -3,6 +3,7 @@
 class User
 {
     protected $id;
+    protected $role;
     protected $username;
     protected $enabled;
     protected $email;
@@ -38,6 +39,16 @@ class User
     public function getUsername()
     {
         return $this->username;
+    }
+
+
+    /**
+     * Get email
+     * @return string
+     */
+    public function getEmail()
+    {
+        return $this->email;
     }
 
 
@@ -151,6 +162,23 @@ class User
         foreach (array_keys($data) as $key) {
             if (!in_array($key, $allowed)) {
                 unset($data[$key]);
+                continue;
+            }
+
+            switch ($key) {
+                case 'username':
+                    if (!self::validateUsername($data[$key])) {
+                        return false;
+                    }
+                    $data[$key] = strtolower($data[$key]);
+                    break;
+
+                case 'email':
+                    if (!self::validateEmail($data[$key])) {
+                        return false;
+                    }
+                    $data[$key] = strtolower($data[$key]);
+                    break;
             }
         }
 
@@ -273,6 +301,7 @@ class User
     {
         // defines allowed data fields
         $allowed = [
+            'role',
             'username',
             'password',
             'enabled',
@@ -289,6 +318,20 @@ class User
             }
         }
 
+        // check username
+        if (!self::validateUsername($data['username'])) {
+            return false;
+        }
+        $data['username'] = strtolower($data['username']);
+
+        // check email
+        if (isset($data['email'])) {
+            if (!self::validateEmail($data['email'])) {
+                return false;
+            }
+            $data['email'] = strtolower($data['email']);
+        }
+
         // creates user in database
         $id = (new Database)->createUser($data);
         if (!$id) {
@@ -298,5 +341,17 @@ class User
 
         $data['id'] = $id;
         return new self($data);
+    }
+
+
+    private static function validateUsername($username)
+    {
+        return ctype_alnum($username);
+    }
+
+
+    private static function validateEmail($email)
+    {
+        return filter_var($email, FILTER_VALIDATE_EMAIL);
     }
 }

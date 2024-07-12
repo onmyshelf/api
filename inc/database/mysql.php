@@ -69,10 +69,44 @@ class Database extends SqlDatabase
     {
         // add new user columns
         $sql = "ALTER TABLE `user`
+                ADD COLUMN IF NOT EXISTS `role` varchar(255) NOT NULL DEFAULT 'user' AFTER `id`,
                 ADD COLUMN IF NOT EXISTS `firstname` varchar(255) DEFAULT NULL AFTER `email`,
                 ADD COLUMN IF NOT EXISTS `lastname` varchar(255) DEFAULT NULL AFTER `firstname`";
         if (!$this->execute($sql)) {
             Logger::fatal("Upgrade v1.3.0: Failed to add user firstname/lastname columns");
+            return false;
+        }
+
+        // set onmyshelf as admin
+        if (!$this->update('user', ['role' => 'admin'], ['username' => 'onmyshelf'])) {
+            Logger::fatal("Upgrade v1.3.0: Failed to set admin user");
+            return false;
+        }
+
+        // delete email duplicates
+        $duplicates = $this->select("SELECT `email`, COUNT(*) as `duplicates` FROM `user` GROUP BY `email` HAVING `duplicates` > 1");
+        foreach ($duplicates as $duplicate) {
+            $users = $this->select("SELECT `id`, `username`, `email` FROM `user` WHERE `email`=?", [$duplicate['email']]);
+            $i = 1;
+            foreach ($users as $user) {
+                Logger::warn("Upgrade v1.3.0: Duplicated email found for user: ".$user['username']." (".$user['email'].")");
+                if ($i == 1) {
+                    Logger::warn("... keep it");
+                } else {
+                    Logger::warn("... remove it");
+                    if (!$this->update('user', ['email' => ''], ['id' => $user['id']])) {
+                        Logger::fatal("Upgrade v1.3.0: Failed to delete email to user ".$user['id']);
+                        return false;
+                    }
+                }
+                $i++;
+            }
+        }
+
+        // set unique key to user.email
+        $sql = "ALTER TABLE `user` ADD CONSTRAINT `email` UNIQUE IF NOT EXISTS (`email`)";
+        if (!$this->execute($sql)) {
+            Logger::fatal("Upgrade v1.3.0: Failed to add unique key on user.email");
             return false;
         }
 

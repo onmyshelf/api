@@ -1127,6 +1127,7 @@ class Api
 
                 // secure fields only administrator can change
                 if (!$this->userIsAdmin()) {
+                    unset($this->data['role']);
                     unset($this->data['username']);
                 }
 
