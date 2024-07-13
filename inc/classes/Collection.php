@@ -9,6 +9,7 @@ class Collection
     protected $cover;
     protected $owner;
     protected $visibility;
+    protected $borrowable;
     protected $created;
     protected $updated;
     protected $properties;
@@ -137,6 +138,7 @@ class Collection
             'owner' => $this->owner,
             'type' => $this->type,
             'visibility' => $this->visibility,
+            'borrowable' => $this->borrowable,
             'created' => $this->created,
             'updated' => $this->updated,
             'properties' => $this->properties,
@@ -248,6 +250,7 @@ class Collection
                 'properties' => $itemProperties,
                 'thumbnail' => $thumbnails,
                 'visibility' => $dumpItem['visibility'],
+                'borrowable' => $dumpItem['borrowable'],
                 'lent' => $item->isLent(),
             ];
 
@@ -467,6 +470,7 @@ class Collection
             'cover',
             'owner',
             'visibility',
+            'borrowable',
             'properties',
         ];
 

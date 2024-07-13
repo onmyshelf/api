@@ -118,6 +118,22 @@ class Database extends SqlDatabase
             return false;
         }
 
+        // add collection.borrowable column
+        $sql = "ALTER TABLE `collection`
+                ADD COLUMN IF NOT EXISTS `borrowable` int(10) NOT NULL DEFAULT 0 AFTER `visibility`";
+        if (!$this->execute($sql)) {
+            Logger::fatal("Upgrade v1.3.0: Failed to add collection.borrowable column");
+            return false;
+        }
+
+        // add item.borrowable column
+        $sql = "ALTER TABLE `item`
+                ADD COLUMN IF NOT EXISTS `borrowable` int(10) NOT NULL DEFAULT 0 AFTER `visibility`";
+        if (!$this->execute($sql)) {
+            Logger::fatal("Upgrade v1.3.0: Failed to add item.borrowable column");
+            return false;
+        }
+
         return true;
     }
 

@@ -7,6 +7,7 @@ class Item
     protected $name;
     protected $properties;
     protected $visibility;
+    protected $borrowable;
     protected $created;
     protected $updated;
 
@@ -135,6 +136,7 @@ class Item
             'collectionId' => $this->collectionId,
             'properties' => $this->properties,
             'visibility' => $this->visibility,
+            'borrowable' => $this->borrowable,
             'created' => $this->created,
             'updated' => $this->updated,
             'lent' => $this->isLent(),
@@ -238,7 +240,7 @@ class Item
     public static function create($collectionId, $data)
     {
         // remove non allowed data
-        $allowed = ['properties', 'visibility'];
+        $allowed = ['properties', 'visibility', 'borrowable'];
         foreach (array_keys($data) as $key) {
             if (!in_array($key, $allowed)) {
                 unset($data[$key]);
