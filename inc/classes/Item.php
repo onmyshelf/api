@@ -125,6 +125,18 @@ class Item
     }
 
 
+    public function getPendingLoans()
+    {
+        return (new Database)->getItemPendingLoans($this->id);
+    }
+
+
+    public function getAskingLoans()
+    {
+        return (new Database)->getItemAskedLoans($this->id);
+    }
+
+
     /**
      * Dump item
      * @return array Item dumped
@@ -140,6 +152,8 @@ class Item
             'created' => $this->created,
             'updated' => $this->updated,
             'lent' => $this->isLent(),
+            'pendingLoans' => $this->getPendingLoans(),
+            'askingLoans' => $this->getAskingLoans(),
         ];
     }
 

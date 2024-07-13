@@ -252,6 +252,8 @@ class Collection
                 'visibility' => $dumpItem['visibility'],
                 'borrowable' => $dumpItem['borrowable'],
                 'lent' => $item->isLent(),
+                'pendingLoans' => $item->getPendingLoans(),
+                'askingLoans' => $item->getAskingLoans(),
             ];
 
             $i++;

@@ -882,10 +882,40 @@ abstract class SqlDatabase extends GlobalDatabase
     }
 
 
+    /**
+     * Get if item is lent
+     *
+     * @param int $itemId
+     * @return boolean
+     */
     public function isItemLent($itemId)
     {
         return $this->selectOne("SELECT COUNT(*) FROM `loan` WHERE `itemId`=? AND `state`='lent'
                                  AND `lent` <= ?", [$itemId, time()]);
+    }
+
+
+    /**
+     * Get item pending loans
+     *
+     * @param int $itemId
+     * @return boolean
+     */
+    public function getItemPendingLoans($itemId)
+    {
+        return $this->selectOne("SELECT COUNT(*) FROM `loan` WHERE `itemId`=? AND `state`='accepted'", [$itemId]);
+    }
+
+
+    /**
+     * Get item pending asks
+     *
+     * @param int $itemId
+     * @return boolean
+     */
+    public function getItemAskedLoans($itemId)
+    {
+        return $this->selectOne("SELECT COUNT(*) FROM `loan` WHERE `itemId`=? AND `state`='asked'", [$itemId]);
     }
 
 
