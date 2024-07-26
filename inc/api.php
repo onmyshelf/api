@@ -599,8 +599,8 @@ class Api
         $this->requireParams(['module', 'source', 'search']);
 
         // default options
-        if (!isset($this->data['options'])) {
-            $this->data['options'] = [];
+        if (!isset($_GET['options'])) {
+            $_GET['options'] = [];
         }
 
         // load module
@@ -609,7 +609,7 @@ class Api
             $this->error(500, "Error while loading import module");
         }
 
-        $import = new Import($_GET['source'], $this->data['options']);
+        $import = new Import($_GET['source'], $_GET['options']);
         if (!$import) {
             $this->error(500, "Error while loading import module");
         }

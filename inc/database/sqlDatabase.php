@@ -240,6 +240,8 @@ abstract class SqlDatabase extends GlobalDatabase
             }
         }
 
+        $collection['tags'] = $this->getCollectionTags($id);
+
         // get collection properties
         $accessRights = $GLOBALS['accessRights'];
         if ($collection['owner'] == $GLOBALS['currentUserID']) {
@@ -292,8 +294,6 @@ abstract class SqlDatabase extends GlobalDatabase
         }
 
         $collection['properties'] = $properties;
-
-        $collection['tags'] = $this->getCollectionTags($id);
 
         return $collection;
     }

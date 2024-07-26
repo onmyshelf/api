@@ -143,6 +143,7 @@ class Collection
             'created' => $this->created,
             'updated' => $this->updated,
             'properties' => $this->properties,
+            'tags' => $this->tags,
         ];
     }
 
