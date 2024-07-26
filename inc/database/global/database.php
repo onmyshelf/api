@@ -21,6 +21,8 @@ abstract class GlobalDatabase
     abstract public function getCollections($owner, $isTemplate);
     abstract public function setCollectionUpdated($collectionId);
     abstract public function getCollection($id, $isTemplate);
+    abstract public function getCollectionTags($id);
+    abstract public function setCollectionTags($id, $tags);
     abstract public function createCollection($data);
     abstract public function updateCollection($id, $data);
     abstract public function deleteCollection($id);

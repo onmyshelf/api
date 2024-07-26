@@ -30,6 +30,16 @@ CREATE TABLE IF NOT EXISTS `collectionLabel` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
+CREATE TABLE IF NOT EXISTS `collectionTag` (
+  `collectionId` int(11) NOT NULL,
+  `tag` varchar(255) NOT NULL,
+  UNIQUE KEY `collectionId_tag` (`collectionId`,`tag`),
+  KEY `collectionId` (`collectionId`),
+  KEY `tag` (`tag`),
+  CONSTRAINT `collectionTag_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
 CREATE TABLE IF NOT EXISTS `config` (
   `param` varchar(255) NOT NULL,
   `value` text DEFAULT NULL,

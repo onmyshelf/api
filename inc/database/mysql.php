@@ -134,6 +134,13 @@ class Database extends SqlDatabase
             return false;
         }
 
+        // add collection types to tags
+        $types = $this->select("SELECT `id`, `type` FROM `collection` WHERE `type` != ''");
+        foreach ($types as $type) {
+            // Note: we ignore errors
+            $this->setCollectionTags($type['id'], [$type['type']]);
+        }
+
         return true;
     }
 

@@ -13,6 +13,7 @@ class Collection
     protected $created;
     protected $updated;
     protected $properties;
+    protected $tags;
 
 
     public function __construct($data=null)
@@ -474,6 +475,7 @@ class Collection
             'visibility',
             'borrowable',
             'properties',
+            'tags',
         ];
 
         // remove non allowed data

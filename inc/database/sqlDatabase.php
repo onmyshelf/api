@@ -255,7 +255,7 @@ abstract class SqlDatabase extends GlobalDatabase
             return $collection;
         }
 
-        // get labels
+        // get properties
         $properties = [];
 
         for ($i=0; $i < count($results); $i++) {
@@ -292,6 +292,9 @@ abstract class SqlDatabase extends GlobalDatabase
         }
 
         $collection['properties'] = $properties;
+
+        $collection['tags'] = $this->getCollectionTags($id);
+
         return $collection;
     }
 
@@ -342,6 +345,48 @@ abstract class SqlDatabase extends GlobalDatabase
 
 
     /**
+     * Get collection tags
+     *
+     * @param int $collectionId
+     * @return array
+     */
+    public function getCollectionTags($collectionId)
+    {
+        return $this->selectColumn("SELECT `tag` FROM `collectionTag` WHERE `collectionId`=?", [$collectionId]);
+    }
+
+
+    /**
+     * Set collection tags
+     *
+     * @param int   $collectionId
+     * @param array $tags
+     * @return void
+     */
+    public function setCollectionTags($collectionId, $tags)
+    {
+        // prepare data
+        $data = [];
+        foreach ($tags as $tag) {
+            $tag = trim($tag);
+            if ($tag != '') {
+                $data[] = ['collectionId' => $collectionId, 'tag' => $tag];
+            }
+        }
+
+        // remove old tags
+        $this->delete('collectionTag', ['collectionId' => $collectionId]);
+
+        // insert tags
+        if (count($data) > 0) {
+            if (!$this->insert('collectionTag', $data)) {
+                Logger::var_dump($rows);
+            }
+        }
+    }
+
+
+    /**
      * Create collection
      * @param  array $data
      * @return int   Created collection ID
@@ -353,6 +398,7 @@ abstract class SqlDatabase extends GlobalDatabase
         unset($row['name']);
         unset($row['description']);
         unset($row['properties']);
+        unset($row['tags']);
 
         // set default owner if not specified
         if (!isset($row['owner'])) {
@@ -393,6 +439,11 @@ abstract class SqlDatabase extends GlobalDatabase
             }
         }
 
+        // create tags if defined
+        if (isset($data['tags'])) {
+            $this->setCollectionTags($id, $data['tags']);
+        }
+
         return $id;
     }
 
@@ -410,6 +461,7 @@ abstract class SqlDatabase extends GlobalDatabase
         unset($row['name']);
         unset($row['description']);
         unset($row['properties']);
+        unset($row['tags']);
 
         // update collection table
         if (count($row) > 0) {
@@ -455,6 +507,11 @@ abstract class SqlDatabase extends GlobalDatabase
             foreach ($data['properties'] as $name => $params) {
                 $this->setProperty($id, $name, $params);
             }
+        }
+
+        // update tags if defined
+        if (isset($data['tags'])) {
+            $this->setCollectionTags($id, $data['tags']);
         }
 
         return true;
