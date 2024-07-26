@@ -120,7 +120,7 @@ class Database extends SqlDatabase
 
         // add collection.borrowable column
         $sql = "ALTER TABLE `collection`
-                ADD COLUMN IF NOT EXISTS `borrowable` int(10) NOT NULL DEFAULT 0 AFTER `visibility`";
+                ADD COLUMN IF NOT EXISTS `borrowable` int(10) NOT NULL DEFAULT 3 AFTER `visibility`";
         if (!$this->execute($sql)) {
             Logger::fatal("Upgrade v1.3.0: Failed to add collection.borrowable column");
             return false;

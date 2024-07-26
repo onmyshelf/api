@@ -11,8 +11,8 @@ CREATE TABLE IF NOT EXISTS `collection` (
   `cover` varchar(255) DEFAULT NULL,
   `owner` int(11) NOT NULL,
   `template` tinyint(4) NOT NULL DEFAULT 0,
-  `visibility` int(10) NOT NULL DEFAULT 0,
-  `borrowable` int(10) NOT NULL DEFAULT 0,
+  `visibility` int(10) NOT NULL DEFAULT 3,
+  `borrowable` int(10) NOT NULL DEFAULT 3,
   `created` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`)
