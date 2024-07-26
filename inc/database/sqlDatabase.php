@@ -547,6 +547,9 @@ abstract class SqlDatabase extends GlobalDatabase
             $this->deleteProperty($id, $property);
         }
 
+        // delete tags
+        $this->delete('collectionTag', ['collectionId' => $id]);
+
         // delete collection labels
         $this->delete('collectionLabel', ['collectionId' => $id]);
 
