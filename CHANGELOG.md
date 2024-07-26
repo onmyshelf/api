@@ -1,9 +1,15 @@
 # Changelog for OnMyShelf API
 
+# 1.3.0 RC 1 (2024-07-26)
+## New features
+- Added "borrowable" parameter to collection & item
+- Added collection tags
+- Added pending loans to item
+
 # 1.3.0 BETA 1 (2024-07-12)
 ## New features
 - Permit users to log in with email address
-- New comics collection template
+- Added comics collection template
 ## Improvements
 - Trim values before import
 - Various improvements
