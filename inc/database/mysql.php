@@ -57,6 +57,14 @@ class Database extends SqlDatabase
             return false;
         }
 
+        // add config.locked column
+        $sql = "ALTER TABLE `config`
+                ADD COLUMN IF NOT EXISTS `locked` tinyint(1) NOT NULL DEFAULT 0";
+        if (!$this->execute($sql)) {
+            Logger::fatal("Upgrade v1.1.0: Failed to add config.locked column");
+            return false;
+        }
+
         return true;
     }
 
