@@ -6,6 +6,7 @@ class Item
     protected $collectionId;
     protected $name;
     protected $properties;
+    protected $quantity;
     protected $visibility;
     protected $borrowable;
     protected $created;
@@ -147,6 +148,7 @@ class Item
             'id' => $this->id,
             'collectionId' => $this->collectionId,
             'properties' => $this->properties,
+            'quantity' => $this->quantity,
             'visibility' => $this->visibility,
             'borrowable' => $this->borrowable,
             'created' => $this->created,

@@ -142,6 +142,14 @@ class Database extends SqlDatabase
             return false;
         }
 
+        // add item.quantity column
+        $sql = "ALTER TABLE `item`
+                ADD COLUMN IF NOT EXISTS `quantity` int(11) NOT NULL DEFAULT 1 AFTER `name`";
+        if (!$this->execute($sql)) {
+            Logger::fatal("Upgrade v1.3.0: Failed to add item.quantity column");
+            return false;
+        }
+
         // add collection types to tags
         $types = $this->select("SELECT `id`, `type` FROM `collection` WHERE `type` != ''");
         foreach ($types as $type) {

@@ -251,6 +251,7 @@ class Collection
                 'id' => $dumpItem['id'],
                 'properties' => $itemProperties,
                 'thumbnail' => $thumbnails,
+                'quantity' => $dumpItem['quantity'],
                 'visibility' => $dumpItem['visibility'],
                 'borrowable' => $dumpItem['borrowable'],
                 'lent' => $item->isLent(),

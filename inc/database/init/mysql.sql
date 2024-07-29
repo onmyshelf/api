@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS `item` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `collectionId` int(11) NOT NULL,
   `name` varchar(255) DEFAULT NULL,
+  `quantity` int(11) DEFAULT 1,
   `visibility` int(10) NOT NULL DEFAULT 0,
   `borrowable` int(10) NOT NULL DEFAULT 0,
   `created` timestamp NOT NULL DEFAULT current_timestamp(),
