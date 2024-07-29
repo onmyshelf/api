@@ -1,5 +1,12 @@
 # Changelog for OnMyShelf API
 
+# 1.3.0 (2024-07-29)
+## New features
+- Support for item quantity
+## Bugfixes
+- Fixed bug in collection deletion
+- Fixed migration procedure
+
 # 1.3.0 RC 1 (2024-07-26)
 ## New features
 - Added "borrowable" parameter to collection & item
