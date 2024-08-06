@@ -29,12 +29,12 @@ class Mailer
 
     /**
      * Send email
+     * @param  string $dest    Email destination
+     * @param  string $subject Subject
      * @param  string $message Message
-     * @param  string $prefix  Prefix (inserted in start line)
-     * @param  string $context Context (append at the end)
      * @return void
      */
-    public static function send($dest, $message, $subject='')
+    public static function send($dest, $subject, $message)
     {
         require_once 'PHPMailer/src/Exception.php';
         require_once 'PHPMailer/src/PHPMailer.php';

@@ -1,5 +1,10 @@
 # Changelog for OnMyShelf API
 
+# 1.3.1 (2024-08-07)
+## New features
+- New route to check email config
+- New route to send a test email
+
 # 1.3.0 (2024-07-29)
 ## New features
 - Support for item quantity

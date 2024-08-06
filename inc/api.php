@@ -41,6 +41,7 @@ class Api
             '/collectiontemplates' => 'CollectionTemplates',
             '/config' => 'Config',
             '/config/email' => 'ConfigEmail',
+            '/config/email/test' => 'ConfigEmailTest',
             '/media/download' => 'MediaDownload',
             '/media/upload' => 'MediaUpload',
             '/import/modules' => 'ImportModules',
@@ -158,6 +159,7 @@ class Api
         $GLOBALS['currentToken'] = $token;
         $GLOBALS['currentUserID'] = $user->getId();
         $GLOBALS['currentUsername'] = $user->getUsername();
+        $GLOBALS['currentEmail'] = $user->getEmail();
 
         Logger::debug("User ".$GLOBALS['currentUserID']." connected using token: $token");
     }
@@ -395,6 +397,22 @@ class Api
         }
 
         $this->response(Mailer::getConfig());
+    }
+
+
+    private function routeConfigEmailTest()
+    {
+        // requires to be administrator
+        if (!$this->userIsAdmin()) {
+            $this->error(403);
+        }
+
+        // forbidden in read only mode
+        if (READ_ONLY) {
+            $this->error(403);
+        }
+
+        $this->responseOperation('sent', Mailer::send($GLOBALS['currentEmail'], "Email test", "If you received this email, it works."));
     }
 
 

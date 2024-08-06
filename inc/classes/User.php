@@ -137,8 +137,8 @@ class User
         if ($this->email) {
             Mailer::send(
                 $this->email,
-                "<p>Dear ".$this->username.",</p>To reset your password, please click on this link:<br /><a href='$reset_url'>$reset_url</a>",
-                "Your reset password request"
+                "Your reset password request",
+                "<p>Dear ".$this->username.",</p>To reset your password, please click on this link:<br /><a href='$reset_url'>$reset_url</a>"
             );
         }
 
