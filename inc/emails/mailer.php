@@ -6,6 +6,28 @@ use PHPMailer\PHPMailer\Exception;
 class Mailer
 {
     /**
+     * Get SMTP parameters
+     * @return array
+     */
+    public static function getConfig()
+    {
+        $config = [
+            'smtp_server' => false,
+            'email_from' => '',
+        ];
+        
+        if (defined('SMTP_SERVER') && SMTP_SERVER !== '') {
+            $config['smtp_server'] = true;
+        }
+        if (defined('EMAIL_FROM') && EMAIL_FROM !== '') {
+            $config['email_from'] = EMAIL_FROM;
+        }
+
+        return $config;
+    }
+
+
+    /**
      * Send email
      * @param  string $message Message
      * @param  string $prefix  Prefix (inserted in start line)

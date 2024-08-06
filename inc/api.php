@@ -40,6 +40,7 @@ class Api
             '/collections/{cid}/items/{iid}/loans/{id}' => 'CollectionsIdItemsIdLoansId',
             '/collectiontemplates' => 'CollectionTemplates',
             '/config' => 'Config',
+            '/config/email' => 'ConfigEmail',
             '/media/download' => 'MediaDownload',
             '/media/upload' => 'MediaUpload',
             '/import/modules' => 'ImportModules',
@@ -383,6 +384,17 @@ class Api
                 $this->response(Config::dump());
                 break;
         }
+    }
+
+
+    private function routeConfigEmail()
+    {
+        // requires to be administrator
+        if (!$this->userIsAdmin()) {
+            $this->error(403);
+        }
+
+        $this->response(Mailer::getConfig());
     }
 
 
