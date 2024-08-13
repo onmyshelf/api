@@ -52,13 +52,14 @@ CREATE TABLE IF NOT EXISTS `item` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `collectionId` int(11) NOT NULL,
   `name` varchar(255) DEFAULT NULL,
-  `quantity` int(11) DEFAULT 1,
+  `quantity` int(11) NOT NULL DEFAULT 1,
   `visibility` int(10) NOT NULL DEFAULT 0,
   `borrowable` int(10) NOT NULL DEFAULT 0,
   `created` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `collection` (`collectionId`),
+  KEY `name` (`name`),
   CONSTRAINT `item_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -71,6 +72,7 @@ CREATE TABLE IF NOT EXISTS `itemProperty` (
   KEY `item` (`itemId`),
   KEY `collectionId` (`collectionId`),
   KEY `name` (`name`),
+  KEY `value` (`value`(768)),
   CONSTRAINT `itemProperty_ibfk_1` FOREIGN KEY (`collectionId`) REFERENCES `collection` (`id`),
   CONSTRAINT `itemProperty_ibfk_2` FOREIGN KEY (`itemId`) REFERENCES `item` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

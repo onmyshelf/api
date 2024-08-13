@@ -162,6 +162,26 @@ class Database extends SqlDatabase
 
 
     /**
+     * Upgrade procedure for v1.3.2
+     * @return bool Success
+     */
+    protected function upgrade_v132()
+    {
+        // add indexes
+        $sql = "ALTER TABLE `item` ADD KEY IF NOT EXISTS `name` (`name`)";
+        if (!$this->execute($sql)) {
+            // do not quit if error
+            Logger::warn("Upgrade v1.3.2: Failed to add index on item.name column");
+        }
+        $sql = "ALTER TABLE `itemProperty` ADD KEY IF NOT EXISTS `value` (`value`(768))";
+        if (!$this->execute($sql)) {
+            // do not quit if error
+            Logger::warn("Upgrade v1.3.2: Failed to add index on itemProperty.value column");
+        }
+    }
+
+
+    /**
      * Creates a prepared query, binds the given parameters and returns the result of the executed
      * @param  string $table    Table name
      * @param  array  $values   Array or arrays key => value

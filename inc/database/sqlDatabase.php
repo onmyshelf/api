@@ -1427,6 +1427,7 @@ abstract class SqlDatabase extends GlobalDatabase
         $changes = [
             "1.1.0" => "upgrade_v110",
             "1.3.0" => "upgrade_v130",
+            "1.3.2" => "upgrade_v132",
         ];
 
         // migrate versions step-by-step
