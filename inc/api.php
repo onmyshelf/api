@@ -728,6 +728,7 @@ class Api
                 // get items of collection
 
                 // get filters and sorting
+                $search = '';
                 $filters = [];
                 $sortBy = [];
                 $limit = 0;
@@ -735,6 +736,11 @@ class Api
 
                 foreach ($_GET as $key => $value) {
                     switch ($key) {
+                        case 'search':
+                            // limit value to 255 chars (to avoid malicious script)
+                            $search = substr(urldecode($value), 0, 255);
+                            break;
+
                         // sorting
                         case 'sort':
                             // split fields by comma
@@ -770,7 +776,7 @@ class Api
                     }
                 }
 
-                $this->response($collection->dumpItems($filters, $sortBy, $limit, $offset));
+                $this->response($collection->dumpItems($filters, $sortBy, $search, $limit, $offset));
                 break;
         }
     }

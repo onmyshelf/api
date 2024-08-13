@@ -150,11 +150,14 @@ class Collection
 
     /**
      * Returns collection items
-     * @param  array $filters (optionnal)
-     * @param  array $sortBy  (optionnal)
-     * @return array Collection dumped
+     * @param  array  $filters (optionnal)
+     * @param  array  $sortBy  (optionnal)
+     * @param  string $search  (optionnal)
+     * @param  int    $limit   (optionnal)
+     * @param  int    $offset  (optionnal)
+     * @return array  Collection dumped
      */
-    public function dumpItems($filters=[], $sortBy=[], $limit=0, $offset=0)
+    public function dumpItems($filters=[], $sortBy=[], $search='', $limit=0, $offset=0)
     {
         // default sorting by main name property
         if (count($sortBy) == 0) {
@@ -223,6 +226,46 @@ class Collection
             // if filters not passed, ignore and go to the next item
             if (!$continue) {
                 continue;
+            }
+
+            // search
+            if ($search) {
+                $continue = false;
+                // parse properties of the item
+                foreach ($dumpItem['properties'] as $key => $value) {
+                    // search in collection definition of the property
+                    if (isset($this->properties[$key])) {
+                        if (!$this->properties[$key]['searchable']) {
+                            continue;
+                        }
+                        // if property has multiple values,
+                        if (is_array($value)) {
+                            // filter each value
+                            $found_value = false;
+                            foreach ($value as $v) {
+                                // if one value is found, it's OK
+                                if (stripos($v, $search) !== false) {
+                                    $found_value = true;
+                                    break;
+                                }
+                            }
+                            if ($found_value) {
+                                $continue = true;
+                                break;
+                            }
+                        } else {
+                            // single value
+                            if (stripos($value, $search) !== false) {
+                                $continue = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                // if search not found, ignore and go to the next item
+                if (!$continue) {
+                    continue;
+                }
             }
 
             if ($limit > 0) {
