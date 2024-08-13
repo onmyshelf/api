@@ -1,7 +1,9 @@
 # Changelog for OnMyShelf API
 
+# 1.3.2 (2024-08-13)
+- Add missing database indexes
+
 # 1.3.1 (2024-08-07)
-## New features
 - New route to check email config
 - New route to send a test email
 
@@ -13,7 +15,6 @@
 - Fixed migration procedure
 
 # 1.3.0 RC 1 (2024-07-26)
-## New features
 - Added "borrowable" parameter to collection & item
 - Added collection tags
 - Added pending loans to item
@@ -27,7 +28,6 @@
 - Various improvements
 
 # 1.2.0 (2024-04-27)
-## New features
 - New export collection route
 - New board_game collection template
 
