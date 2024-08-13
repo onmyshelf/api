@@ -147,7 +147,13 @@ class Storage extends GlobalStorage
         $thumbnails = [];
         $sizes = [ 'small', 'normal' ];
         foreach ($sizes as $size) {
-            $thumbnail = $pathinfo['dirname'].'/'.$pathinfo['filename'].'-'.$size.'.'.$pathinfo['extension'];
+            if (isset($pathinfo['extension'])) {
+                $extension = '.' . $pathinfo['extension'];
+            } else {
+                $extension = '';
+            }
+
+            $thumbnail = $pathinfo['dirname'].'/'.$pathinfo['filename'].'-'.$size.$extension;
             if (file_exists(MEDIA_DIR.'/'.$thumbnail)) {
                 $thumbnails[$size] = 'media://'.$thumbnail;
             }
@@ -213,7 +219,13 @@ class Storage extends GlobalStorage
             }
             imagecopyresampled($thumbnail, $sourceImage, 0, 0, 0, 0, $thumbWidth, $thumbHeight, $orgWidth, $orgHeight);
 
-            $thumbnailPath = $pathinfo['dirname'].'/'.$pathinfo['filename'].'-'.$size.'.'.$pathinfo['extension'];
+            if (isset($pathinfo['extension'])) {
+                $extension = '.' . $pathinfo['extension'];
+            } else {
+                $extension = '';
+            }
+
+            $thumbnailPath = $pathinfo['dirname'].'/'.$pathinfo['filename'].'-'.$size.$extension;
             call_user_func_array('image'.$format, [$thumbnail, $thumbnailPath]);
 
             imagedestroy($thumbnail);
@@ -293,14 +305,19 @@ class Storage extends GlobalStorage
 
         $path = self::urlToPath($path);
 
-        // delete file
+        // delete file/directory
         try {
             set_error_handler(function($errno, $errstr) {
                 Logger::error("Storage: Failed to delete path: ".$errstr);
             });
 
             Logger::debug("Storage: delete $path");
-            unlink($path);
+
+            if (is_dir($path)) {
+                self::rmdir($path);
+            } else {
+                unlink($path);
+            }
 
             restore_error_handler();
         } catch (Throwable $t) {
@@ -340,16 +357,20 @@ class Storage extends GlobalStorage
 
         // security: remove extensions with a "?"
         // sometimes, files from the web are like ....jpg?v=123456
-        $extension = preg_replace('/\?.*/', '', $extension);
+        $extension = '.' . preg_replace('/\?.*/', '', $extension);
 
         // security: trunk too long extensions
-        if (strlen($extension) > 12) {
-            $extension = substr($extension, 0, 12);
+        if (strlen($extension) > 13) {
+            $extension = substr($extension, 0, 13);
+        } else {
+            if ($extension == '.') {
+                $extension = '';
+            }
         }
 
         // generate a random name
         while (true) {
-            $file = bin2hex(random_bytes(12)).'.'.$extension;
+            $file = bin2hex(random_bytes(12)).$extension;
 
             // put it in a subdir with the first character
             $dir = substr($file, 0, 1);
@@ -382,5 +403,33 @@ class Storage extends GlobalStorage
         }
 
         return $path;
+    }
+
+
+    /**
+     * Recursively delete directory
+     *
+     * @param string $path
+     * @return bool  Success
+     */
+    private static function rmdir($path) {
+        if (!file_exists($path)) {
+            return true;
+        }
+
+        if (!is_dir($path)) {
+            return unlink($path);
+        }
+
+        foreach (scandir($path) as $item) {
+            if ($item == '.' || $item == '..') {
+                continue;
+            }
+            if (!self::rmdir($path . DIRECTORY_SEPARATOR . $item)) {
+                return false;
+            }
+        }
+
+        return rmdir($path);
     }
 }

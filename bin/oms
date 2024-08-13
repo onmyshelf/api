@@ -18,13 +18,13 @@ class Cmd
 
         echo "Cleanup unused medias...\n";
         
-        $medias = Storage::glob('*/*.*');
+        $medias = Storage::glob('*/*');
         foreach ($medias as $media) {
             // ignore thumbnails
-            if (preg_match('/-normal\..*/', $media)) {
+            if (preg_match('/-normal(\.|$)/', $media)) {
                 continue;
             }
-            if (preg_match('/-small\..*/', $media)) {
+            if (preg_match('/-small(\.|$)/', $media)) {
                 continue;
             }
 
