@@ -147,6 +147,18 @@ class Property
             case 'author':
                 $config['label']['fr_FR'] = "Auteur$plural";
                 $config['filterable'] = true;
+                $config['multiple'] = ($plural == "s");
+                break;
+
+            case 'category':
+                $config['label']["fr_FR"] = "Catégorie";
+                $config['filterable'] = true;
+                break;
+
+            case 'categorie': //(s)
+                $config['label']["fr_FR"] = "Catégories";
+                $config['filterable'] = true;
+                $config['multiple'] = true;
                 break;
 
             case 'color':
@@ -156,6 +168,7 @@ class Property
                     "en_US" => "Color$plural",
                     "fr_FR" => "Couleur$plural",
                 ];
+                $config['multiple'] = ($plural == "s");
                 break;
 
             case 'cover':
@@ -168,17 +181,20 @@ class Property
             case 'editor':
                 $config['label']['fr_FR'] = "Éditeur$plural";
                 $config['filterable'] = true;
+                $config['multiple'] = ($plural == "s");
                 break;
 
             case 'format':
             case 'genre':
             case 'type':
                 $config['filterable'] = true;
+                $config['multiple'] = ($plural == "s");
                 break;
 
             case 'id':
                 // do not consider idS as an id
                 $config['isId'] = ($plural == '');
+                $config['multiple'] = ($plural == "s");
                 break;
 
             case 'image':
@@ -186,11 +202,13 @@ class Property
                 $config['type'] = 'image';
                 // do not consider multiple images as the main image
                 $config['isCover'] = ($plural == '');
+                $config['multiple'] = ($plural == "s");
                 break;
 
             case 'language':
                 $config['label']['fr_FR'] = "Langue$plural";
                 $config['filterable'] = true;
+                $config['multiple'] = ($plural == "s");
                 break;
 
             case 'name':
@@ -203,6 +221,7 @@ class Property
                 $config['label']['fr_FR'] = "Image$plural";
                 // do not consider pictures as the main image
                 $config['isCover'] = ($plural == '');
+                $config['multiple'] = ($plural == "s");
                 break;
 
             case 'comment':
@@ -216,9 +235,21 @@ class Property
                 $config['label']['fr_FR'] = "Note$plural";
                 $config['sortable'] = true;
                 break;
+            
+            case 'ref':
+            case 'reference':
+                $config['label'] = [
+                    "en_US" => "Reference$plural",
+                    'fr_FR' => "Référence$plural"
+                ];
+                // do not consider references as an id
+                $config['isId'] = ($plural == '');
+                $config['multiple'] = ($plural == "s");
+                break;
 
             case 'serie':
                 $config['label']['fr_FR'] = "Série$plural";
+                $config['filterable'] = true;
                 break;
 
             case 'source':
@@ -238,6 +269,7 @@ class Property
 
             case 'tag':
                 $config['filterable'] = true;
+                $config['multiple'] = ($plural == "s");
                 break;
 
             case 'title':
@@ -248,6 +280,7 @@ class Property
             case 'year':
                 $config['label']['fr_FR'] = "Année$plural";
                 $config['sortable'] = true;
+                $config['multiple'] = ($plural == "s");
                 break;
         }
 
