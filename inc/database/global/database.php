@@ -111,6 +111,8 @@ abstract class GlobalDatabase
     abstract public function getItemLoans($itemId);
     abstract public function getLoan($id);
     abstract public function isItemLent($itemId);
+    abstract public function getItemPendingLoans($itemId);
+    abstract public function getItemAskedLoans($itemId);
     abstract public function createLoan($data);
     abstract public function updateLoan($id, $data);
     abstract public function deleteLoan($id);
