@@ -138,15 +138,8 @@ class Cmd
             echo " FAILED! (see log file for more details)\n";
         }
 
-        // search all external git modules
-        $modules = glob("inc/modules/*/*/.git");
-        foreach ($modules as $module) {
-            $module = dirname($module);
-            echo "Upgrade external module: $module\n";
-            $result = shell_exec('cd "'.dirname($module).'" && git pull');
-            echo $result;
-        }
-
+        echo "\nUpgrade external modules...\n";
+        Module::upgrade();
         echo "\n";
     }
 
@@ -195,6 +188,8 @@ class Cmd
                 echo "Type 'oms help' to see available commands.";
                 break;
         }
+
+        echo "\n";
     }
 }
 

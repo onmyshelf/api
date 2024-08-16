@@ -45,6 +45,7 @@ class Api
             '/media/download' => 'MediaDownload',
             '/media/upload' => 'MediaUpload',
             '/modules/import' => 'ModulesImport',
+            '/modules/upgrade' => 'ModulesUpgrade',
             '/login' => 'Login',
             '/properties/types' => 'PropertiesTypes',
             '/resetpassword' => 'Resetpassword',
@@ -1043,6 +1044,22 @@ class Api
     private function routeModulesImport()
     {
         $this->response(Module::list('import'));
+    }
+
+
+    private function routeModulesUpgrade()
+    {
+        // forbidden in read only mode
+        if (READ_ONLY) {
+            $this->error(403);
+        }
+
+        // requires to be administrator
+        if (!$this->userIsAdmin()) {
+            $this->error(403);
+        }
+
+        $this->responseOperation('upgraded', Module::upgrade('import'));
     }
 
 

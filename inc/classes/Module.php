@@ -111,4 +111,30 @@ class Module
         Logger::error("Unknown $type type: $name");
         return false;
     }
+
+
+    /**
+     * Upgrade module(s)
+     *
+     * @param string $module Default: every modules
+     * @return bool  Success
+     */
+    public static function upgrade($type='import', $module='*')
+    {
+        $success = true;
+
+        // search git module(s)
+        $modules = glob("inc/modules/$type/$module/.git");
+        foreach ($modules as $m) {
+            Logger::info("Upgrade external module: $m");
+            $result = shell_exec('cd "'.dirname($m).'" && git pull');
+            Logger::debug($result);
+
+            if ($result == '') {
+                $success = false;
+            }
+        }
+
+        return $success;
+    }
 }
