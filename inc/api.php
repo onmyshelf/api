@@ -44,7 +44,7 @@ class Api
             '/config/email/test' => 'ConfigEmailTest',
             '/media/download' => 'MediaDownload',
             '/media/upload' => 'MediaUpload',
-            '/import/modules' => 'ImportModules',
+            '/modules/import' => 'ModulesImport',
             '/login' => 'Login',
             '/properties/types' => 'PropertiesTypes',
             '/resetpassword' => 'Resetpassword',
@@ -402,13 +402,13 @@ class Api
 
     private function routeConfigEmailTest()
     {
-        // requires to be administrator
-        if (!$this->userIsAdmin()) {
+        // forbidden in read only mode
+        if (READ_ONLY) {
             $this->error(403);
         }
 
-        // forbidden in read only mode
-        if (READ_ONLY) {
+        // requires to be administrator
+        if (!$this->userIsAdmin()) {
             $this->error(403);
         }
 
@@ -634,7 +634,6 @@ class Api
         }
 
         // load module
-        require_once('inc/classes/Module.php');
         if (!Module::load('import', $_GET['module'])) {
             $this->error(500, "Error while loading import module");
         }
@@ -668,7 +667,6 @@ class Api
         }
 
         // load module
-        require_once('inc/classes/Module.php');
         if (!Module::load('import', $_GET['module'])) {
             $this->error(500, "Error while loading import module");
         }
@@ -1042,9 +1040,8 @@ class Api
     }
 
 
-    private function routeImportModules()
+    private function routeModulesImport()
     {
-        require_once('inc/classes/Module.php');
         $this->response(Module::list('import'));
     }
 

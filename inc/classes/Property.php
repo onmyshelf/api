@@ -160,6 +160,11 @@ class Property
                 $config['filterable'] = true;
                 $config['multiple'] = true;
                 break;
+            
+            case 'collection':
+                $config['filterable'] = true;
+                $config['multiple'] = ($plural == 's');
+                break;
 
             case 'color':
             case 'colour':
@@ -168,7 +173,7 @@ class Property
                     "en_US" => "Color$plural",
                     "fr_FR" => "Couleur$plural",
                 ];
-                $config['multiple'] = ($plural == "s");
+                $config['multiple'] = ($plural == 's');
                 break;
 
             case 'cover':
@@ -177,7 +182,12 @@ class Property
                 // do not consider multiple covers as the main cover
                 $config['isCover'] = ($plural == '');
                 break;
-            
+
+            case 'date':
+                $config['sortable'] = ($plural == '');
+                $config['multiple'] = ($plural == 's');
+                break;
+
             case 'editor':
                 $config['label']['fr_FR'] = "Éditeur$plural";
                 $config['filterable'] = true;
@@ -279,8 +289,8 @@ class Property
 
             case 'year':
                 $config['label']['fr_FR'] = "Année$plural";
-                $config['sortable'] = true;
-                $config['multiple'] = ($plural == "s");
+                $config['sortable'] = ($plural == '');
+                $config['multiple'] = ($plural == 's');
                 break;
         }
 

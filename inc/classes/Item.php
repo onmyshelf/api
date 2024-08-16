@@ -302,7 +302,6 @@ class Item
      */
     public static function importData($type, $source, $options=[])
     {
-        require_once('inc/classes/Module.php');
         if (!Module::load('import', $type)) {
             return false;
         }

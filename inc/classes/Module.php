@@ -36,7 +36,8 @@ class Module
             }
 
             // default name
-            $info = ['name' => ucfirst($module) ];
+            $info = new stdClass();
+            $info->name = ucfirst($module);
             
             // get module information from info.json
             $infofile = dirname($path)."/info.json";
@@ -46,6 +47,12 @@ class Module
                     $info = json_decode($file);
                 }
             }
+
+            // get if external project or not
+            if (basename(dirname($path, 3)) == 'modules') {
+                $info->external = true;
+            }
+
             $modules[$module] = $info;
         }
 

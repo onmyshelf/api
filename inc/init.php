@@ -1,5 +1,5 @@
 <?php
-define('VERSION', '1.3.2');
+define('VERSION', '1.4.0-beta.1+2024081601');
 
 // load config file
 if (!file_exists("config.php")) {
@@ -65,7 +65,8 @@ switch (STORAGE) {
 require_once('classes/Config.php');
 require_once('classes/Collection.php');
 require_once('classes/CollectionTemplate.php');
-require_once('classes/Property.php');
 require_once('classes/Item.php');
 require_once('classes/Loan.php');
+require_once('classes/Module.php');
+require_once('classes/Property.php');
 require_once('classes/User.php');
