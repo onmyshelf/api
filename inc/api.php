@@ -26,6 +26,8 @@ class Api
         // routes definition (see methods below)
         $this->routes = [
             '/' => 'Home',
+            '/borrowers' => 'Borrowers',
+            '/borrowers/{id}' => 'BorrowersId',
             '/collections' => 'Collections',
             '/collections/{id}' => 'CollectionsId',
             '/collections/{id}/export' => 'CollectionsIdExport',
@@ -468,6 +470,96 @@ class Api
     }
 
 
+    private function routeBorrowers()
+    {
+        switch ($this->method) {
+            case 'POST':
+                // create new borrower
+
+                // forbidden in read only mode
+                if (READ_ONLY) {
+                    $this->error(403);
+                }
+
+                // forbidden if not logged in
+                $this->requireAuthentication();
+
+                $this->post = true;
+                $this->requireData(['firstname']);
+
+                // force owner to current user
+                $this->data['owner'] = $GLOBALS['currentUserID'];
+
+                $id = Borrower::create($this->data);
+                if (!$id) {
+                    $this->error();
+                }
+
+                $this->response(['id' => $id]);
+                break;
+
+            default:
+                // get borrowers
+                $borrowers = Borrower::dumpAll();
+                if ($borrowers === false) {
+                    $this->error();
+                }
+
+                $this->response($borrowers);
+                break;
+        }
+    }
+
+
+    private function routeBorrowersId()
+    {
+        $this->requireArgs(['id']);
+
+        $borrower = Borrower::getById($this->args['id']);
+        if (!$borrower) {
+            $this->error(404);
+        }
+
+        switch ($this->method) {
+            case 'PATCH':
+                // update borrower
+
+                // forbidden in read only mode
+                if (READ_ONLY) {
+                    $this->error(403);
+                }
+
+                // check ownership
+                $this->requireUserID($borrower->getOwner());
+
+                // cannot change owner
+                unset($this->data['owner']);
+
+                $this->responseOperation('updated', $borrower->update($this->data));
+                break;
+
+            case 'DELETE':
+                // delete borrower
+
+                // forbidden in read only mode
+                if (READ_ONLY) {
+                    $this->error(403);
+                }
+
+                // check ownership
+                $this->requireUserID($borrower->getOwner());
+
+                $this->responseOperation('deleted', $borrower->delete());
+                break;
+
+            default:
+                // get borrower
+                $this->response($borrower->dump());
+                break;
+        }
+    }
+
+    
     private function routeCollections()
     {
         switch ($this->method) {

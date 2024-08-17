@@ -12,4 +12,10 @@ class Visibility
             4  // hidden
         ];
     }
+
+
+    public static function validateLevel($level)
+    {
+        return in_array($level, self::getLevels());
+    }
 }

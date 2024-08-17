@@ -185,7 +185,7 @@ class Database extends SqlDatabase
     {
         // add loan.borrowerId
         $sql = "ALTER TABLE `loan`
-                ADD COLUMN IF NOT EXISTS `borrowerId` int(11) DEFAULT NULL";
+                ADD COLUMN IF NOT EXISTS `borrowerId` int(11) DEFAULT NULL AFTER `itemId`";
         if (!$this->execute($sql)) {
             Logger::fatal("Upgrade v1.4.0: Failed to add loan.borrowerId column");
             return false;
@@ -199,27 +199,31 @@ class Database extends SqlDatabase
         }
 
         // add foreign key on loan.borrowerId
-        $sql = "ALTER TABLE `loan` CONSTRAINT `loan_ibfk_2` IF NOT EXISTS FOREIGN KEY (`borrowerId`) REFERENCES `borrower` (`id`)";
+        $sql = "ALTER TABLE `loan` ADD CONSTRAINT `loan_ibfk_2` FOREIGN KEY IF NOT EXISTS (`borrowerId`) REFERENCES `borrower` (`id`)";
         if (!$this->execute($sql)) {
             Logger::fatal("Upgrade v1.4.0: Failed to add foreign key on loan.borrowerId column");
             return false;
         }
         
         // get borrowers
-        $loans = $this->select("SELECT `id`,`borrowerId`,`borrower` FROM `loan`");
+        $loans = $this->select("SELECT `id`,`itemId`,`borrowerId`,`borrower` FROM `loan`");
         if ($loans) {
             foreach ($loans as $loan) {
+                // already done: skip
                 if ($loan['borrowerId']) {
                     continue;
                 }
 
+                // get collection's owner
+                $owner = $this->selectOne("SELECT c.owner FROM `collection` c JOIN `item` i ON i.collectionId=c.id WHERE i.id=?", [$loan['itemId']]);
+
                 // get borrower's name
-                $name = preg_split('/\s+', $loan['borrower']);
+                $name = preg_split('/\s+/', $loan['borrower']);
                 if (count($name) > 1) {
                     $firstname = array_shift($name);
                     $lastname = implode(' ', $name);
                 } else {
-                    $firstname = $name;
+                    $firstname = $name[0];
                     $lastname = '';
                 }
 
@@ -229,6 +233,7 @@ class Database extends SqlDatabase
                     $borrower = [
                         'firstname' => $firstname,
                         'lastname' => $lastname,
+                        'owner' => $owner,
                     ];
                     $borrowerId = $this->insertOne('borrower', $borrower);
                     if (!$borrowerId) {

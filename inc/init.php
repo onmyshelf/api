@@ -1,5 +1,5 @@
 <?php
-define('VERSION', '1.4.0-beta.1+2024081701');
+define('VERSION', '1.4.0-beta.1+2024081801');
 
 // load config file
 if (!file_exists("config.php")) {
@@ -62,6 +62,7 @@ switch (STORAGE) {
 }
 
 // load classes
+require_once('classes/Borrower.php');
 require_once('classes/Config.php');
 require_once('classes/Collection.php');
 require_once('classes/CollectionTemplate.php');
@@ -70,3 +71,4 @@ require_once('classes/Loan.php');
 require_once('classes/Module.php');
 require_once('classes/Property.php');
 require_once('classes/User.php');
+require_once('classes/Visibility.php');

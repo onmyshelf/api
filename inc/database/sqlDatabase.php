@@ -1029,8 +1029,20 @@ abstract class SqlDatabase extends GlobalDatabase
      */
     public function getBorrowers()
     {
-        $query = "SELECT * FROM `borrower` WHERE `owner`=? OR `visibility` < 3 ORDER BY `firstname`, `lastname`";
+        $query = "SELECT * FROM `borrower` WHERE `owner`=? OR `visibility`< 3 ORDER BY `firstname`, `lastname`";
         return $this->select($query, [$GLOBALS['currentUserID']]);
+    }
+
+
+    /**
+     * Get borrower by id
+     * @param  int  $id
+     * @return bool Success
+     */
+    public function getBorrowerById($id)
+    {
+        $query = "SELECT * FROM `borrower` WHERE `id`=? AND (`owner`=? OR `visibility`< 3)";
+        return $this->selectFirst($query, [$id, $GLOBALS['currentUserID']]);
     }
 
     
@@ -1488,6 +1500,7 @@ abstract class SqlDatabase extends GlobalDatabase
             "1.1.0" => "upgrade_v110",
             "1.3.0" => "upgrade_v130",
             "1.3.2" => "upgrade_v132",
+            "1.4.0" => "upgrade_v140",
         ];
 
         // migrate versions step-by-step

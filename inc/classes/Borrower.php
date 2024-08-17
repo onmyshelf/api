@@ -1,6 +1,6 @@
 <?php
 
-class User
+class Borrower
 {
     protected $id;
     protected $userId;
@@ -28,6 +28,16 @@ class User
     public function getId()
     {
         return $this->id;
+    }
+
+
+    /**
+     * Get owner
+     * @return string
+     */
+    public function getOwner()
+    {
+        return $this->owner;
     }
 
 
@@ -61,10 +71,10 @@ class User
         // remove non allowed data
         $allowed = get_object_vars($this);
         unset($allowed['id']);
-
-        // filter data to update
         $allowed = array_keys($allowed);
+
         foreach (array_keys($data) as $key) {
+            // remove non allowed data
             if (!in_array($key, $allowed)) {
                 unset($data[$key]);
                 continue;
@@ -72,15 +82,25 @@ class User
 
             switch ($key) {
                 case 'email':
-                    if (!User::validateEmail($data[$key])) {
+                    if ($data[$key]) {
+                        if (!User::validateEmail($data[$key])) {
+                            Logger::debug("Bad email: ".$data[$key]);
+                            return false;
+                        }
+                        $data[$key] = strtolower($data[$key]);
+                    }
+                    break;
+
+                case 'visibility':
+                    if (!Visibility::validateLevel($data[$key])) {
+                        Logger::debug("Bad visibility level: ".$data[$key]);
                         return false;
                     }
-                    $data[$key] = strtolower($data[$key]);
                     break;
             }
         }
 
-        return (new Database)->updateUser($this->id, $data);
+        return (new Database)->updateBorrower($this->id, $data);
     }
 
 
@@ -142,29 +162,33 @@ class User
             'visibility',
         ];
 
-        // remove non allowed data
         foreach (array_keys($data) as $key) {
+            // remove non allowed data
             if (!in_array($key, $allowed)) {
                 unset($data[$key]);
+                continue;
+            }
+
+            // check values
+            switch ($key) {
+                case 'email':
+                    if ($data['email']) {
+                        if (!User::validateEmail($data['email'])) {
+                            return false;
+                        }
+                        $data['email'] = strtolower($data['email']);
+                    }
+                    break;
+
+                case 'visibility':
+                    if (!Visibility::validateLevel($data[$key])) {
+                        Logger::debug("Create borrower error: bad visibility level: ".$data[$key]);
+                        return false;
+                    }
+                    break;
             }
         }
 
-        // check email
-        if (isset($data['email'])) {
-            if (!User::validateEmail($data['email'])) {
-                return false;
-            }
-            $data['email'] = strtolower($data['email']);
-        }
-
-        // creates borrower in database
-        $id = (new Database)->createBorrower($data);
-        if (!$id) {
-            Logger::error("Failed to create borrower");
-            return false;
-        }
-
-        $data['id'] = $id;
-        return new self($data);
+        return (new Database)->createBorrower($data);
     }
 }
