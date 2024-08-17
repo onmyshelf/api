@@ -47,15 +47,32 @@ class Property
         $allowed = get_object_vars($this);
         unset($allowed['collection']);
         unset($allowed['name']);
-
         $allowed = array_keys($allowed);
+
         foreach (array_keys($data) as $key) {
+            // remove non allowed data
             if (!in_array($key, $allowed)) {
                 unset($data[$key]);
+                continue;
+            }
+
+            // check values
+            switch ($key) {
+                case 'type':
+                    if (!in_array($data[$key], Property::getTypes())) {
+                        Logger::debug("Update property error: bad $key: ".$data[$key]);
+                        return false;
+                    }
+                    break;
+                case 'visibility':
+                    if (!Visibility::validateLevel($data[$key])) {
+                        Logger::debug("Update property error: bad $key: ".$data[$key]);
+                        return false;
+                    }
+                    break;
             }
         }
 
-        // create in database
         return (new Database)->setProperty($this->collectionId, $this->name, $data);
     }
 

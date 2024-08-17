@@ -445,9 +445,10 @@ class Collection
             
             // check values
             switch ($key) {
+                case 'borrowable':
                 case 'visibility':
                     if (!Visibility::validateLevel($data[$key])) {
-                        Logger::debug("Update collection error: bad visibility level: ".$data[$key]);
+                        Logger::debug("Update collection error: bad $key: ".$data[$key]);
                         return false;
                     }
                     break;
@@ -542,9 +543,10 @@ class Collection
 
             // check values
             switch ($key) {
+                case 'borrowable':
                 case 'visibility':
                     if (!Visibility::validateLevel($data[$key])) {
-                        Logger::debug("Create collection error: bad visibility level: ".$data[$key]);
+                        Logger::debug("Create collection error: bad $key: ".$data[$key]);
                         return false;
                     }
                     break;

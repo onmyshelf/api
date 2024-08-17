@@ -174,12 +174,24 @@ class Item
         unset($allowed['name']);
         unset($allowed['created']);
         unset($allowed['updated']);
-
-        // filter data to update
         $allowed = array_keys($allowed);
+
         foreach (array_keys($data) as $key) {
+            // remove non allowed data
             if (!in_array($key, $allowed)) {
                 unset($data[$key]);
+                continue;
+            }
+
+            // check values
+            switch ($key) {
+                case 'borrowable':
+                case 'visibility':
+                    if (!Visibility::validateLevel($data[$key])) {
+                        Logger::debug("Update item error: bad $key: ".$data[$key]);
+                        return false;
+                    }
+                    break;
             }
         }
 
@@ -267,9 +279,10 @@ class Item
 
             // check values
             switch ($key) {
+                case 'borrowable':
                 case 'visibility':
                     if (!Visibility::validateLevel($data[$key])) {
-                        Logger::debug("Create item error: bad visibility level: ".$data[$key]);
+                        Logger::debug("Create item error: bad $key: ".$data[$key]);
                         return false;
                     }
                     break;

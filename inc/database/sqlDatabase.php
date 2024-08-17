@@ -927,7 +927,9 @@ abstract class SqlDatabase extends GlobalDatabase
      */
     public function getItemLoans($itemId)
     {
-        return $this->select("SELECT * FROM `loan` WHERE `itemId`=? ORDER BY `lent` DESC", [$itemId]);
+        return $this->select("SELECT l.*, CONCAT(b.firstname, ' ', b.lastname) AS `borrower`
+                              FROM `loan` l JOIN `borrower` b ON l.borrowerId=b.id
+                              WHERE `itemId`=? ORDER BY l.`lent` DESC", [$itemId]);
     }
 
 
