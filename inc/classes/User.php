@@ -69,13 +69,15 @@ class User
      */
     public function setPassword(string $password)
     {
-        $result = (new Database)->updateUser($this->id, ['password' => $password]);
+        $db = new Database();
+
+        $result = $db->updateUser($this->id, ['password' => $password]);
         if (!$result) {
             return false;
         }
 
         // revoke all reset password tokens
-        (new Database)->deleteUserTokens($this->id, 'resetpassword');
+        $db->deleteUserTokens($this->id, 'resetpassword');
 
         return $result;
     }
@@ -182,13 +184,15 @@ class User
             }
         }
 
+        $db = new Database();
+
         // disabled: revoke tokens
         if (isset($data['enabled']) && !$data['enabled']) {
-            (new Database)->deleteUserTokens($this->id);
+            $db->deleteUserTokens($this->id);
         }
 
         // update user in database
-        return (new Database)->updateUser($this->id, $data);
+        return $db->updateUser($this->id, $data);
     }
 
 

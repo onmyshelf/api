@@ -26,4 +26,14 @@ class Token
     {
         return (new Database)->deleteToken($token);
     }
+
+
+    /**
+     * Clean expired tokens
+     * @return boolean Success
+     */
+    public static function cleanup()
+    {
+        return (new Database)->cleanupTokens();
+    }
 }

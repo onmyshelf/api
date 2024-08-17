@@ -431,7 +431,7 @@ class Api
         $user = $this->login($this->data['login'], $this->data['password']);
 
         // clean expired tokens
-        (new Database)->cleanupTokens();
+        Token::cleanup();
 
         // create token for user
         $token = $user->createToken();
@@ -1301,7 +1301,7 @@ class Api
         $this->requireData(['newPassword']);
 
         // clean expired tokens
-        (new Database)->cleanupTokens();
+        Token::cleanup();
 
         // check reset token
         $user = User::getByToken($this->data['resetToken'], 'resetpassword');
