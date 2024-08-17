@@ -4,10 +4,10 @@ class Loan
 {
     protected $id;
     protected $itemId;
+    protected $borrowerId;
     protected $state;
     protected $lent;
     protected $returned;
-    protected $borrower;
     protected $notes;
     protected $date;
 
@@ -102,7 +102,7 @@ class Loan
     public static function create($itemId, $data=[])
     {
         // check required data
-        $required = ['state', 'borrower'];
+        $required = ['borrowerId', 'state'];
         foreach ($required as $key) {
             if (!isset($data[$key])) {
                 Logger::error("Failed to create operation; missing: $key");
@@ -111,7 +111,7 @@ class Loan
         }
 
         // remove unallowed data
-        $allowed = ['state', 'lent', 'returned', 'borrower', 'notes'];
+        $allowed = ['borrowerId', 'state', 'lent', 'returned', 'notes'];
         unset($allowed['id']);
         foreach (array_keys($data) as $key) {
             if (!in_array($key, $allowed)) {

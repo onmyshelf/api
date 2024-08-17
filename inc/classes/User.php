@@ -170,16 +170,20 @@ class User
             switch ($key) {
                 case 'username':
                     if (!self::validateUsername($data[$key])) {
+                        Logger::debug("Bad username: ".$data[$key]);
                         return false;
                     }
                     $data[$key] = strtolower($data[$key]);
                     break;
 
                 case 'email':
-                    if (!self::validateEmail($data[$key])) {
-                        return false;
+                    if ($data[$key]) {
+                        if (!self::validateEmail($data[$key])) {
+                            Logger::debug("Bad email: ".$data[$key]);
+                            return false;
+                        }
+                        $data[$key] = strtolower($data[$key]);
                     }
-                    $data[$key] = strtolower($data[$key]);
                     break;
             }
         }
@@ -345,32 +349,26 @@ class User
 
         // check email
         if (isset($data['email'])) {
-            if (!self::validateEmail($data['email'])) {
-                return false;
+            if ($data['email']) {
+                if (!self::validateEmail($data['email'])) {
+                    return false;
+                }
+                $data['email'] = strtolower($data['email']);
             }
-            $data['email'] = strtolower($data['email']);
         }
 
-        // creates user in database
-        $id = (new Database)->createUser($data);
-        if (!$id) {
-            Logger::error("Failed to create user");
-            return false;
-        }
-
-        $data['id'] = $id;
-        return new self($data);
-    }
-
-
-    public static function validateUsername($username)
-    {
-        return ctype_alnum($username);
+        return (new Database)->createUser($data);
     }
 
 
     public static function validateEmail($email)
     {
         return filter_var($email, FILTER_VALIDATE_EMAIL);
+    }
+
+
+    private static function validateUsername($username)
+    {
+        return ctype_alnum($username);
     }
 }

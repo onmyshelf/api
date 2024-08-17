@@ -434,12 +434,23 @@ class Collection
         unset($allowed['properties']);
         unset($allowed['created']);
         unset($allowed['updated']);
-
-        // filter data to update
         $allowed = array_keys($allowed);
+
         foreach (array_keys($data) as $key) {
+            // remove non allowed data
             if (!in_array($key, $allowed)) {
                 unset($data[$key]);
+                continue;
+            }
+            
+            // check values
+            switch ($key) {
+                case 'visibility':
+                    if (!Visibility::validateLevel($data[$key])) {
+                        Logger::debug("Update collection error: bad visibility level: ".$data[$key]);
+                        return false;
+                    }
+                    break;
             }
         }
 
@@ -522,10 +533,21 @@ class Collection
             'tags',
         ];
 
-        // remove non allowed data
         foreach (array_keys($data) as $key) {
+            // remove non allowed data
             if (!in_array($key, $allowed)) {
                 unset($data[$key]);
+                continue;
+            }
+
+            // check values
+            switch ($key) {
+                case 'visibility':
+                    if (!Visibility::validateLevel($data[$key])) {
+                        Logger::debug("Create collection error: bad visibility level: ".$data[$key]);
+                        return false;
+                    }
+                    break;
             }
         }
 

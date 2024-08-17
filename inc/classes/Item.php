@@ -255,11 +255,24 @@ class Item
      */
     public static function create($collectionId, $data)
     {
-        // remove non allowed data
+        // defines allowed data fields
         $allowed = ['properties', 'visibility', 'borrowable'];
+
         foreach (array_keys($data) as $key) {
+            // remove non allowed data
             if (!in_array($key, $allowed)) {
                 unset($data[$key]);
+                continue;
+            }
+
+            // check values
+            switch ($key) {
+                case 'visibility':
+                    if (!Visibility::validateLevel($data[$key])) {
+                        Logger::debug("Create item error: bad visibility level: ".$data[$key]);
+                        return false;
+                    }
+                    break;
             }
         }
 
