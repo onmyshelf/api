@@ -5,6 +5,22 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 
 SET NAMES utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `borrower` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `userId` int(11) DEFAULT NULL,
+  `firstname` varchar(255) NOT NULL,
+  `lastname` varchar(255) NOT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `owner` int(11) NOT NULL,
+  `visibility` int(10) NOT NULL DEFAULT 3,
+  PRIMARY KEY (`id`),
+  KEY `userId` (`userId`),
+  KEY `owner` (`owner`),
+  CONSTRAINT `borrower_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `user` (`id`),
+  CONSTRAINT `borrower_ibfk_2` FOREIGN KEY (`owner`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
 CREATE TABLE IF NOT EXISTS `collection` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `type` varchar(255) DEFAULT NULL,
@@ -81,15 +97,17 @@ CREATE TABLE IF NOT EXISTS `itemProperty` (
 CREATE TABLE IF NOT EXISTS `loan` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `itemId` int(11) NOT NULL,
+  `borrowerId` int(11) DEFAULT NULL,
   `state` varchar(255) NOT NULL,
   `lent` int(11) DEFAULT NULL,
   `returned` int(11) DEFAULT NULL,
-  `borrower` varchar(255) NOT NULL,
   `notes` text DEFAULT NULL,
   `date` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `itemId` (`itemId`),
-  CONSTRAINT `loan_ibfk_1` FOREIGN KEY (`itemId`) REFERENCES `item` (`id`)
+  KEY `borrowerId` (`borrowerId`),
+  CONSTRAINT `loan_ibfk_1` FOREIGN KEY (`itemId`) REFERENCES `item` (`id`),
+  CONSTRAINT `loan_ibfk_2` FOREIGN KEY (`borrowerId`) REFERENCES `borrower` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 

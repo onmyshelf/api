@@ -117,6 +117,12 @@ abstract class GlobalDatabase
     abstract public function updateLoan($id, $data);
     abstract public function deleteLoan($id);
 
+    // borrowers
+    abstract public function getBorrowers();
+    abstract public function createBorrower($data);
+    abstract public function updateBorrower($id, $data);
+    abstract public function deleteBorrower($id);
+
     // notifications
     abstract public function addNotification($userId, $type, $text);
 
@@ -130,6 +136,7 @@ abstract class GlobalDatabase
     abstract public function getUserByToken($token, $type);
     abstract public function createUser($data);
     abstract public function updateUser($id, $data);
+    abstract public function unlinkUserBorrower($id);
     abstract public function deleteUser($id);
 
 

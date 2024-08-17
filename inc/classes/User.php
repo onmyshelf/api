@@ -192,7 +192,18 @@ class User
         }
 
         // update user in database
-        return $db->updateUser($this->id, $data);
+        if (!$db->updateUser($this->id, $data)) {
+            return false;
+        }
+
+        // update linked borrower (if found)
+        $borrower = Borrower::getByUserId($this->id);
+        if ($borrower) {
+            // ignore errors
+            $borrower->update($data);
+        }
+
+        return true;
     }
 
 
@@ -202,8 +213,10 @@ class User
      */
     public function delete()
     {
+        $db = new Database();
+
         // revoke tokens
-        (new Database)->deleteUserTokens($this->id);
+        $db->deleteUserTokens($this->id);
 
         // delete user's collections
         foreach (Collection::dumpAll($this->id) as $c) {
@@ -212,8 +225,10 @@ class User
                 $collection->delete();
             }
         }
+
+        $db->unlinkUserBorrower($this->id);
         
-        return (new Database)->deleteUser($this->id);
+        return $db->deleteUser($this->id);
     }
 
 
@@ -348,13 +363,13 @@ class User
     }
 
 
-    private static function validateUsername($username)
+    public static function validateUsername($username)
     {
         return ctype_alnum($username);
     }
 
 
-    private static function validateEmail($email)
+    public static function validateEmail($email)
     {
         return filter_var($email, FILTER_VALIDATE_EMAIL);
     }

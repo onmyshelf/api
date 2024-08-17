@@ -1019,6 +1019,55 @@ abstract class SqlDatabase extends GlobalDatabase
 
 
     /*
+     *  Borrowers
+     */
+
+    /**
+     * Get borrowers
+     * @param  array $data
+     * @return bool Success
+     */
+    public function getBorrowers()
+    {
+        $query = "SELECT * FROM `borrower` WHERE `owner`=? OR `visibility` < 3 ORDER BY `firstname`, `lastname`";
+        return $this->select($query, [$GLOBALS['currentUserID']]);
+    }
+
+    
+    /**
+     * Creates borrower
+     * @param  array $data
+     * @return bool Success
+     */
+    public function createBorrower($data)
+    {
+        return $this->insertOne('borrower', $data);
+    }
+
+
+    /**
+     * Update borrower
+     * @param  int     $id
+     * @param  array   $data
+     * @return boolean Success
+     */
+    public function updateBorrower($id, $data)
+    {
+        if (count($data) == 0) {
+            return true;
+        }
+
+        return $this->update('borrower', $data, ['id' => $id]);
+    }
+
+
+    public function deleteBorrower($id)
+    {
+        return $this->delete('borrower', ['id' => $id]);
+    }
+
+
+    /*
      *  Properties
      */
 
@@ -1372,6 +1421,17 @@ abstract class SqlDatabase extends GlobalDatabase
         }
 
         return $this->update('user', $data, ['id' => $id]);
+    }
+
+
+    /**
+     * Unlink user from borrower
+     * @param int   $userId
+     * @return bool Success
+     */
+    public function unlinkUserBorrower($userId)
+    {
+        return $this->update('borrower', ['userId' => null], ['userId' => $userId]);
     }
 
 

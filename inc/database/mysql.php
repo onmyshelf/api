@@ -181,6 +181,78 @@ class Database extends SqlDatabase
     }
 
 
+    protected function upgrade_v140()
+    {
+        // add loan.borrowerId
+        $sql = "ALTER TABLE `loan`
+                ADD COLUMN IF NOT EXISTS `borrowerId` int(11) DEFAULT NULL";
+        if (!$this->execute($sql)) {
+            Logger::fatal("Upgrade v1.4.0: Failed to add loan.borrowerId column");
+            return false;
+        }
+
+        // add index on loan.borrowerId
+        $sql = "ALTER TABLE `loan` ADD KEY IF NOT EXISTS `borrowerId` (`borrowerId`)";
+        if (!$this->execute($sql)) {
+            Logger::fatal("Upgrade v1.4.0: Failed to add index on loan.borrowerId column");
+            return false;
+        }
+
+        // add foreign key on loan.borrowerId
+        $sql = "ALTER TABLE `loan` CONSTRAINT `loan_ibfk_2` IF NOT EXISTS FOREIGN KEY (`borrowerId`) REFERENCES `borrower` (`id`)";
+        if (!$this->execute($sql)) {
+            Logger::fatal("Upgrade v1.4.0: Failed to add foreign key on loan.borrowerId column");
+            return false;
+        }
+        
+        // get borrowers
+        $loans = $this->select("SELECT `id`,`borrowerId`,`borrower` FROM `loan`");
+        if ($loans) {
+            foreach ($loans as $loan) {
+                if ($loan['borrowerId']) {
+                    continue;
+                }
+
+                // get borrower's name
+                $name = preg_split('/\s+', $loan['borrower']);
+                if (count($name) > 1) {
+                    $firstname = array_shift($name);
+                    $lastname = implode(' ', $name);
+                } else {
+                    $firstname = $name;
+                    $lastname = '';
+                }
+
+                $borrowerId = $this->selectOne("SELECT `id` FROM `borrower` WHERE `firstname`=? AND `lastname`=?",
+                            [$firstname, $lastname]);
+                if (!$borrowerId) {
+                    $borrower = [
+                        'firstname' => $firstname,
+                        'lastname' => $lastname,
+                    ];
+                    $borrowerId = $this->insertOne('borrower', $borrower);
+                    if (!$borrowerId) {
+                        Logger::fatal("Upgrade v1.4.0: Failed to add borrower: $firstname $lastname");
+                        return false;
+                    }
+                }
+
+                if (!$this->update('loan', ['borrowerId' => $borrowerId], ['id' => $loan['id']])) {
+                    Logger::fatal("Upgrade v1.4.0: Failed to update loan ".$loan['id']);
+                    return false;
+                }
+            }
+        }
+
+        // delete loan.borrower column
+        $sql = "ALTER TABLE `loan` DROP COLUMN `borrower`";
+        if (!$this->execute($sql)) {
+            Logger::fatal("Upgrade v1.4.0: Failed to drop loan.borrower column");
+            return false;
+        }
+    }
+
+
     /**
      * Creates a prepared query, binds the given parameters and returns the result of the executed
      * @param  string $table    Table name
