@@ -559,6 +559,34 @@ abstract class SqlDatabase extends GlobalDatabase
 
 
     /*
+     *  Collection templates
+     */
+
+    /**
+     * Update collection template
+     *
+     * @param int   $id
+     * @param array $data
+     * @return bool Success
+     */
+    public function updateCollectionTemplate($id, $data)
+    {
+        // get associated properties
+        $properties = $this->selectColumn("SELECT `name` FROM `property` WHERE `collectionId`=?", [$id]);
+        if ($properties === false) {
+            return false;
+        }
+
+        // delete all properties (to avoid keeping changes)
+        foreach ($properties as $property) {
+            $this->deleteProperty($id, $property);
+        }
+
+        return parent::updateCollectionTemplate($id, $data);
+    }
+
+
+    /*
      *  Items
      */
 

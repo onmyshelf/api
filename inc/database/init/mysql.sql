@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS `borrower` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `userId` int(11) DEFAULT NULL,
   `firstname` varchar(255) NOT NULL,
-  `lastname` varchar(255) NOT NULL,
+  `lastname` varchar(255) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `owner` int(11) NOT NULL,
   `visibility` int(10) NOT NULL DEFAULT 3,

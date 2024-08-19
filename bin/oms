@@ -117,7 +117,7 @@ class Cmd
 
         echo "Upgrading from $currentVersion to $newVersion...\n";
 
-        echo "Upgrade database structure...";
+        echo "Upgrade database structure...\n";
         // WARN: we need to call a separate Database instance here
         if (!(new Database)->install()) {
             echo " FAILED! (see log file for more details)\n";

@@ -183,6 +183,10 @@ class Database extends SqlDatabase
     }
 
 
+    /**
+     * Upgrade procedure for v1.4.0
+     * @return bool Success
+     */
     protected function upgrade_v140()
     {
         // add loan.borrowerId
