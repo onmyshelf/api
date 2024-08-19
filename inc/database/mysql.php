@@ -178,6 +178,8 @@ class Database extends SqlDatabase
             // do not quit if error
             Logger::warn("Upgrade v1.3.2: Failed to add index on itemProperty.value column");
         }
+
+        return true;
     }
 
 
@@ -204,9 +206,15 @@ class Database extends SqlDatabase
             Logger::fatal("Upgrade v1.4.0: Failed to add foreign key on loan.borrowerId column");
             return false;
         }
-        
+
         // get borrowers
-        $loans = $this->select("SELECT `id`,`itemId`,`borrowerId`,`borrower` FROM `loan`");
+        try {
+            $loans = $this->select("SELECT `id`,`itemId`,`borrowerId`,`borrower` FROM `loan`");
+        } catch (Throwable $t) {
+            Logger::warn("Upgrade v1.4.0: Failed to get loans; maybe borrower column is already dropped.");
+            $loans = [];
+        }
+        
         if ($loans) {
             foreach ($loans as $loan) {
                 // already done: skip
@@ -250,11 +258,17 @@ class Database extends SqlDatabase
         }
 
         // delete loan.borrower column
-        $sql = "ALTER TABLE `loan` DROP COLUMN `borrower`";
-        if (!$this->execute($sql)) {
-            Logger::fatal("Upgrade v1.4.0: Failed to drop loan.borrower column");
-            return false;
+        try {
+            $sql = "ALTER TABLE `loan` DROP COLUMN `borrower`";
+            if (!$this->execute($sql)) {
+                Logger::fatal("Upgrade v1.4.0: Failed to drop loan.borrower column");
+                return false;
+            }
+        } catch (Throwable $t) {
+            Logger::warn("Upgrade v1.4.0: Failed to drop loan.borrower column; maybe already done.");
         }
+
+        return true;
     }
 
 

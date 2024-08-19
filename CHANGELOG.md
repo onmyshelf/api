@@ -1,5 +1,14 @@
 # Changelog for OnMyShelf API
 
+# 1.4.0 (2024-08-16)
+# New features
+- New borrowers management system
+- Implement item search
+- New route to upgrade modules
+# Improvements
+- Improve cleanup command
+- Renamed import route
+
 # 1.3.2 (2024-08-13)
 - Add missing database indexes
 

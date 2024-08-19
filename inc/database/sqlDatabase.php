@@ -1552,6 +1552,9 @@ abstract class SqlDatabase extends GlobalDatabase
                     $template['properties'][$name] = array_merge(Property::guessConfigFromName($name), $property);
                 }
 
+                // force visibility to public
+                $template['visibility'] = 0;
+
                 // get template ID (if exists)
                 $templateId = $this->selectOne("SELECT `id` FROM `collection` WHERE `template`=1 AND `type`=?",
                                                [$template['type']]);
