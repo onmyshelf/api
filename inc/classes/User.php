@@ -200,12 +200,13 @@ class User
             return false;
         }
 
-        // update linked borrower (if found)
-        $borrower = Borrower::getByUserId($this->id);
-        if ($borrower) {
-            // ignore errors
-            $borrower->update($data);
-        }
+        // TODO
+        // // update linked borrower (if found)
+        // $borrower = Borrower::getByUserId($this->id);
+        // if ($borrower) {
+        //     // ignore errors
+        //     $borrower->update($data);
+        // }
 
         return true;
     }
