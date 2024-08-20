@@ -1,4 +1,4 @@
 <?php
 
 testModuleImportHtmlSearch("amazon-books", "sherlock holmes");
-testModuleImportHtmlSearch("amazon-books", "sherlock holmes", null, "fr_FR");
+testModuleImportHtmlSearch("amazon-books", "sherlock holmes", null, ['lang' => 'fr_FR'], 'FR');

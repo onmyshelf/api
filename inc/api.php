@@ -472,6 +472,9 @@ class Api
 
     private function routeBorrowers()
     {
+        // forbidden if not logged in
+        $this->requireAuthentication();
+
         switch ($this->method) {
             case 'POST':
                 // create new borrower
@@ -480,9 +483,6 @@ class Api
                 if (READ_ONLY) {
                     $this->error(403);
                 }
-
-                // forbidden if not logged in
-                $this->requireAuthentication();
 
                 $this->post = true;
                 $this->requireData(['firstname']);
