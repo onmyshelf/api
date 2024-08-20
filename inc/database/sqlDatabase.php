@@ -1369,7 +1369,7 @@ abstract class SqlDatabase extends GlobalDatabase
      */
     public function getUsers()
     {
-        return $this->select("SELECT `id`,`username`,`firstname`,`lastname`,`enabled`,`email`,`avatar` FROM `user`");
+        return $this->select("SELECT `id`,`role`,`username`,`firstname`,`lastname`,`enabled`,`email`,`avatar` FROM `user`");
     }
 
 
