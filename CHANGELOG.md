@@ -1,6 +1,6 @@
 # Changelog for OnMyShelf API
 
-# 1.4.0 (2024-08-16)
+# 1.4.0 (2024-08-23)
 # New features
 - New borrowers management system
 - Implement item search
