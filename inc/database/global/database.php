@@ -122,6 +122,7 @@ abstract class GlobalDatabase
     abstract public function getBorrowerById($id, $ownerId);
     abstract public function getBorrowerByEmail($email, $ownerId);
     abstract public function getBorrowerByUserId($userId, $ownerId);
+    abstract public function getBorrowerLoans($borrowerId);
     abstract public function createBorrower($data);
     abstract public function updateBorrower($id, $data);
     abstract public function deleteBorrower($id);

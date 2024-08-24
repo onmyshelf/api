@@ -28,6 +28,7 @@ class Api
             '/' => 'Home',
             '/borrowers' => 'Borrowers',
             '/borrowers/{id}' => 'BorrowersId',
+            '/borrowers/{id}/loans' => 'BorrowersIdLoans',
             '/collections' => 'Collections',
             '/collections/{id}' => 'CollectionsId',
             '/collections/{id}/export' => 'CollectionsIdExport',
@@ -558,6 +559,19 @@ class Api
                 $this->response($borrower->dump());
                 break;
         }
+    }
+
+
+    private function routeBorrowersIdLoans()
+    {
+        $this->requireArgs(['id']);
+
+        $borrower = Borrower::getById($this->args['id']);
+        if (!$borrower) {
+            $this->error(404);
+        }
+
+        $this->response($borrower->getLoans());
     }
 
     

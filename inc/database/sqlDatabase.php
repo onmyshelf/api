@@ -1101,6 +1101,20 @@ abstract class SqlDatabase extends GlobalDatabase
         return $this->selectFirst($query, [$userId, $ownerId]);
     }
 
+
+    /**
+     * Get borrower loans
+     * @param  int  $borrowerId
+     * @return array
+     */
+    public function getBorrowerLoans($borrowerId)
+    {
+        $query = "SELECT l.id, i.collectionId, l.itemId, l.state, l.date
+                  FROM `loan` l JOIN `item` i ON l.itemId=i.id
+                  WHERE `borrowerId`=? ORDER BY l.date DESC";
+        return $this->select($query, [$borrowerId]);
+    }
+
     
     /**
      * Creates borrower

@@ -52,6 +52,16 @@ class Borrower
 
 
     /**
+     * Get borrower loans
+     * @return array Borrower
+     */
+    public function getLoans()
+    {
+        return (new Database)->getBorrowerLoans($this->id);
+    }
+
+
+    /**
      * Dump borrower
      * @return array Borrower
      */
