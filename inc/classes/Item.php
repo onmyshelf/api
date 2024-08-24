@@ -139,6 +139,23 @@ class Item
 
 
     /**
+     * Get borrowable level
+     * @return array
+     */
+    public function getBorrowableLevel()
+    {
+        $collection = $this->getCollection();
+        $collectionBorrowable = $collection->getBorrowableLevel();
+
+        if ($collectionBorrowable > $this->borrowable) {
+            return $collectionBorrowable;
+        }
+
+        return $this->borrowable;
+    }
+
+
+    /**
      * Dump item
      * @return array Item dumped
      */
@@ -157,6 +174,93 @@ class Item
             'pendingLoans' => $this->getPendingLoans(),
             'askingLoans' => $this->getAskingLoans(),
         ];
+    }
+
+
+    public function askToBorrow($data)
+    {
+        // get parent collection
+        $collection = Collection::getById($this->collectionId);
+        if (!$collection) {
+            Logger::error("Failed to get collection from ".$this->collectionId);
+            return false;
+        }
+
+        $message = '';
+        if (isset($data['message'])) {
+            $message = $data['message'];
+        }
+
+        $borrowerId = false;
+        $user = false;
+
+        if (isset($data['userId'])) {
+            $user = User::getById($data['userId']);
+            if (!$user) {
+                Logger::error("Failed to get user ".$data['userId']);
+                return false;
+            }
+
+            // get borrower by user Id
+            $borrower = Borrower::getByUserId($data['userId'], $collection->getOwner());
+            if ($borrower) {
+                $borrowerId = $borrower->getId();
+            }
+        }
+
+        // create borrower if not exists
+        if (!$borrowerId) {
+            // force values
+            $data['owner'] = $collection->getOwner();
+            $data['visibility'] = 3;
+
+            if ($user) {
+                $borrowerId = Borrower::createFromUser($data['userId'], $data);
+            } else {
+                $borrowerId = Borrower::create($data);
+            }
+
+            if (!$borrowerId) {
+                Logger::error("Failed to create borrower");
+                return false;
+            }
+        }
+        
+        // get collection owner
+        $owner = User::getById($collection->getOwner());
+        if (!$owner) {
+            Logger::error("Failed to get collection owner from ".$collection->getOwner());
+            return false;
+        }
+
+        // create loan
+        $loan = [
+            'borrowerId' => $borrowerId,
+            'state' => 'asked',
+            'notes' => $message,
+        ];
+        if (!Loan::create($this->id, $loan)) {
+            Logger::error("Failed to create loan");
+            return false;
+        }
+
+        // get owner email
+        $ownerEmail = $owner->getEmail();
+        if (!filter_var($ownerEmail, FILTER_VALIDATE_EMAIL)) {
+            Logger::warn("Failed to get collection owner email for: ".$collection->getOwner());
+            return false;
+        }
+
+        $url = Config::getHomeUrl()."/collection/".$this->collectionId."/item/".$this->id."/?tab=Loans";
+
+        // send request email
+        Mailer::send(
+            $ownerEmail,
+            "Somebody asks for a borrow",
+            "<p>Dear ".$owner->getUsername().",</p>Someone has made a borrow request:<br /><a href='$url'>$url</a>"
+        );
+
+        return true;
     }
 
 

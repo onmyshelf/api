@@ -61,6 +61,21 @@ class Collection
     }
 
 
+    /**
+     * Get borrowable level
+     * @return array
+     */
+    public function getBorrowableLevel()
+    {
+        // check if loans are disabled
+        if (!Config::get('loans')) {
+            return 4;
+        }
+
+        return $this->borrowable;
+    }
+
+
     /*
      *  Other methods
      */

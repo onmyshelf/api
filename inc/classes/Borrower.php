@@ -134,9 +134,54 @@ class Borrower
      * @param  int    $id
      * @return object User object
      */
-    public static function getById($id)
+    public static function getById($id, $ownerId=null)
     {
-        $data = (new Database)->getBorrowerById($id);
+        if (!$ownerId) {
+            $ownerId = $GLOBALS['currentUserID'];
+        }
+
+        $data = (new Database)->getBorrowerById($id, $ownerId);
+        if (!$data) {
+            return false;
+        }
+
+        return new self($data);
+    }
+
+
+    /**
+     * Get borrower by user ID
+     * @param  int    $userId
+     * @return object User object
+     */
+    public static function getByUserId($userId, $ownerId=null)
+    {
+        if (!$ownerId) {
+            $ownerId = $GLOBALS['currentUserID'];
+        }
+
+        $data = (new Database)->getBorrowerByUserId($userId, $ownerId);
+        if (!$data) {
+            return false;
+        }
+
+        return new self($data);
+    }
+
+
+    /**
+     * Get borrower by email
+     * @param  string $email
+     * @param  int    $ownerId
+     * @return object User object
+     */
+    public static function getByEmail($email, $ownerId=null)
+    {
+        if (!$ownerId) {
+            $ownerId = $GLOBALS['currentUserID'];
+        }
+
+        $data = (new Database)->getBorrowerByEmail($email, $ownerId);
         if (!$data) {
             return false;
         }
@@ -189,6 +234,35 @@ class Borrower
             }
         }
 
+        // set owner if not set
+        if (!isset($data['owner'])) {
+            $data['owner'] = $GLOBALS['currentUserID'];
+        }
+
         return (new Database)->createBorrower($data);
+    }
+
+
+    /**
+     * Create borrower from user
+     * @param  int $userId
+     * @return int   Borrower ID, FALSE if error
+     */
+    public static function createFromUser($userId, $data=[])
+    {
+        // get user
+        $user = User::getById($userId);
+        if (!$user) {
+            Logger::error("Create borrower: failed to get user $userId");
+            return false;
+        }
+
+        // fill data from user profile
+        $data['userId'] = $userId;
+        $data['firstname'] = $user->getFirstname();
+        $data['lastname'] = $user->getLastname();
+        $data['email'] = $user->getEmail();
+
+        return self::create($data);
     }
 }

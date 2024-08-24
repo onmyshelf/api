@@ -38,6 +38,7 @@ class Api
             '/collections/{cid}/properties' => 'CollectionsIdProperties',
             '/collections/{cid}/properties/{name}' => 'CollectionsIdPropertiesName',
             '/collections/{cid}/items/{id}' => 'CollectionsIdItemsId',
+            '/collections/{cid}/items/{id}/borrow' => 'CollectionsIdItemsIdBorrow',
             '/collections/{cid}/items/{id}/loans' => 'CollectionsIdItemsIdLoans',
             '/collections/{cid}/items/{iid}/loans/{id}' => 'CollectionsIdItemsIdLoansId',
             '/collectiontemplates' => 'CollectionTemplates',
@@ -924,6 +925,55 @@ class Api
             default:
                 // dump item
                 $this->response($item->dump());
+                break;
+        }
+    }
+
+
+    private function routeCollectionsIdItemsIdBorrow()
+    {
+        $this->requireArgs(['cid','id']);
+
+        // get collection object to check access rights
+        $collection = Collection::getById($this->args['cid']);
+        if (!$collection) {
+            $this->error(404, 'Collection does not exists');
+        }
+
+        // get item object
+        $item = Item::getById($this->args['id'], $this->args['cid']);
+        if (!$item) {
+            $this->error(404, 'Item does not exists');
+        }
+
+        // get access rights
+        $this->compareUserID($collection->getOwner());
+
+        switch ($this->method) {
+            case 'POST':
+                // forbidden in read only mode
+                if (READ_ONLY) {
+                    $this->error(403);
+                }
+
+                // check access rights
+                if ($GLOBALS['accessRights'] < $item->getBorrowableLevel()) {
+                    $this->error(403);
+                }
+
+                if (is_null($GLOBALS['currentUserID'])) {
+                    // public mode
+                    $this->requireData(['firstname', 'lastname', 'email']);
+                } else {
+                    // append user ID
+                    $this->data['userId'] = $GLOBALS['currentUserID'];
+                }
+
+                $this->responseOperation('sent', $item->askToBorrow($this->data));
+                break;
+
+            default:
+                $this->error(404);
                 break;
         }
     }

@@ -1054,8 +1054,7 @@ abstract class SqlDatabase extends GlobalDatabase
 
     /**
      * Get borrowers
-     * @param  array $data
-     * @return bool Success
+     * @return array
      */
     public function getBorrowers()
     {
@@ -1067,12 +1066,39 @@ abstract class SqlDatabase extends GlobalDatabase
     /**
      * Get borrower by id
      * @param  int  $id
-     * @return bool Success
+     * @param  int  $ownerId
+     * @return array
      */
-    public function getBorrowerById($id)
+    public function getBorrowerById($id, $ownerId=null)
     {
         $query = "SELECT * FROM `borrower` WHERE `id`=? AND (`owner`=? OR `visibility`< 3)";
-        return $this->selectFirst($query, [$id, $GLOBALS['currentUserID']]);
+        return $this->selectFirst($query, [$id, $ownerId]);
+    }
+
+
+    /**
+     * Get borrower by email
+     * @param  string $email
+     * @param  int  $ownerId
+     * @return array
+     */
+    public function getBorrowerByEmail($email, $ownerId=null)
+    {
+        $query = "SELECT * FROM `borrower` WHERE `email`=? AND (`owner`=? OR `visibility`< 3)";
+        return $this->selectFirst($query, [$email, $ownerId]);
+    }
+
+
+    /**
+     * Get borrower by user ID
+     * @param  int  $userId
+     * @param  int  $ownerId
+     * @return array
+     */
+    public function getBorrowerByUserId($userId, $ownerId=null)
+    {
+        $query = "SELECT * FROM `borrower` WHERE `userId`=? AND (`owner`=? OR `visibility`< 3)";
+        return $this->selectFirst($query, [$userId, $ownerId]);
     }
 
     
@@ -1549,6 +1575,9 @@ abstract class SqlDatabase extends GlobalDatabase
                 }
             }
         }
+
+        // add default config values (ignore errors when duplicates)
+        $this->insertOne('config', ['param' => 'loans', 'value' => 1]);
 
         // set upgraded version into database
         return parent::upgrade($newVersion);

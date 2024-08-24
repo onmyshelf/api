@@ -43,6 +43,26 @@ class User
 
 
     /**
+     * Get firstname
+     * @return string
+     */
+    public function getFirstname()
+    {
+        return $this->firstname;
+    }
+
+
+    /**
+     * Get lastname
+     * @return string
+     */
+    public function getLastname()
+    {
+        return $this->lastname;
+    }
+
+
+    /**
      * Get email
      * @return string
      */
