@@ -201,8 +201,16 @@ class Item
                 return false;
             }
 
-            // get borrower by user Id
+            // get borrower by user ID
             $borrower = Borrower::getByUserId($data['userId'], $collection->getOwner());
+            if ($borrower) {
+                $borrowerId = $borrower->getId();
+            }
+        }
+
+        // if not found, try to get borrower by email
+        if (!$borrowerId) {
+            $borrower = Borrower::getByEmail($data['email'], $collection->getOwner());
             if ($borrower) {
                 $borrowerId = $borrower->getId();
             }
