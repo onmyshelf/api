@@ -135,7 +135,7 @@ class Collection
             'name' => $this->name,
             'description' => $this->description,
             'cover' => $this->cover,
-            'thumbnail' => Storage::getThumbnails($this->cover),
+            'thumbnails' => Storage::getThumbnails($this->cover),
             'owner' => $this->owner,
             'type' => $this->type,
             'visibility' => $this->visibility,
@@ -293,7 +293,7 @@ class Collection
             $items[] = [
                 'id' => $dumpItem['id'],
                 'properties' => $itemProperties,
-                'thumbnail' => $thumbnails,
+                'thumbnails' => $thumbnails,
                 'quantity' => $dumpItem['quantity'],
                 'visibility' => $dumpItem['visibility'],
                 'borrowable' => $dumpItem['borrowable'],
