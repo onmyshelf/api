@@ -1084,7 +1084,7 @@ abstract class SqlDatabase extends GlobalDatabase
      */
     public function getBorrowerByEmail($email, $ownerId=null)
     {
-        $query = "SELECT * FROM `borrower` WHERE `email`=? AND (`owner`=? OR `visibility`< 3)";
+        $query = "SELECT * FROM `borrower` WHERE `userId`=NULL AND `email`=? AND (`owner`=? OR `visibility`< 3)";
         return $this->selectFirst($query, [$email, $ownerId]);
     }
 

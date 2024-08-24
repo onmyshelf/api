@@ -216,8 +216,14 @@ class Item
             }
         }
 
-        // create borrower if not exists
-        if (!$borrowerId) {
+        if ($borrowerId) {
+            // update borrower data if exists
+            unset($data['userId']);
+            unset($data['owner']);
+            unset($data['visibility']);
+            $borrower->update($data);
+        } else {
+            // create borrower if not exists
             // force values
             $data['owner'] = $collection->getOwner();
             $data['visibility'] = 3;
