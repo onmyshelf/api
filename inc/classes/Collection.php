@@ -406,7 +406,7 @@ class Collection
 
 
     /**
-     * Import data
+     * Import collection
      * @param  string $type    Type of source
      * @param  string $source  Import source
      * @param  array  $options Options

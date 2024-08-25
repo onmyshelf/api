@@ -4,7 +4,6 @@ require_once('classes/Token.php');
 class Api
 {
     private $headers;
-    private $post;
     private $method;
     private $args;
     private $data;
@@ -16,7 +15,6 @@ class Api
         $GLOBALS['currentUserID'] = null;
         $GLOBALS['accessRights'] = 0;
         $this->headers = false;
-        $this->post = false;
         $this->args = [];
         $this->data = [];
 
@@ -348,7 +346,7 @@ class Api
             'readonly' => READ_ONLY,
         ];
 
-        // more information if logged in
+        // more information if admin
         if (isset($GLOBALS['currentUsername']) && $GLOBALS['currentUsername'] == 'onmyshelf') {
             $info['version'] = VERSION;
         }
@@ -486,7 +484,6 @@ class Api
                     $this->error(403);
                 }
 
-                $this->post = true;
                 $this->requireData(['firstname']);
 
                 // force owner to current user
@@ -589,7 +586,6 @@ class Api
                 // forbidden if not logged in
                 $this->requireAuthentication();
 
-                $this->post = true;
                 $this->requireData(['name']);
 
                 // force owner to current user
@@ -669,7 +665,6 @@ class Api
             $this->error(403);
         }
 
-        $this->post = true;
         $this->requireArgs(['id']);
 
         $collection = Collection::getById($this->args['id']);
@@ -692,7 +687,6 @@ class Api
             $this->error(403);
         }
 
-        $this->post = true;
         $this->requireArgs(['id']);
         $this->requireData(['module', 'source']);
 
