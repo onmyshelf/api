@@ -1591,7 +1591,9 @@ abstract class SqlDatabase extends GlobalDatabase
         }
 
         // add default config values (ignore errors when duplicates)
-        $this->insertOne('config', ['param' => 'loans', 'value' => 1]);
+        try {
+            $this->insertOne('config', ['param' => 'loans', 'value' => 1]);
+        } catch (Exception $e) {}
 
         // set upgraded version into database
         return parent::upgrade($newVersion);
