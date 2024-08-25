@@ -437,6 +437,34 @@ class Collection
 
 
     /**
+     * Get data from import module
+     * @param  string $module
+     * @param  string $source
+     * @param  array  $options
+     * @return array  Data
+     */
+    public function importGetData($module, $source, $options=[])
+    {
+        if (!Module::load('import', $module)) {
+            return false;
+        }
+
+        try {
+            $import = new Import($source, $options);
+        } catch (Throwable $t) {
+            Logger::fatal("error while loading import class: $module");
+            return false;
+        }
+
+        if (!$import->load()) {
+            return false;
+        }
+        
+        return $import->getData();
+    }
+
+
+    /**
      * Import item
      * @param  string $type    Type of source
      * @param  string $source  Import source
@@ -464,6 +492,35 @@ class Collection
         }
 
         return $import->report();
+    }
+
+
+    /**
+     * Search for import
+     * @param  string $module
+     * @param  string $source
+     * @param  string $search
+     * @param  array  $options
+     * @return array           Import report
+     */
+    public function importSearch($module, $source, $search, $options=[])
+    {
+        if (!Module::load('import', $module)) {
+            return false;
+        }
+
+        try {
+            $import = new Import($source, $options);
+        } catch (Throwable $t) {
+            Logger::fatal("error while loading import class: $module");
+            return false;
+        }
+
+        if (!$import->load()) {
+            return false;
+        }
+        
+        return $import->search($search);
     }
 
 

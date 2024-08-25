@@ -666,6 +666,9 @@ class Api
             $this->error(403);
         }
 
+        // forbidden if not logged in
+        $this->requireAuthentication();
+
         $this->requireArgs(['id']);
 
         $collection = Collection::getById($this->args['id']);
@@ -681,12 +684,15 @@ class Api
     }
 
 
-    private function routeCollectionsIdImport()
+    private function runImportMethod($method)
     {
         // forbidden in read only mode
         if (READ_ONLY) {
             $this->error(403);
         }
+
+        // forbidden if not logged in
+        $this->requireAuthentication();
 
         $this->requireArgs(['id']);
         $this->requireData(['module', 'source']);
@@ -705,73 +711,30 @@ class Api
         // check ownership
         $this->requireUserID($collection->getOwner());
 
-        $result = $collection->import($this->data['module'], $this->data['source'], $this->data['options']);
+        $result = $collection->$method($this->data['module'], $this->data['source'], $this->data['options']);
         if ($result === false) {
             $this->error();
         }
 
         $this->response($result);
+    }
+
+
+    private function routeCollectionsIdImport()
+    {
+        return $this->runImportMethod('import');
     }
 
 
     private function routeCollectionsIdImportData()
     {
-        $this->requireParams(['module', 'source']);
-
-        // default options
-        if (!isset($this->data['options'])) {
-            $this->data['options'] = [];
-        }
-
-        // load module
-        if (!Module::load('import', $_GET['module'])) {
-            $this->error(500, "Error while loading import module");
-        }
-
-        $import = new Import($_GET['source'], $this->data['options']);
-        if (!$import) {
-            $this->error(500, "Error while loading import module");
-        }
-
-        // load source to import
-        if (!$import->load()) {
-            $this->error(500, "Error while opening import source");
-        }
-
-        $this->response($import->getData($_GET['source']));
+        return $this->runImportMethod('importGetData');
     }
 
 
     private function routeCollectionsIdImportItem()
     {
-        // forbidden in read only mode
-        if (READ_ONLY) {
-            $this->error(403);
-        }
-
-        $this->requireArgs(['id']);
-        $this->requireData(['module', 'source']);
-
-        // default options
-        if (!isset($this->data['options'])) {
-            $this->data['options'] = [];
-        }
-
-        $collection = Collection::getById($this->args['id']);
-        if ($collection === false) {
-            Logger::error("collection not found: ".$this->args['id']);
-            $this->error(404, 'Collection not found');
-        }
-
-        // check ownership
-        $this->requireUserID($collection->getOwner());
-
-        $result = $collection->importItem($this->data['module'], $this->data['source'], $this->data['options']);
-        if ($result === false) {
-            $this->error();
-        }
-
-        $this->response($result);
+        return $this->runImportMethod('importItem');
     }
 
 
@@ -782,31 +745,30 @@ class Api
             $this->error(403);
         }
 
-        $this->requireParams(['module', 'source', 'search']);
+        // forbidden if not logged in
+        $this->requireAuthentication();
+
+        $this->requireArgs(['id']);
+        $this->requireData(['module', 'source', 'search']);
 
         // default options
-        if (!isset($_GET['options'])) {
-            $_GET['options'] = [];
+        if (!isset($this->data['options'])) {
+            $this->data['options'] = [];
         }
 
-        // load module
-        if (!Module::load('import', $_GET['module'])) {
-            $this->error(500, "Error while loading import module");
+        $collection = Collection::getById($this->args['id']);
+        if ($collection === false) {
+            Logger::error("collection not found: ".$this->args['id']);
+            $this->error(404, 'Collection not found');
         }
 
-        $import = new Import($_GET['source'], $_GET['options']);
-        if (!$import) {
-            $this->error(500, "Error while loading import module");
-        }
+        // check ownership
+        $this->requireUserID($collection->getOwner());
 
-        // load source to import
-        if (!$import->load()) {
-            $this->error(500, "Error while opening import source");
-        }
-
-        $results = $import->search($_GET['search']);
-        if (!is_array($results)) {
-            $this->error(500, "Error while searching");
+        $results = $collection->importSearch($this->data['module'], $this->data['source'],
+                                             $this->data['search'], $this->data['options']);
+        if ($results === false) {
+            $this->error();
         }
 
         $this->response($results);
