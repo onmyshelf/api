@@ -437,6 +437,37 @@ class Collection
 
 
     /**
+     * Import item
+     * @param  string $type    Type of source
+     * @param  string $source  Import source
+     * @param  array  $options Options
+     * @return array           Import report
+     */
+    public function importItem($module, $source, $options=[])
+    {
+        if (!Module::load('import', $module)) {
+            return false;
+        }
+
+        try {
+            $import = new Import($source, $options);
+        } catch (Throwable $t) {
+            Logger::fatal("error while loading import class: $module");
+            return false;
+        }
+
+        if (!$import->load()) {
+            return false;
+        }
+        if (!$import->importItem($this, $import->getData())) {
+            return false;
+        }
+
+        return $import->report();
+    }
+
+
+    /**
      * Update collection data
      * @param  array   $data
      * @return boolean

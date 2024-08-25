@@ -139,7 +139,7 @@ abstract class GlobalImport
      * @param  string $propertyId  Property to be used as id to avoid duplicates
      * @return object Item object
      */
-    protected function importItem($collection, $data, $propertyId=null)
+    public function importItem($collection, $data, $propertyId=null)
     {
         $item = false;
 
