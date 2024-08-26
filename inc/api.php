@@ -37,6 +37,7 @@ class Api
             '/collections/{cid}/items' => 'CollectionsIdItems',
             '/collections/{cid}/properties' => 'CollectionsIdProperties',
             '/collections/{cid}/properties/{name}' => 'CollectionsIdPropertiesName',
+            '/collections/{cid}/properties/{name}/values' => 'CollectionsIdPropertiesNameValues',
             '/collections/{cid}/items/{id}' => 'CollectionsIdItemsId',
             '/collections/{cid}/items/{id}/borrow' => 'CollectionsIdItemsIdBorrow',
             '/collections/{cid}/items/{id}/loans' => 'CollectionsIdItemsIdLoans',
@@ -1170,6 +1171,34 @@ class Api
                 $this->error(404);
                 break;
         }
+    }
+
+
+    private function routeCollectionsIdPropertiesNameValues()
+    {
+        $this->requireArgs(['cid','name']);
+
+        // get collection object
+        $collection = Collection::getById($this->args['cid']);
+        if (!$collection) {
+            $this->error(404);
+        }
+
+        // check ownership
+        $this->requireUserID($collection->getOwner());
+
+        // get property object
+        $property = Property::getByName($this->args['cid'], $this->args['name']);
+        if (!$property) {
+            $this->error(404);
+        }
+
+        $search = null;
+        if (isset($this->data['search'])) {
+            $search = $this->data['search'];
+        }
+
+        $this->response($property->getValues($search));
     }
 
 

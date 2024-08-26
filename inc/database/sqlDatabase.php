@@ -280,8 +280,7 @@ abstract class SqlDatabase extends GlobalDatabase
 
             // get available values
             if ($property['filterable']) {
-                $property['values'] = $this->selectColumn('SELECT `value` FROM `itemProperty` WHERE `collectionId`=? AND `name`=?
-                                               GROUP BY `value` ORDER BY `value`', [$id, $name]);
+                $property['values'] = $this->getPropertyValues($id, $name);
             }
 
             // delete unecessary data
@@ -1182,6 +1181,29 @@ abstract class SqlDatabase extends GlobalDatabase
         }
 
         return $property;
+    }
+
+
+    /**
+     * Get property values
+     * @param  int    $collectionId Collection ID
+     * @param  string $name         Property name
+     * @param  string $search       (optionnal)
+     * @return array                Array of data
+     */
+    public function getPropertyValues($collectionId, $name, $search=null)
+    {
+        $query = "SELECT `value` FROM `itemProperty` WHERE `collectionId`=? AND `name`=?";
+        $args = [$collectionId, $name];
+
+        if ($search) {
+            $query .= " AND `value` LIKE ?";
+            $args[] = "%$search%";
+        }
+
+        $query .= " GROUP BY `value` ORDER BY `value`";
+
+        return $this->selectColumn($query, $args);
     }
 
 

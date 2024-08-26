@@ -37,6 +37,17 @@ class Property
 
 
     /**
+     * Get values
+     * @param  string $search (optionnal)
+     * @return array  Values
+     */
+    public function getValues($search=null)
+    {
+        return (new Database)->getPropertyValues($this->collectionId, $this->name, $search);
+    }
+
+
+    /**
      * Update property
      * @param  array $data
      * @return bool

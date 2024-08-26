@@ -104,6 +104,7 @@ abstract class GlobalDatabase
 
     // properties
     abstract public function getProperty($collectionId, $name);
+    abstract public function getPropertyValues($collectionId, $name, $search);
     abstract public function setProperty($collectionId, $name, $data);
     abstract public function deleteProperty($collectionId, $name);
 
