@@ -143,7 +143,10 @@ abstract class GlobalImport
     {
         $item = false;
 
-        if (!is_null($propertyId)) {
+        if (!$propertyId) {
+            $propertyId = $collection->getItemIdProperty();
+        }
+        if ($propertyId) {
             if (isset($data[$propertyId])) {
                 // load existing item
                 Logger::debug("Get item by property $propertyId=".$data[$propertyId]);

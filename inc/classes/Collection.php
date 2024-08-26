@@ -80,6 +80,20 @@ class Collection
      *  Other methods
      */
 
+    /**
+     * Return the property that is used for main item name
+     * @return string Property name
+     */
+    public function getItemIdProperty()
+    {
+        foreach ($this->properties as $name => $property) {
+            if ($property['isId']) {
+                return $name;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * Return the property that is used for main item name
