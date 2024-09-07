@@ -1,5 +1,12 @@
 # Changelog for OnMyShelf API
 
+# 1.5.0 (2024-09-07)
+## New features
+- New route to get values from a property
+- New route to borrow item
+# Improvements
+- Simplify import routes
+
 # 1.4.0 (2024-08-23)
 # New features
 - New borrowers management system
