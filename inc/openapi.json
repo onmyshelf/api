@@ -1,0 +1,96 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "OnMyShelf API",
+        "version": "1.5.0"
+    },
+    "paths": {
+        "/api/v1/": {
+            "get": {
+                "operationId": "c6d08df4eef7d67fd32fd36edf132140",
+                "responses": {
+                    "200": {
+                        "description": "Home API route with some global informations"
+                    }
+                }
+            }
+        },
+        "/api/v1/borrowers": {
+            "get": {
+                "tags": [
+                    "Borrowers"
+                ],
+                "summary": "Get borrowers",
+                "operationId": "8dfafa734b74b320d90079f9c6b9def4",
+                "responses": {
+                    "200": {
+                        "description": "List of borrowers"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Borrowers"
+                ],
+                "summary": "Create a new borrower",
+                "description": "Creates a new borrower in the system",
+                "operationId": "1fd12f73a7dc29d90f19d587c1c24d15",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "firstname"
+                                ],
+                                "properties": {
+                                    "firstname": {
+                                        "type": "string",
+                                        "example": "John"
+                                    },
+                                    "lastname": {
+                                        "type": "string",
+                                        "example": "Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john.doe@example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Borrower created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Borrowers",
+            "description": "Borrowers management"
+        }
+    ]
+}

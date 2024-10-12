@@ -1,6 +1,12 @@
 <?php
 require_once('classes/Token.php');
 
+/**
+ * @OA\Info(
+ *     title="OnMyShelf API",
+ *     version="1.5.0"
+ * )
+ */
 class Api
 {
     private $headers;
@@ -340,6 +346,12 @@ class Api
      *  API ROUTE HANDLERS  *
      ************************/
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/",
+     *     @OA\Response(response=200, description="Home API route with some global informations")
+     * )
+     */
     private function routeHome()
     {
         $info = [
@@ -471,7 +483,44 @@ class Api
         ]);
     }
 
-
+    /**
+     * @OA\Tag(
+     *     name="Borrowers",
+     *     description="Borrowers management"
+     * )
+     * @OA\Get(
+     *     path="/api/v1/borrowers",
+     *     summary="Get borrowers",
+     *     tags={"Borrowers"},
+     *     @OA\Response(response=200, description="List of borrowers")
+     * )
+     * @OA\Post(
+     *     path="/api/v1/borrowers",
+     *     summary="Create a new borrower",
+     *     description="Creates a new borrower in the system",
+     *     tags={"Borrowers"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"firstname"},
+     *             @OA\Property(property="firstname", type="string", example="John"),
+     *             @OA\Property(property="lastname", type="string", example="Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="john.doe@example.com")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Borrower created successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="id", type="integer", example=1)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid input"
+     *     )
+     * )
+     */
     private function routeBorrowers()
     {
         // forbidden if not logged in
