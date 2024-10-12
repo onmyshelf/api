@@ -1,18 +1,21 @@
 # Changelog for OnMyShelf API
 
+# 1.5.1 (2024-10-12)
+- Add first draft for API developers documentation (using OpenAPI)
+
 # 1.5.0 (2024-09-07)
 ## New features
 - New route to get values from a property
 - New route to borrow item
-# Improvements
+## Improvements
 - Simplify import routes
 
 # 1.4.0 (2024-08-23)
-# New features
+## New features
 - New borrowers management system
 - Implement item search
 - New route to upgrade modules
-# Improvements
+## Improvements
 - Improve cleanup command
 - Renamed import route
 
