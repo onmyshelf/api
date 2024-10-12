@@ -4,6 +4,5 @@
 RewriteEngine On
 RewriteRule ^/?$ index.php [L]
 RewriteCond %{REQUEST_URI} !index.php
-RewriteCond %{REQUEST_URI} !check.php
 RewriteRule ^ index.php [L]
 </IfModule>
