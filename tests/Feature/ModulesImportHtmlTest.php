@@ -80,13 +80,6 @@ function testModuleImportHtmlData($module, $source, $match, $options=[], $label=
     })->with([[$module, $source, $match, $options, $label]]);
 }
 
-// search & run tests for internal modules
-//$modules = glob("./inc/import/*/tests/test.php");
-/*foreach ($modules as $module) {
-    include dirname($module)."/../import.php";
-    require_once $module;
-}
-*/
 // search & run tests for external modules
 $modules = glob("./inc/modules/import/test/tests/test.php");
 foreach ($modules as $module) {

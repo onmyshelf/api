@@ -18,29 +18,6 @@ require_once __DIR__ . "/../inc/storage/global/storage.php";
 require_once __DIR__ . "/../inc/storage/local.php";
 require_once __DIR__ . "/../inc/import/global/import.php";
 
-// search & run tests for external modules
-//$modules = glob(__DIR__ . "/../inc/import/*/import.php");
-/*foreach ($modules as $module) {
-    // import
-    //if (!str_contains('/global/import.php', $module)) {
-    //    error_log("import: $module");
-        require_once $module;
-    //}
-}
-
-/*
-// load module if exists
-if (file_exists("inc/modules/$type/$name/import.php")) {
-    try {
-        require_once("inc/modules/$type/$name/import.php");
-        return true;
-    } catch (Throwable $t) {
-        Logger::fatal("Error while loading $type module: $name");
-        return false;
-    }
-}
-*/
-
 // uses(Tests\TestCase::class)->in('Feature');
 
 /*
