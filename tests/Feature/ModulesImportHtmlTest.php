@@ -88,7 +88,7 @@ function testModuleImportHtmlData($module, $source, $match, $options=[], $label=
 }
 */
 // search & run tests for external modules
-$modules = glob("./inc/modules/import/bdgest/tests/test.php");
+$modules = glob("./inc/modules/import/test/tests/test.php");
 foreach ($modules as $module) {
     include dirname($module)."/../import.php";
     require_once $module;
