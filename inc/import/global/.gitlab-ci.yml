@@ -1,0 +1,12 @@
+stages:
+  - test
+
+test-job:
+  stage: test
+  image: onmyshelf/test
+  script:
+    - cd /var/www/html/api/v1
+    - git clone $CI_REPOSITORY_URL inc/modules/import/test
+    - curl -sS https://getcomposer.org/installer | php
+    - php composer.phar install
+    - ./vendor/bin/pest
