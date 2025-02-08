@@ -44,7 +44,7 @@ define('MEDIA_URL', '/media');
 
 
 /*
- *  Email configuration
+ *  Email configuration (optional)
  */
 
 // Email address from
