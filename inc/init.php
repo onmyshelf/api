@@ -1,5 +1,5 @@
 <?php
-define('VERSION', '1.5.1');
+define('VERSION', '1.5.2');
 
 // load config file
 if (!file_exists("config.php")) {
