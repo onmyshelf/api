@@ -1,6 +1,6 @@
 # Changelog for OnMyShelf API
 
-# 1.5.2 (2024-10-12)
+# 1.5.2 (2025-03-15)
 - Add unit tests
 
 # 1.5.1 (2024-10-12)

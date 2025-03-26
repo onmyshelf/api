@@ -6,8 +6,8 @@
     "license": "MIT",
     "require-dev": {
         "doctrine/annotations": "^2.0",
-        "zircote/swagger-php": "^5.0",
-        "pestphp/pest": "^2.36"
+        "zircote/swagger-php": "^5.0.7",
+        "pestphp/pest": "^3.7"
     },
     "config": {
         "allow-plugins": {
