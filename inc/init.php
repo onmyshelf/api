@@ -1,5 +1,4 @@
 <?php
-define('VERSION', '1.5.2');
 
 // load config file
 if (!file_exists("config.php")) {
@@ -10,7 +9,7 @@ require_once('config.php');
 
 // load utils
 require_once('logger.php');
-require_once('emails/mailer.php');
+require_once('mailer.php');
 require_once('notification.php');
 
 // check database type (security)

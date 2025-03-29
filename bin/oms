@@ -98,7 +98,7 @@ class Cmd
      */
     public static function upgrade()
     {
-        // get current version
+        // get current database version
         $currentVersion = Config::get('version');
 
         if (!$currentVersion) {
@@ -106,14 +106,15 @@ class Cmd
             exit(1);
         }
 
-        // run upgrade
-        if (!Config::compareVersions(VERSION, $currentVersion)) {
+        // compare to API version
+        require_once 'inc/api.php';
+        if (!Config::compareVersions(Api::getVersion(), $currentVersion)) {
             echo "OnMyShelf is already up-to-date\n\n";
             return;
         }
 
         // get new version without build number
-        $newVersion = preg_replace('/\+.*/', '', VERSION);
+        $newVersion = preg_replace('/\+.*/', '', Api::getVersion());
 
         echo "Upgrading from $currentVersion to $newVersion...\n";
 

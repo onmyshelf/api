@@ -362,7 +362,7 @@ class Api
 
         // more information if admin
         if (isset($GLOBALS['currentUsername']) && $GLOBALS['currentUsername'] == 'onmyshelf') {
-            $info['version'] = VERSION;
+            $info['version'] = Api::getVersion();
         }
 
         $this->response($info);
@@ -1540,6 +1540,20 @@ class Api
     /*********************
      *  OTHER FUNCTIONS  *
      *********************/
+
+    /**
+     * Get API current version
+     *
+     * @return string
+     */
+    public static function getVersion()
+    {
+        $json = file_get_contents('composer.json');
+        $data = json_decode($json);
+
+        return $data->version;
+    }
+
 
     /**
      * Set headers

@@ -158,7 +158,8 @@ abstract class GlobalDatabase
         }
         
         // first installation: set version
-        return (new Database)->setConfig('version', VERSION, true);
+        require_once 'inc/api.php';
+        return (new Database)->setConfig('version', Api::getVersion(), true);
     }
 
 

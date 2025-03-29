@@ -36,9 +36,9 @@ class Mailer
      */
     public static function send($dest, $subject, $message)
     {
-        require 'vendor/phpmailer/phpmailer/src/Exception.php';
-        require 'vendor/phpmailer/phpmailer/src/PHPMailer.php';
-        require 'vendor/phpmailer/phpmailer/src/SMTP.php';
+        require_once 'vendor/phpmailer/phpmailer/src/Exception.php';
+        require_once 'vendor/phpmailer/phpmailer/src/PHPMailer.php';
+        require_once 'vendor/phpmailer/phpmailer/src/SMTP.php';
 
         $mail = new PHPMailer(true);
         
