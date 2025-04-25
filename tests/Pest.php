@@ -17,6 +17,7 @@ require_once __DIR__ . "/../inc/logger.php";
 require_once __DIR__ . "/../inc/storage/global/storage.php";
 require_once __DIR__ . "/../inc/storage/local.php";
 require_once __DIR__ . "/../inc/import/global/import.php";
+require_once __DIR__ . "/../inc/api.php";
 
 // uses(Tests\TestCase::class)->in('Feature');
 

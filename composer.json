@@ -16,5 +16,11 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true
         }
+    },
+    "scripts": {
+        "test": [
+            "@composer install",
+            "./vendor/bin/pest"
+        ]
     }
 }
