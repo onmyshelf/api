@@ -7,6 +7,7 @@ test-job:
   script:
     - cd /var/www/html/api/v1
     - mkdir -p inc/modules/import
+    - ls -al /builds/onmyshelf/modules/import/ inc/modules/import/
     - mv /builds/onmyshelf/modules/import/* inc/modules/import/test
     - curl -sS https://getcomposer.org/installer | php
     - php composer.phar install
