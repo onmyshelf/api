@@ -6,9 +6,7 @@ test-job:
   image: onmyshelf/test
   script:
     - cd /var/www/html/api/v1
-    - echo $CI_PROJECT_DIR
-    - ls -al /builds/onmyshelf/modules/import/ inc/modules/import/
-    - mv /builds/onmyshelf/modules/import/* inc/modules/import/test
+    - mv "$CI_PROJECT_DIR" inc/modules/import/test
     - curl -sS https://getcomposer.org/installer | php
     - php composer.phar install
     - ./vendor/bin/pest
