@@ -30,6 +30,7 @@ class Api
         // routes definition (see methods below)
         $this->routes = [
             '/' => 'Home',
+            '/ai/test' => 'AiTest',
             '/borrowers' => 'Borrowers',
             '/borrowers/{id}' => 'BorrowersId',
             '/borrowers/{id}/loans' => 'BorrowersIdLoans',
@@ -482,6 +483,14 @@ class Api
             'disconnected' => Token::revoke($GLOBALS['currentToken'])
         ]);
     }
+
+
+    // TODO TEST
+    private function routeAiTest()
+    {
+        $this->response((new AI)->test('give me information about '));
+    }
+
 
     /**
      * @OA\Tag(

@@ -60,6 +60,27 @@ switch (STORAGE) {
         break;
 }
 
+// load main ai class
+require_once('inc/ai/global/ai.php');
+
+switch (AI) {
+    case 'openai':
+        // native AI modules
+        require_once("inc/ai/".AI.".php");
+        break;
+
+    default:
+        if (file_exists("inc/modules/ai/".AI."/ai.php")) {
+            try {
+                require_once("inc/modules/ai/".AI."/ai.php");
+            } catch (Throwable $t) {
+                Logger::fatal("error while loading AI module: ".AI);
+                exit(1);
+            }
+        }
+        break;
+}
+
 // load classes
 require_once('classes/Borrower.php');
 require_once('classes/Config.php');

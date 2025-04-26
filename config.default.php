@@ -44,6 +44,14 @@ define('MEDIA_URL', '/media');
 
 
 /*
+ *  AI
+ */
+
+// AI engine
+define('AI', 'openai');
+
+
+/*
  *  Email configuration (optional)
  */
 
