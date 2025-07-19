@@ -4,7 +4,7 @@ require_once('classes/Token.php');
 /**
  * @OA\Info(
  *     title="OnMyShelf API",
- *     version="1.5.2"
+ *     version="1.5.3"
  * )
  */
 class Api

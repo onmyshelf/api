@@ -1,7 +1,7 @@
 {
     "name": "onmyshelf/api",
     "description": "OnMyShelf API",
-    "version": "1.5.3-rc.2",
+    "version": "1.5.3",
     "type": "project",
     "license": "MIT",
     "require": {
@@ -9,7 +9,7 @@
     },
     "require-dev": {
         "doctrine/annotations": "^2.0",
-        "zircote/swagger-php": "^5.1.0",
+        "zircote/swagger-php": "^5.1.4",
         "pestphp/pest": "^3.8.2"
     },
     "config": {
