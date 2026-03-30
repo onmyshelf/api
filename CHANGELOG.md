@@ -1,5 +1,8 @@
 # Changelog for OnMyShelf API
 
+# 1.5.4 (2026-03-31)
+- Update libraries
+
 # 1.5.3 (2025-07-19)
 - Update libraries
 
